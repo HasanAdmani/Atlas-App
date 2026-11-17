@@ -1,0 +1,1672 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{color-scheme:light dark}body{margin:0;font:14px system-ui}</style></head><body>
+<title>Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Layout: slim left index rail + one wide working column. Display serif for numerals and titles only; data in mono. */
+:root{
+  --bg:#ECEEEA; --surface:#F7F8F5; --sunk:#E2E5E0; --ink:#18201D; --muted:#66716B; --line:#D3D8D1;
+  --accent:#2B3FA0; --accent-ink:#FFFFFF; --accent-soft:#DDE2F4;
+  --good:#2D7A58; --warn:#A9701A; --bad:#B03A3A; --good-soft:#D9EBE1; --warn-soft:#F2E6CF; --bad-soft:#F1DADA;
+  --f-display:'Instrument Serif',Georgia,'Times New Roman',serif;
+  --f-body:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101513; --surface:#18201D; --sunk:#0C100F; --ink:#E6ECE8; --muted:#8B9792; --line:#2A3430;
+  --accent:#95A5F6; --accent-ink:#101513; --accent-soft:#222A4D;
+  --good:#6CC49A; --warn:#E0B04F; --bad:#E88383; --good-soft:#1B3328; --warn-soft:#3A2F17; --bad-soft:#3B2020; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101513; --surface:#18201D; --sunk:#0C100F; --ink:#E6ECE8; --muted:#8B9792; --line:#2A3430;
+  --accent:#95A5F6; --accent-ink:#101513; --accent-soft:#222A4D;
+  --good:#6CC49A; --warn:#E0B04F; --bad:#E88383; --good-soft:#1B3328; --warn-soft:#3A2F17; --bad-soft:#3B2020; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--f-body);padding-block:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.gc{border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:12px;margin-bottom:12px}
+.gh{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.ir{display:grid;grid-template-columns:minmax(90px,1fr) 58px 58px 38px 128px 96px 30px;gap:6px;align-items:center;margin-bottom:6px}
+.ir input,.ir select{width:100%;padding:5px 6px}
+.ir.ih{font:500 10px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+@media (max-width:640px){.ir{grid-template-columns:repeat(4,minmax(0,1fr)) 30px}.ir>.nm,.ir.ih>span:first-child{grid-column:1/-1}.ir.ih{display:none}.ir>span.mono{display:none}}
+details>summary{cursor:pointer;font:600 12px/1 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details[open]>summary{margin-bottom:14px}
+details>summary::after{content:' +'}
+details[open]>summary::after{content:' −'}
+.shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px;max-width:1440px;margin:0 auto;padding-block:20px 80px}
+.side{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:8px;display:flex;flex-direction:column;gap:28px}
+.brand{font:400 30px/1 var(--f-display);letter-spacing:-.01em}
+.brand i{color:var(--accent)}
+.brand small{display:block;margin-top:6px;font:400 11px/1.3 var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;justify-content:space-between;align-items:baseline;text-decoration:none;color:var(--muted);padding:7px 10px;border-radius:6px;font-weight:500}
+.nav a span{font:400 11px var(--f-mono);opacity:.7}
+.nav a:hover{color:var(--ink);background:var(--sunk)}
+.nav a[aria-current="page"]{color:var(--ink);background:var(--surface);box-shadow:inset 2px 0 0 var(--accent)}
+.sidefoot{font:400 11px/1.5 var(--f-mono);color:var(--muted)}
+.sidefoot button{margin-top:6px}
+.main{min-width:0}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px}
+h1{font:400 clamp(34px,5vw,52px)/1.02 var(--f-display);letter-spacing:-.015em;margin:0;text-wrap:balance}
+h2{font:600 12px/1 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h3{font:600 15px/1.3 var(--f-body);margin:0}
+.sub{color:var(--muted);margin:8px 0 0;max-width:62ch}
+.sec{margin-top:36px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+.flat{border-top:1px solid var(--line);padding-top:18px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.num{font:400 clamp(44px,7vw,76px)/.95 var(--f-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.lbl{font:500 11px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.btn{border:1px solid var(--line);background:var(--surface);padding:7px 13px;border-radius:7px;cursor:pointer;font-weight:500;font-size:14px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted);padding:5px 8px}
+.btn.ghost:hover{color:var(--ink);background:var(--sunk)}
+.btn.danger{color:var(--bad)}
+.btn:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 9px;min-width:0;max-width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
+textarea{width:100%;resize:vertical;line-height:1.45}
+label.f{display:flex;flex-direction:column;gap:4px}
+label.f>span{font:500 11px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:12px}
+.pill{display:inline-flex;align-items:center;gap:5px;font:500 11px/1 var(--f-mono);padding:4px 8px;border-radius:99px;background:var(--sunk);color:var(--muted);white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.acc{background:var(--accent-soft);color:var(--accent)}
+.bar{height:6px;background:var(--sunk);border-radius:9px;overflow:hidden;display:flex}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.bar>i.d{background:var(--good)}
+.bar>i.p{background:var(--accent-soft)}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+.t th{font:500 11px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+.t td{padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.t td.r,.t th.r{text-align:right}
+.t input{width:100%}
+.t input.w{width:70px;text-align:right}
+.scroll{overflow-x:auto}
+.list{display:flex;flex-direction:column}
+.li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.li:last-child{border-bottom:0}
+.li.click{cursor:pointer}
+.li.click:hover h3{color:var(--accent)}
+.code{font:500 12px var(--f-mono);color:var(--muted);letter-spacing:.04em}
+.banner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--warn-soft);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:22px;font-size:14px}
+.empty{padding:28px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:10px}
+.ring{--p:0;width:112px;height:112px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--sunk) 0);display:grid;place-items:center;flex:none}
+.ring>div{width:86px;height:86px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font:400 28px var(--f-display)}
+/* four-year grid */
+.termwrap{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;align-items:flex-start}
+.term{flex:0 0 218px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:150px}
+.term.over{border-color:var(--accent);background:var(--accent-soft)}
+.term header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.term header b{font:400 19px var(--f-display)}
+.cc{background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:8px 9px;margin-bottom:7px;cursor:grab;position:relative}
+.cc.done{border-left:3px solid var(--good)}
+.cc.current{border-left:3px solid var(--accent)}
+.cc.planned{border-left:3px dashed var(--muted)}
+.cc .t1{display:flex;justify-content:space-between;gap:6px}
+.cc .t2{font-size:13px;line-height:1.3;margin-top:2px}
+.cc.warn{outline:1px solid var(--warn)}
+.cc.sel{outline:2px solid var(--accent)}
+/* roadmap */
+.map{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.map svg{display:block}
+.map .nd{cursor:pointer}
+.map .nd rect{fill:var(--bg);stroke:var(--line);stroke-width:1.2}
+.map .nd.done rect{fill:var(--good-soft);stroke:var(--good)}
+.map .nd.current rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+.map .nd.planned rect{stroke:var(--muted);stroke-dasharray:4 3}
+.map .nd.open rect{stroke:var(--accent);stroke-dasharray:2 3}
+.map .nd.dim{opacity:.22}
+.map .nd text{fill:var(--ink)}
+.map .nd .c{font:500 11px var(--f-mono);fill:var(--muted)}
+.map .nd .n{font:500 12px var(--f-body)}
+.map path.ed{fill:none;stroke:var(--muted);stroke-width:1.2;opacity:.55}
+.map path.ed.hi{stroke:var(--accent);opacity:1;stroke-width:2}
+.map path.ed.dim{opacity:.08}
+.map .colh{font:500 10px var(--f-mono);fill:var(--muted);letter-spacing:.08em}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font:400 12px var(--f-mono);color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1.5px solid var(--muted)}
+/* drawer */
+.veil{position:fixed;inset:0;background:rgba(10,14,12,.45);z-index:20;display:flex;justify-content:flex-end}
+.drawer{width:min(620px,100%);height:100%;overflow-y:auto;background:var(--bg);border-left:1px solid var(--line);padding:22px max(18px,env(safe-area-inset-right,0px)) calc(40px + env(safe-area-inset-bottom,0px)) 22px;padding-top:calc(22px + env(safe-area-inset-top,0px))}
+.drawer h1{font-size:34px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs a{padding:8px 12px;text-decoration:none;color:var(--muted);font-weight:500;white-space:nowrap;border-bottom:2px solid transparent}
+.tabs a[aria-current="page"]{color:var(--ink);border-color:var(--accent)}
+.spark{display:block;width:100%;height:auto}
+.gl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 12px;align-items:center}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);font-size:14px}
+.kv:last-child{border:0}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:14px;z-index:40}
+.pre{white-space:pre-wrap;font:400 13px/1.5 var(--f-mono);background:var(--sunk);border-radius:8px;padding:12px;max-height:260px;overflow:auto}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:18px;padding-block:14px 80px}
+  .side{position:static;gap:12px}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+  .nav a{white-space:nowrap;padding:7px 11px}
+  .nav a span{display:none}
+  .nav a[aria-current="page"]{box-shadow:inset 0 -2px 0 var(--accent)}
+  .sidefoot{display:none}
+}
+@media (prefers-reduced-motion:no-preference){.veil{animation:fi .15s ease}.drawer{animation:sl .2s ease}@keyframes fi{from{opacity:0}}@keyframes sl{from{transform:translateX(24px);opacity:.6}}}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;align-items:start}
+.cols .sec{margin-top:0!important}
+.wk{display:grid;gap:0;font-size:12px}.wkh{text-align:center;padding:4px 0;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px}
+.wkt{position:absolute;right:6px;transform:translateY(-6px);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px}
+.wkc{position:relative;border-left:1px solid var(--line)}.wkc i{position:absolute;left:0;right:0;border-top:1px solid var(--line);opacity:.6}
+.wkb{position:absolute;left:2px;right:2px;background:color-mix(in srgb,var(--accent) 22%,transparent);border:1px solid var(--accent);border-radius:5px;padding:2px 5px;overflow:hidden;line-height:1.25}
+.wkb.bad{background:color-mix(in srgb,var(--bad) 25%,transparent);border-color:var(--bad)}.wkb span{color:var(--muted)}
+</style>
+<div id="app"></div>
+<script>
+(function(){
+'use strict';
+const $=(s,r)=>(r||document).querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const pad=n=>String(n).padStart(2,'0');
+const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const todayStr=()=>dstr(new Date());
+const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return dstr(d)};
+const daysUntil=s=>Math.round((new Date(s+'T00:00:00')-new Date(todayStr()+'T00:00:00'))/864e5);
+const fmt=(n,d)=>(n==null||isNaN(n))?'–':Number(n).toFixed(d==null?2:d);
+const NC=c=>String(c||'').toUpperCase().replace(/[\s\-_.]+/g,'');
+const num=v=>{const n=parseFloat(v);return isNaN(n)?null:n};
+
+const DEF_SCALE=[['A',4,93],['A-',3.67,90],['B+',3.33,87],['B',3,83],['B-',2.67,80],['C+',2.33,77],['C',2,73],['C-',1.67,70],['D+',1.33,67],['D',1,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
+const ATYPES=['Quiz','Assignment','Lab','Project','Midterm','Final','Participation','Other'];
+
+function blank(){return{v:4,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30},{k:'major',n:'Major',req:60},{k:'gened',n:'General education',req:15},{k:'free',n:'Free electives',req:15}]},terms:[],courses:[],minors:[]}}
+
+/* Starting plan: EE Class of 2029 dossier grid, edited for the retake and moved courses. Scores come from Canvas. */
+const HABIB_SCALE=[['A+',4,95],['A',4,90],['A-',3.67,85],['B+',3.33,80],['B',3,75],['B-',2.67,70],['C+',2.33,67],['C',2,63],['C-',1.67,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
+function seed(){
+  const s=blank();
+  Object.assign(s.settings,{name:'Muhammad Hasan Admani',program:'B.S. Electrical Engineering, Class of 2029',school:'Habib University',unit:'DSSE',totalCredits:134,maxLoad:20,targetGpa:3.3,scale:HABIB_SCALE.map(x=>Object.assign({},x)),
+    cats:[{k:'core',n:'Habib Liberal Core',req:32},{k:'math',n:'Math and computing',req:27},{k:'ee',n:'Electrical engineering core',req:45},{k:'design',n:'Design and professional',req:12},{k:'elec',n:'Electives',req:18}]});
+  const nm=['Fall 2025','Spring 2026','Fall 2026','Spring 2027','Fall 2027','Spring 2028','Fall 2028','Spring 2029'];
+  s.terms=nm.map((n,i)=>({id:'t'+(i+1),name:n,status:i<2?'done':i==2?'current':'planned',cr:i===0}));
+  /* item: name, score, out of, due, status, late */
+  const I=(n,sc,m,due,st,late)=>({id:uid(),n,s:sc==null?null:sc,m:m==null?100:m,due:due||'',st:st||'',late:!!late});
+  const G=(n,type,w,cnt,drop,items)=>({id:uid(),n,type,w,cnt:cnt||(items||[]).length||1,drop:drop||0,items:items||[]});
+  const pend=(pre,a,b,m)=>{const o=[];for(let i=a;i<=b;i++)o.push(I(pre+' '+i,null,m));return o};
+  const ids={};
+  const c=(t,code,title,cr,cat,pre,as,extra)=>{const o=Object.assign({id:uid(),code,title,credits:cr,term:'t'+t,cat,prereqs:pre||[],coreqs:[],grade:t===1?'CR':null,assess:as||[],notes:'',instructor:''},extra||{});s.courses.push(o);ids[code+(extra&&extra.retakeOf?'r':'')]=o.id;return o};
+  /* Fall 2025: credit / no credit, so every course shows CR */
+  c(1,'CORE 101','Rhetoric and Communication',4,'core');
+  c(1,'CS 101','Algorithmic Problem Solving',3,'math');
+  c(1,'CS 101L','Algorithmic Problem Solving Lab',1,'math',[],[],{coreqs:['CS 101']});
+  c(1,'PLAY 113','Design Your Habib Experience',1,'design');
+  c(1,'MATH 101','Calculus I',3,'math');
+  c(1,'EE 100','Introduction to Electrical and Computer Engineering',2,'ee',[],[],{coreqs:['CS 101']});
+  c(1,'EE 112','Electric Circuits I',2,'ee',[],[],{coreqs:['EE 100']});
+  /* Spring 2026 (enter final grades) */
+  c(2,'CORE 102','What is Modernity?',4,'core');
+  c(2,'ENGR 291','Engineering Workshop and Design',1,'design');
+  c(2,'EE 213','Electric Circuits II',3,'ee',['EE 112']);
+  c(2,'MATH 102','Calculus II',3,'math',['MATH 101']);
+  c(2,'EE 172','Digital Logic and Design',3,'ee');
+  c(2,'EE 172L','Digital Logic and Design Lab',1,'ee',[],[],{coreqs:['EE 172']});
+  c(2,'CS 102','Data Structures and Algorithms',3,'math',['CS 101']);
+  c(2,'CS 102L','Data Structures and Algorithms Lab',1,'math',[],[],{coreqs:['CS 102']});
+  /* Fall 2026, this term */
+  c(3,'ENVS SDP 251','Water: Science, Society, and Policy',3,'core',[],[
+    G('Water footprint journal','Assignment',15,1,0,[I('Water footprint journal',12.75,15,'2026-10-02','',true)]),
+    G('Assignment','Assignment',10,1,0,[I('Word problem assignment',null,10,'2026-11-15')]),
+    G('Discussion groups','Assignment',20,2,0,[I('Global water perspective (DG1)',9.5,10,'2026-10-15'),I('Current water issues (DG2)',null,10,'2026-11-17')]),
+    G('Quizzes','Quiz',20,4,0,[I('Quiz 1',2.75,5,'2026-09-10'),I('Quiz 2',4,5,'2026-10-08'),I('Quiz 3',null,5,'2026-11-10'),I('Quiz 4',null,5,'2026-11-26')]),
+    G('Lab day','Lab',5,1,0,[I('Lab day results',3,5,'2026-09-21')]),
+    G('Research project','Project',30,3,0,[I('Proposal',null,null),I('Mid semester presentation',4,5,'2026-10-22'),I('Final presentation and report',null,null)])
+  ],{instructor:'Hadiqa Maqsood',notes:'Counts as the Natural Science elective in the Habib Liberal Core. No final exam. Late work loses 20% per day.'});
+  c(3,'EE 252','Signals and Systems',3,'ee',['MATH 102'],[
+    G('Quizzes','Quiz',20,4,0,[I('Quiz 1',27,100,'2026-09-24'),I('Quiz 2',80,100,'2026-10-05'),I('Quiz 3',null,100),I('Quiz 4',null,100)]),
+    G('Assignments','Assignment',10,2,0,[I('Homework 1',null,100,'2026-09-16'),I('Homework 2',null,100,'2026-10-27')]),
+    G('Midterm','Midterm',25,1,0,[I('Midterm',null,100)]),
+    G('Course project','Project',15,1,0,[I('Course project',null,100)]),
+    G('Final exam','Final',30,1,0,[I('Final exam',null,100)])
+  ],{instructor:'Syed Arsalan Jawed',notes:'Late work loses 4% per day, and nothing is accepted after five days.'});
+  c(3,'EE 252L','Signals and Systems Lab',1,'ee',['MATH 102'],[
+    G('Labs','Lab',60,12,0,[I('Lab 1',95,100,'2026-09-02'),I('Lab 2',null,100,'2026-09-09','submitted'),I('Lab 3',84,100,'2026-09-16','',true),I('Lab 4',0,100,'2026-09-23'),I('Lab 5',62,80,'2026-09-30','',true),I('Lab 6',null,100,'2026-10-07','submitted',true),I('Lab 7',67,70,'2026-10-14','',true),I('Lab 8',75,80,'2026-10-21','',true),I('Lab 9',80,80,'2026-10-22'),I('Lab 10 part 1',null,100,'2026-11-05','submitted'),I('Lab 10 complete',null,120,'2026-11-12'),I('Lab 11',null,100)]),
+    G('Lab exams','Final',40,2,0,[I('Mid-lab exam',null,50,'2026-10-29','submitted'),I('Final lab exam',null,100)])
+  ],{instructor:'Zareen Tabassum',notes:'Labs 1 to 12 count 5% each. The lab exam is in week 14.'});
+  c(3,'EE 371','Computer Architecture',3,'ee',['EE 172'],[
+    G('Assignments','Assignment',20,4,0,[I('Assignment 1',5,5,'2026-09-07'),I('Assignment 2',4.88,5,'2026-09-28'),I('Assignment 3',null,5),I('Assignment 4',null,5)]),
+    G('Quizzes','Quiz',20,4,0,[I('Quiz 1',2.75,5,'2026-09-07'),I('Quiz 2',null,5),I('Quiz 3',null,5),I('Quiz 4',null,5)]),
+    G('Course project','Project',10,1,0,[I('Course project',null,100)]),
+    G('Midterm','Midterm',25,1,0,[I('Midterm',17.25,25,'2026-10-16')]),
+    G('Final exam','Final',25,1,0,[I('Final exam',null,100)])
+  ],{instructor:'Sarah Faisal, Husain Parvez',notes:'Late work loses 20% per day.'});
+  c(3,'EE 371L','Computer Architecture Lab',1,'ee',['EE 172'],[
+    G('Lab experiments','Lab',60,10,0,[I('Lab 1',83,100,'2026-08-27'),I('Lab 2',87,100,'2026-09-03'),I('Lab 3',100,100,'2026-09-10'),I('Lab 4',0,100,'2026-09-17'),I('Lab 5',89,100,'2026-09-24'),I('Lab 6',100,100,'2026-10-01'),I('Lab 7',70,100,'2026-10-08'),I('Lab 8',null,100,'2026-10-20','submitted'),I('Lab 9',null,100,'2026-10-23','submitted'),I('Lab 10',null,100,'2026-10-30','submitted')]),
+    G('Open ended lab','Lab',10,1,0,[I('Open ended lab',null,100,'2026-11-12')]),
+    G('Project','Project',30,1,0,[I('Project',null,100,'2026-11-26')])
+  ],{instructor:'Hadia Mahmood',notes:'Late work loses 5% per day. The project is in groups of 3.'});
+  c(3,'MATH 202','Engineering Mathematics',3,'math',['MATH 102'],[
+    G('Homework','Assignment',15,5,0,[I('Homework 1',14,20,'2026-09-30'),I('Homework 2',20,20,'2026-10-20'),I('Homework 3',null,20),I('Homework 4',null,20),I('Homework 5',null,20)]),
+    G('Quizzes','Quiz',20,10,2,[I('Quiz 1',7,10,'2026-09-11'),I('Quiz 2',9,10,'2026-09-18'),I('Quiz 3',null,10,'2026-10-02','missing')]),
+    G('Class participation','Participation',5,1,0,[I('Class participation',null,100)]),
+    G('Project','Project',5,1,0,[I('Project',null,100)]),
+    G('Tests','Midterm',30,2,0,[I('Test 1',13,30,'2026-10-10'),I('Test 2',null,30)]),
+    G('Final exam','Final',25,1,0,[I('Final exam',null,100)])
+  ],{instructor:'Rameez Ragheb',notes:'The best 8 quizzes count (n-2). Late work loses 10% per day.'});
+  /* Spring 2027: Circuits II retake, so Linear Algebra moves to Spring 2028 */
+  c(4,'CORE 1XX','Economics: Foundations of Economic Systems',3,'core');
+  c(4,'EE 354','Introduction to Probability and Statistics',3,'math',['MATH 102']);
+  c(4,'EE 361','Principles of Feedback Control',3,'ee',['EE 252']);
+  c(4,'EE 361L','Principles of Feedback Control Lab',1,'ee',[],[],{coreqs:['EE 361']});
+  c(4,'EE 376','Microcontrollers and Interfacing',1,'ee',['EE 172']);
+  c(4,'EE 376L','Microcontrollers and Interfacing Lab',1,'ee',[],[],{coreqs:['EE 376']});
+  c(4,'EE 211','Basic Electronics',3,'ee',['EE 112']);
+  c(4,'EE 211L','Basic Electronics Lab',1,'ee',[],[],{coreqs:['EE 211']});
+  c(4,'EE 213','Electric Circuits II',3,'ee',['EE 112'],[],{retakeOf:ids['EE 213']});
+  c(4,'EE 213L','Electric Circuits Lab',1,'ee',[],[],{coreqs:['EE 100','EE 213']});
+  /* Fall 2027 */
+  c(5,'CORE 201','PAMSA',4,'core');
+  c(5,'CORE 2XX','Polities: Forms of Government',3,'core');
+  c(5,'EE 241','Electromagnetic Theory',3,'ee',['MATH 202']);
+  c(5,'EE 322','Analog and Digital Communication',3,'ee',['EE 252']);
+  c(5,'EE 322L','Analog and Digital Communication Lab',1,'ee',[],[],{coreqs:['EE 322']});
+  c(5,'EE 391L','Engineering Design and Innovation Lab',2,'design',['CS 101']);
+  c(5,'ENGR 302','Systems Engineering and Project Management',2,'design');
+  /* Spring 2028 */
+  c(6,'CORE 202','Hikma',4,'core');
+  c(6,'EE 331','Electrical Machines',3,'ee',['EE 213','EE 213L','EE 241']);
+  c(6,'EE 331L','Electrical Machines Lab',1,'ee',[],[],{coreqs:['EE 331']});
+  c(6,'EE 335','Power Generation, Transmission and Distribution',3,'ee',['EE 213','EE 213L','EE 211']);
+  c(6,'EE 335L','Power Generation Lab',1,'ee',[],[],{coreqs:['EE 335']});
+  c(6,'MATH 205','Linear Algebra',3,'math',['MATH 102']);
+  c(6,'EE 490','Project Design',2,'design',['ENGR 291','EE 376','EE 391L']);
+  c(6,'EE Elective 1','EE elective',3,'elec');
+  /* Fall 2028 */
+  c(7,'CORE 2XX D','Design Course',3,'core');
+  c(7,'CS 224','Object-Oriented Programming and Design Methodologies',3,'math',['CS 102']);
+  c(7,'CS 224L','Object-Oriented Programming Lab',1,'math',[],[],{coreqs:['CS 224']});
+  c(7,'EE 491','Capstone Design Project I',2,'design',['EE 490']);
+  c(7,'EE Elective 2','EE elective',3,'elec');
+  c(7,'EE Elective 3','EE elective',3,'elec');
+  /* Spring 2029 */
+  c(8,'CORE 121','Jehan-e-Urdu',4,'core');
+  c(8,'EE 492','Capstone Design Project II',2,'design',['EE 491']);
+  c(8,'EE Elective 4','EE elective',3,'elec');
+  c(8,'IDEE','Interdisciplinary engineering elective',3,'elec');
+  c(8,'Free Elective','Free elective',3,'elec');
+  return s;
+}
+
+let S=blank();
+const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:''};
+let persist=function(){};
+function mut(fn){fn();persist();render()}
+
+/* ---------- calculations ---------- */
+const termOf=id=>S.terms.find(t=>t.id===id);
+const termIdx=id=>S.terms.findIndex(t=>t.id===id);
+const byCode=()=>{const m={};S.courses.slice().sort((a,b)=>termIdx(a.term)-termIdx(b.term)).forEach(c=>m[NC(c.code)]=c);return m};
+/* a retaken course: the old attempt stops counting toward credits, and (if the setting is on) toward GPA once the retake has a grade */
+const counts=c=>!S.courses.some(o=>o.retakeOf===c.id);
+const replaced=c=>S.settings.retakeReplaces!==false&&S.courses.some(o=>o.retakeOf===c.id&&o.grade&&o.grade!=='W');
+const getC=id=>S.courses.find(c=>c.id===id);
+function status(c){const t=termOf(c.term);return t?t.status:'catalog'}
+const pointsOf=l=>{const e=S.settings.scale.find(x=>x.l===l);return e?e.p:null};
+function letterFor(pct){const sc=S.settings.scale.slice().sort((a,b)=>b.min-a.min);for(const e of sc)if(pct>=e.min)return e.l;return sc.length?sc[sc.length-1].l:null}
+const ipct=it=>(it.s!=null&&it.s!==''&&+it.m>0&&it.st!=='excused')?(+it.s)/(+it.m)*100:null;
+/* one grading group, like "Quizzes 20%, best 8 of 10". Ungraded items are left out, and the lowest ones are dropped once there are more than count minus drop. */
+function gstat(g){
+  const items=g.items||[],n=Math.max(+g.cnt||0,items.length,1),k=Math.max(1,n-(+g.drop||0));
+  const ps=items.map(ipct).filter(p=>p!=null).sort((a,b)=>b-a),used=ps.slice(0,k),portion=used.length/k;
+  const mean=used.length?used.reduce((a,b)=>a+b,0)/used.length:null,w=+g.w||0;
+  return{n,k,graded:ps.length,used:used.length,mean,portion,gw:w*portion,ew:mean==null?0:w*portion*mean/100};
+}
+function standing(c){
+  const as=c.assess||[],gs=as.map(gstat);
+  const W=as.reduce((a,g)=>a+(+g.w||0),0),gw=gs.reduce((a,x)=>a+x.gw,0),earned=gs.reduce((a,x)=>a+x.ew,0);
+  const pct=gw>0?earned/gw*100:null;
+  return{W,gw,earned,pct,rem:W-gw,letter:pct==null?null:letterFor(pct),floor:W>0?earned/W*100:null,ceil:W>0?(earned+(W-gw))/W*100:null};
+}
+function needed(c,target){const st=standing(c);if(st.W<=0||st.rem<=0)return null;return (target/100*st.W-st.earned)/st.rem*100}
+function effLetter(c){if(c.grade)return c.grade;const st=standing(c);return st.letter}
+function gpaOf(list,useRunning,over){
+  let pts=0,cr=0;
+  list.forEach(c=>{
+    if(replaced(c)||(over&&S.settings.retakeReplaces!==false&&S.courses.some(o=>o.retakeOf===c.id&&over[o.id])))return;
+    let l=over&&over[c.id]?over[c.id]:(c.grade||(useRunning?standing(c).letter:null));
+    if(!l||l==='W')return;const p=pointsOf(l);if(p==null)return;pts+=p*c.credits;cr+=c.credits;
+  });
+  return{gpa:cr?pts/cr:null,pts,cr};
+}
+const doneCourses=()=>S.courses.filter(c=>status(c)==='done');
+const curCourses=()=>S.courses.filter(c=>status(c)==='current');
+const planCourses=()=>S.courses.filter(c=>status(c)==='planned');
+function cumulative(){return gpaOf(doneCourses(),false)}
+const passed=c=>!c.grade||c.grade==='CR'||(c.grade!=='W'&&c.grade!=='NC'&&(pointsOf(c.grade)||0)>0);
+function earnedCredits(){return doneCourses().filter(counts).filter(passed).reduce((a,c)=>a+c.credits,0)}
+function termGpa(t){return gpaOf(S.courses.filter(c=>c.term===t.id),t.status==='current')}
+function trend(){
+  const out=[];let pts=0,cr=0;
+  S.terms.forEach(t=>{
+    if(t.status==='planned')return;
+    const cs=S.courses.filter(c=>c.term===t.id);
+    const g=gpaOf(cs,t.status==='current');
+    pts+=g.pts;cr+=g.cr;
+    if(g.cr)out.push({name:t.name,term:g.gpa,cum:pts/cr,cur:t.status==='current'});
+  });
+  return out;
+}
+function prereqIssues(c){
+  const m=byCode(),out=[],ti=c.term?termIdx(c.term):-1;
+  (c.prereqs||[]).forEach(code=>{
+    const p=m[NC(code)];
+    if(!p){out.push({code,kind:'missing'});return}
+    if(!c.term)return;
+    const pi=p.term?termIdx(p.term):-1;
+    if(!p.term)out.push({code:p.code,kind:'unscheduled'});
+    else if(pi>=ti)out.push({code:p.code,kind:pi===ti?'same':'after'});
+  });
+  (c.coreqs||[]).forEach(code=>{const p=m[NC(code)];if(!p){out.push({code,kind:'missing'});return}if(!c.term)return;const pi=p.term?termIdx(p.term):-1;if(!p.term)out.push({code:p.code,kind:'unscheduled'});else if(pi>ti)out.push({code:p.code,kind:'after'})});
+  return out;
+}
+function depth(c,m,seen){
+  seen=seen||{};if(seen[c.id])return 0;seen[c.id]=1;
+  let d=0;(c.prereqs||[]).forEach(code=>{const p=m[NC(code)];if(p)d=Math.max(d,1+depth(p,m,Object.assign({},seen)))});
+  return d;
+}
+function nodeState(c,m){
+  const st=status(c);
+  if(st==='done')return'done';if(st==='current')return'current';if(st==='planned')return'planned';
+  const ok=(c.prereqs||[]).every(code=>{const p=m[NC(code)];return !p||status(p)==='done'||status(p)==='current'});
+  return ok?'open':'locked';
+}
+function catProgress(){
+  return S.settings.cats.map(k=>{
+    const cs=S.courses.filter(c=>c.cat===k.k&&counts(c));
+    const e=cs.filter(c=>status(c)==='done'&&passed(c)).reduce((a,c)=>a+c.credits,0);
+    const cu=cs.filter(c=>status(c)==='current').reduce((a,c)=>a+c.credits,0);
+    const pl=cs.filter(c=>status(c)==='planned').reduce((a,c)=>a+c.credits,0);
+    return{k,e,cu,pl,left:Math.max(0,k.req-e-cu-pl),over:Math.max(0,e+cu+pl-k.req)};
+  });
+}
+function deadlines(){
+  const out=[];
+  curCourses().forEach(c=>(c.assess||[]).forEach(g=>{
+    const k=Math.max(1,Math.max(+g.cnt||0,(g.items||[]).length,1)-(+g.drop||0));
+    (g.items||[]).forEach(it=>{if(it.due&&(it.s==null||it.s==='')&&!it.st){const d=daysUntil(it.due.slice(0,10));if(d>=0)out.push({c,a:{n:it.n,w:(+g.w||0)/k,due:it.due.slice(0,10)},d})}});
+  }));
+  return out.sort((x,y)=>x.d-y.d);
+}
+function termCredits(id){return S.courses.filter(c=>c.term===id).reduce((a,c)=>a+c.credits,0)}
+
+/* ---------- shared view bits ---------- */
+const lpill=l=>{if(!l)return'<span class="pill">–</span>';const p=pointsOf(l);const cl=p==null?'':p>=3.3?'good':p>=2.3?'acc':p>=1?'warn':'bad';return`<span class="pill ${cl}">${esc(l)}</span>`};
+const stPill=c=>{const s=status(c);return s==='done'?'<span class="pill good">done</span>':s==='current'?'<span class="pill acc">in progress</span>':s==='planned'?'<span class="pill">planned</span>':'<span class="pill">not scheduled</span>'};
+const catName=k=>{const x=S.settings.cats.find(c=>c.k===k);return x?x.n:k||'Uncategorised'};
+let INNER=false;
+const head=(t,sub,right)=>INNER?`<div class="row between" style="margin-bottom:16px;align-items:flex-start">${sub?`<p class="sub" style="margin:0">${sub}</p>`:'<span></span>'}${right?`<div class="row">${right}</div>`:''}</div>`:`<div class="head"><div><h1>${t}</h1>${sub?`<p class="sub">${sub}</p>`:''}</div>${right?`<div class="row">${right}</div>`:''}</div>`;
+
+function spark(tr){
+  if(tr.length<1)return'<div class="empty">The GPA curve appears once a term has graded courses.</div>';
+  const W=600,H=170,L=34,R=18,T=14,B=26,max=Math.max.apply(null,S.settings.scale.map(x=>x.p))||4;
+  const x=i=>tr.length===1?(L+W-R)/2:L+(W-L-R)*i/(tr.length-1),y=v=>T+(H-T-B)*(1-v/max);
+  let g='';for(let v=0;v<=max+0.01;v+=1)g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)" stroke-width="1"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" style="fill:var(--muted);font:11px var(--f-mono)">${v}</text>`;
+  const line=k=>tr.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p[k]).toFixed(1)).join(' ');
+  const area=line('cum')+` L${x(tr.length-1)} ${y(0)} L${x(0)} ${y(0)} Z`;
+  let dots='';tr.forEach((p,i)=>{dots+=`<circle cx="${x(i)}" cy="${y(p.term)}" r="3" style="fill:var(--surface);stroke:var(--muted)" stroke-width="1.5"/>`;dots+=`<circle cx="${x(i)}" cy="${y(p.cum)}" r="${i===tr.length-1?5:3}" style="fill:var(--accent)"/>`;
+    dots+=`<text x="${x(i)}" y="${H-8}" text-anchor="${i===0&&tr.length>1?'start':i===tr.length-1&&tr.length>1?'end':'middle'}" style="fill:var(--muted);font:10px var(--f-mono)">${esc(p.name)}</text>`});
+  const last=tr[tr.length-1];
+  return`<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="GPA by term">${g}<path d="${area}" style="fill:var(--accent);opacity:.09"/><path d="${line('term')}" fill="none" style="stroke:var(--muted)" stroke-width="1.4" stroke-dasharray="3 3"/><path d="${line('cum')}" fill="none" style="stroke:var(--accent)" stroke-width="2.2"/>${dots}<text x="${Math.min(x(tr.length-1),W-R)}" y="${y(last.cum)-11}" text-anchor="end" style="fill:var(--accent);font:500 12px var(--f-mono)">${fmt(last.cum)}</text></svg>
+  <div class="legend" style="margin-top:6px"><span><i style="background:var(--accent);border-color:var(--accent)"></i>Cumulative</span><span><i style="border-radius:99px"></i>Term</span></div>`;
+}
+
+function attention(){
+  const out=[],m=byCode();
+  let conf=0;S.courses.forEach(c=>{if(c.term&&prereqIssues(c).some(i=>i.kind!=='missing'))conf++});
+  if(conf)out.push({t:'warn',x:`${conf} course${conf>1?'s are':' is'} scheduled before a prerequisite is finished`,to:'grid'});
+  S.terms.forEach(t=>{const cr=loadOf(t.id);if(t.status!=='done'&&cr>S.settings.maxLoad)out.push({t:'warn',x:`${t.name} carries ${cr} credits, above your ${S.settings.maxLoad} credit limit`,to:'grid'})});
+  const tg=S.settings.targetGpa;
+  curCourses().forEach(c=>{const st=standing(c);if(st.pct!=null){const p=pointsOf(st.letter);if(p!=null&&p<tg-0.7)out.push({t:'bad',x:`${esc(c.code)} is at ${fmt(st.pct,1)}% (${esc(st.letter)}), well under your target`,course:c.id});}
+    if(st.W&&Math.abs(st.W-100)>0.01)out.push({t:'warn',x:`${esc(c.code)} assessment weights add up to ${fmt(st.W,0)}%, not 100%`,course:c.id});
+    if(!c.assess.length)out.push({t:'',x:`${esc(c.code)} has no assessments yet. Add them from its syllabus.`,course:c.id});});
+  const placed=S.courses.filter(c=>termOf(c.term)&&counts(c)).reduce((a,c)=>a+c.credits,0),un=S.settings.totalCredits-placed;
+  if(S.terms.length&&un>0)out.push({t:'',x:`${un} credits of your ${S.settings.totalCredits} are not in any term yet`,to:'req'});
+  else if(S.terms.length&&un<0)out.push({t:'',x:`Your plan holds ${-un} credits beyond the ${S.settings.totalCredits} your degree needs, which is normal with a minor`,to:'req'});
+  const ung=doneCourses().filter(c=>!c.grade&&counts(c)).length;
+  if(ung)out.unshift({t:'',x:`${ung} finished courses have no final grade yet. Add them to see your GPA.`,to:'courses'});
+  return out;
+}
+
+function setupPanel(){
+  const y=new Date().getFullYear();
+  return`<div class="card" style="max-width:640px"><h2>Set up your degree</h2><p class="sub" style="margin:0 0 16px">Tell Atlas how long your degree runs and where you are in it. Everything else (courses, grading breakdowns, prerequisites) comes from your syllabi and catalog.</p>
+  <div class="fgrid"><label class="f"><span>Programme</span><input id="su-prog" placeholder="B.S. Electrical Engineering"></label>
+  <label class="f"><span>University</span><input id="su-school" placeholder="Your university"></label>
+  <label class="f"><span>First term</span><div class="row" style="gap:6px;flex-wrap:nowrap"><select id="su-season"><option>Fall</option><option>Spring</option></select><input id="su-year" type="number" value="${y-1}" style="width:80px"></div></label>
+  <label class="f"><span>Terms finished so far</span><input id="su-done" type="number" min="0" max="12" value="2"></label>
+  <label class="f"><span>Terms in the degree</span><input id="su-n" type="number" min="2" max="14" value="8"></label>
+  <label class="f"><span>Credits to graduate</span><input id="su-cr" type="number" value="130"></label></div>
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-a="setup">Create my terms</button><button class="btn" data-a="loadsample">Load the Habib EE grid</button></div></div>`;
+}
+
+/* ---------- views ---------- */
+function vOverview(){
+  if(!S.terms.length)return head('Atlas','One place for your grades, your roadmap and your four years.')+setupPanel();
+  const cum=cumulative(),er=earnedCredits(),tot=S.settings.totalCredits,tg=S.settings.targetGpa;
+  const cur=curCourses(),cg=gpaOf(cur,true),proj=gpaOf(doneCourses().concat(cur),true);
+  const curCr=cur.reduce((a,c)=>a+c.credits,0),planCr=planCourses().filter(counts).reduce((a,c)=>a+c.credits,0);
+  const pct=Math.min(100,er/tot*100),d=cum.gpa==null?null:cum.gpa-tg;
+  const dl=deadlines().slice(0,5),att=attention().slice(0,4);
+  const ct=S.terms.find(t=>t.status==='current');
+  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+'now in '+esc(ct.name):''))+`
+  <div class="grid g3">
+    <div class="card"><div class="lbl">Cumulative GPA</div><div class="num" style="margin:10px 0 8px">${fmt(cum.gpa)}</div>
+      <div class="small muted">${d==null?'Enter final grades for finished courses':`Target ${fmt(tg)} · <span style="color:var(--${d>=0?'good':'bad'})">${d>=0?'+':''}${fmt(d)}</span>`}</div></div>
+    <div class="card"><div class="lbl">This term so far</div><div class="num" style="margin:10px 0 8px">${fmt(cg.gpa)}</div>
+      <div class="small muted">${cur.length} courses, ${curCr} credits${proj.gpa!=null&&cum.gpa!=null?` · cumulative would be <b class="mono">${fmt(proj.gpa)}</b>`:''}</div></div>
+    <div class="card row" style="flex-wrap:nowrap;gap:18px"><div class="ring" style="--p:${pct.toFixed(1)}"><div>${Math.round(pct)}%</div></div>
+      <div><div class="lbl">Credits earned</div><div class="mono" style="font-size:22px;margin:6px 0 2px">${er}<span class="muted"> / ${tot}</span></div><div class="small muted">${curCr} now · ${planCr} planned</div></div></div>
+  </div>
+  <div class="grid g2 sec">
+    <div><h2>In progress</h2>${cur.length?`<div class="card list" style="padding:4px 16px">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code">${esc(c.code)}</span><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(220px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div style="text-align:right"><div class="mono">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(st.letter)}</div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>
+    <div><h2>Due next</h2>${dl.length?`<div class="card list" style="padding:4px 16px">${dl.map(x=>`<div class="li click" data-a="open" data-id="${x.c.id}"><div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div><div style="text-align:right"><div class="mono">${esc(x.a.due)}</div><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+' days late':x.d===0?'today':'in '+x.d+' days'}</span> <span class="pill acc">${fmt(x.a.w,0)}%</span></div></div>`).join('')}</div>`:'<div class="empty">Nothing dated yet. Add due dates in a course, or from its syllabus.</div>'}</div>
+  </div>
+  <div class="grid g2 sec">
+    <div><h2>GPA by term</h2><div class="card">${spark(trend())}</div></div>
+    <div><h2>Worth a look</h2>${att.length?`<div class="card list" style="padding:4px 16px">${att.map(a=>`<div class="li click" ${a.course?`data-a="open" data-id="${a.course}"`:`data-a="go" data-v="${a.to}"`}><span class="row" style="flex-wrap:nowrap;gap:10px"><span class="pill ${a.t}" style="flex:none">${a.t==='bad'?'grade':a.t==='warn'?'plan':'note'}</span><span>${a.x}</span></span><span class="muted">›</span></div>`).join('')}</div>`:'<div class="empty">Nothing needs attention right now.</div>'}</div>
+  </div>`;
+}
+
+function courseRow(c){
+  const st=standing(c),is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c),s=status(c);
+  const rt=S.courses.find(o=>o.retakeOf===c.id);
+  const gsel=`<select data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
+  return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code">${esc(c.code)} · ${c.credits} cr · ${esc(catName(c.cat))}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${s==='done'?gsel:(l?lpill(l):stPill(c))}</div></div>`;
+}
+function vCourses(){
+  const add=`<button class="btn primary" data-a="go" data-v="add">Add a course</button>`;
+  if(!S.courses.length)return head('Courses','Every course with its grading breakdown.',add)+'<div class="empty">No courses yet. Add one from a syllabus or by hand.</div>';
+  const T=S.terms,ci=T.findIndex(t=>t.status==='current');
+  const ni=T.findIndex((t,i)=>t.status==='planned'&&i>ci);
+  let li=-1;T.forEach((t,i)=>{if(t.status==='done'&&(ci<0||i<ci))li=i});
+  const view=U.cview&&(U.cview==='all'||T.some(t=>t.id===U.cview))?U.cview:'now';
+  let shown=view==='all'?T.slice():view==='now'?T.filter((t,i)=>i===li||i===ci||i===ni):T.filter(t=>t.id===view);
+  if(!shown.length)shown=T.slice(0,2);
+  const strip=`<div class="tabs"><a href="#" data-a="cview" data-v="now" ${view==='now'?'aria-current="page"':''}>Now</a>${T.map(t=>`<a href="#" data-a="cview" data-v="${t.id}" ${view===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="cview" data-v="all" ${view==='all'?'aria-current="page"':''}>All</a></div>`;
+  const blocks=`<div class="cols" style="margin-top:22px">`+shown.map(t=>{
+    const cs=S.courses.filter(c=>c.term===t.id),g=termGpa(t);
+    return`<div class="sec"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0;font-size:15px">${esc(t.name)} · ${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</h2><span class="mono small muted">${cs.reduce((a,c)=>a+c.credits,0)} cr${g.gpa!=null?' · '+fmt(g.gpa):''}</span></div>${cs.length?`<div class="card list" style="padding:2px 14px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">Empty term</div>'}</div>`;
+  }).join('')+`</div>`;
+  const cat=S.courses.filter(c=>!termOf(c.term));
+  return head('Courses','Your current term, the next one and the last one you finished. Pick any term above to see it alone and enter its final grades.',add+`<button class="btn" data-a="go" data-v="canvas">Sync from Canvas</button>`)+strip+blocks+(cat.length&&(view==='now'||view==='all')?`<div class="sec" style="margin-top:26px"><h2>Not in a term yet</h2><div class="card list" style="padding:2px 16px">${cat.map(courseRow).join('')}</div></div>`:'');
+}
+
+const gradeOpts=c=>{const t=termOf(c.term);return t&&t.cr?['','CR','NC']:['',...S.settings.scale.map(x=>x.l),'W']};
+const STOPT=[['','No flag'],['submitted','Submitted'],['missing','Missing'],['excused','Excused']];
+function groupCard(c,g){
+  const gs=gstat(g),A=`data-id="${c.id}" data-gid="${g.id}"`;
+  const rows=(g.items||[]).map(it=>{const p=ipct(it),B=`${A} data-iid="${it.id}"`;
+    return`<div class="ir"><input class="nm" data-c="it" data-f="n" ${B} value="${esc(it.n)}" aria-label="Item name"><input type="number" step="any" data-c="it" data-f="s" ${B} value="${it.s==null?'':it.s}" placeholder="–" aria-label="Score"><input type="number" step="any" data-c="it" data-f="m" ${B} value="${it.m==null?'':it.m}" aria-label="Out of"><span class="mono small muted">${p==null?'':fmt(p,0)+'%'}</span><input type="date" data-c="it" data-f="due" ${B} value="${esc((it.due||'').slice(0,10))}" aria-label="Due date"><select data-c="it" data-f="st" ${B} aria-label="Flag">${STOPT.map(o=>`<option value="${o[0]}" ${(it.st||'')===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><button class="btn ghost danger" data-a="delitem" ${B} aria-label="Remove item">✕</button></div>`}).join('');
+  return`<div class="gc"><div class="gh"><input data-c="gr" data-f="n" ${A} value="${esc(g.n)}" aria-label="Group name" style="flex:1 1 140px;font-weight:600"><select data-c="gr" data-f="type" ${A} aria-label="Type">${ATYPES.map(t=>`<option ${g.type===t?'selected':''}>${t}</option>`).join('')}</select><button class="btn ghost danger" data-a="delgroup" ${A} aria-label="Remove group">✕</button></div>
+  <div class="gh small muted"><label class="row" style="gap:6px">Weight <input class="w" type="number" step="any" data-c="gr" data-f="w" ${A} value="${g.w}" style="width:64px"> %</label><label class="row" style="gap:6px">Items <input class="w" type="number" min="1" data-c="gr" data-f="cnt" ${A} value="${gs.n}" style="width:52px"></label><label class="row" style="gap:6px">Drop lowest <input class="w" type="number" min="0" data-c="gr" data-f="drop" ${A} value="${g.drop||0}" style="width:52px"></label></div>
+  <div class="ir ih"><span>Item</span><span>Score</span><span>Out of</span><span></span><span>Due</span><span>Flag</span><span></span></div>${rows}
+  <div class="row between" style="margin-top:8px"><button class="btn" data-a="additem" ${A}>Add item</button><span class="small muted">${gs.used?`${fmt(gs.mean,0)}% across the best ${gs.used} · `:'No scores yet · '}counts ${gs.k} of ${gs.n}</span></div></div>`;
+}
+function gradesTab(c,st){
+  const sc=S.settings.scale,tgt=sc.filter(x=>x.p>0);
+  const needRows=tgt.map(x=>{const n=needed(c,x.min);let v,cl='';
+    if(n==null)v='–';else if(n<=0){v='secured';cl='good'}else if(n>100){v='out of reach';cl='bad'}else{v=fmt(n,1)+'%';cl=n>90?'warn':''}
+    return`<div class="kv"><span>To finish with ${lpill(x.l)} <span class="muted small">(${x.min}%)</span></span><span class="mono" style="${cl?`color:var(--${cl})`:''}">${v}</span></div>`}).join('');
+  const go=gradeOpts(c).map(l=>`<option value="${esc(l)}" ${(c.grade||'')===l?'selected':''}>${l===''?'No final grade yet':l==='W'?'W (withdrawn)':l==='CR'?'CR (credit)':l==='NC'?'NC (no credit)':l}</option>`).join('');
+  return`<div class="grid g2" style="margin-bottom:22px"><div class="card"><div class="lbl">Standing now</div><div class="row" style="gap:12px;margin-top:8px"><span class="num" style="font-size:52px">${st.pct==null?'–':fmt(st.pct,1)}<span class="muted" style="font-size:24px">%</span></span>${lpill(st.letter)}</div><div class="small muted" style="margin-top:6px">${fmt(st.gw,0)} of ${fmt(st.W,0)}% of the grade is marked${st.W?`. Final lands between <b class="mono">${fmt(st.floor,1)}%</b> and <b class="mono">${fmt(st.ceil,1)}%</b>.`:'.'}</div></div>
+  <div class="card"><div class="lbl">Goal grade</div><select data-c="goal" data-id="${c.id}" style="margin:8px 0 14px;width:100%"><option value="">No goal set</option>${S.settings.scale.map(x=>`<option ${c.goal===x.l?'selected':''}>${esc(x.l)}</option>`).join('')}</select><div class="lbl">Final grade</div><select data-c="cf" data-f="grade" data-id="${c.id}" style="margin-top:8px;width:100%">${go}</select><div class="small muted" style="margin-top:8px">Set this when the registrar posts it. It feeds your GPA.</div></div></div>
+  <h2>Grading breakdown</h2>${(c.assess||[]).map(g=>groupCard(c,g)).join('')||'<div class="empty">No grading groups yet. Add one, or read a syllabus.</div>'}
+  <div class="row between" style="margin:4px 0 26px"><button class="btn" data-a="addgroup" data-id="${c.id}">Add a group</button><span class="small mono" style="${Math.abs(st.W-100)>0.01&&st.W?'color:var(--warn)':''}">Total weight ${fmt(st.W,0)}%</span></div>
+  <h2>What you need on the rest</h2>${st.rem>0&&st.W?`<div class="card" style="padding:4px 16px">${needRows}</div><p class="small muted">Average needed across the ${fmt(st.rem,0)}% still to be marked.</p>`:'<div class="empty">Everything is marked, or no weights are set.</div>'}`;
+}
+
+/* ---------- course drawer ---------- */
+function drawer(){
+  const c=getC(U.course);if(!c)return'';
+  const st=standing(c);
+  const dep=S.courses.filter(o=>(o.prereqs||[]).some(p=>NC(p)===NC(c.code)));
+  const is=prereqIssues(c);
+  const termOpts=`<option value="">Not scheduled</option>`+S.terms.map(t=>`<option value="${t.id}" ${c.term===t.id?'selected':''}>${esc(t.name)}</option>`).join('');
+  const catOpts=S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${c.cat===k.k?'selected':''}>${esc(k.n)}</option>`).join('');
+  const tabs=`<div class="tabs"><a href="#" data-a="tab" data-v="assess" ${U.tab==='assess'?'aria-current="page"':''}>Grades</a><a href="#" data-a="tab" data-v="details" ${U.tab==='details'?'aria-current="page"':''}>Details</a></div>`;
+  let body='';
+  if(U.tab==='assess'){
+    body=gradesTab(c,st);
+  }else{
+    body=`<div class="fgrid" style="margin-bottom:16px">
+    <label class="f"><span>Code</span><input data-c="cf" data-f="code" data-id="${c.id}" value="${esc(c.code)}"></label>
+    <label class="f"><span>Credits</span><input type="number" step="any" data-c="cf" data-f="credits" data-id="${c.id}" value="${c.credits}"></label>
+    <label class="f"><span>Term</span><select data-c="cf" data-f="term" data-id="${c.id}">${termOpts}</select></label>
+    <label class="f"><span>Counts toward</span><select data-c="cf" data-f="cat" data-id="${c.id}">${catOpts}</select></label></div>
+    <label class="f" style="margin-bottom:14px"><span>Title</span><input data-c="cf" data-f="title" data-id="${c.id}" value="${esc(c.title)}"></label>
+    <label class="f" style="margin-bottom:14px"><span>Prerequisites (course codes, comma separated)</span><input data-c="cf" data-f="prereqs" data-id="${c.id}" value="${esc((c.prereqs||[]).join(', '))}"></label>
+    <label class="f" style="margin-bottom:14px"><span>Co-requisites (can be taken in the same term)</span><input data-c="cf" data-f="coreqs" data-id="${c.id}" value="${esc((c.coreqs||[]).join(', '))}"></label>
+    ${is.length?`<div class="banner">${is.map(i=>i.kind==='missing'?`${esc(i.code)} is not in your course list yet.`:i.kind==='unscheduled'?`${esc(i.code)} is not scheduled in any term.`:i.kind==='same'?`${esc(i.code)} is in the same term.`:`${esc(i.code)} comes after this course.`).join(' ')}</div>`:''}
+    <label class="f" style="margin-bottom:14px"><span>This course is a retake of</span><select data-c="cf" data-f="retakeOf" data-id="${c.id}"><option value="">Not a retake</option>${S.courses.filter(o=>o.id!==c.id).map(o=>`<option value="${o.id}" ${c.retakeOf===o.id?'selected':''}>${esc(o.code)} · ${esc((termOf(o.term)||{}).name||'no term')}</option>`).join('')}</select></label>
+    <label class="f" style="margin-bottom:14px"><span>Instructor</span><input data-c="cf" data-f="instructor" data-id="${c.id}" value="${esc(c.instructor||'')}"></label>
+    <label class="f" style="margin-bottom:18px"><span>Notes</span><textarea rows="4" data-c="cf" data-f="notes" data-id="${c.id}">${esc(c.notes||'')}</textarea></label>
+    ${dep.length?`<h2>Unlocks</h2><div class="row" style="margin-bottom:22px">${dep.map(o=>`<button class="btn" data-a="open" data-id="${o.id}">${esc(o.code)}</button>`).join('')}</div>`:''}
+    <button class="btn danger" data-a="delcourse" data-id="${c.id}">Delete this course</button>`;
+  }
+  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:6px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div style="margin:10px 0 18px">${stPill(c)}</div>${tabs}${body}</div></div>`;
+}
+
+/* ---------- roadmap ---------- */
+const ORD=['Entry courses','Second step','Third step','Fourth step','Fifth step','Sixth step','Seventh step','Eighth step'];
+function chain(id,m,dir){
+  const res={};
+  (function walk(i){
+    const c=getC(i);if(!c)return;
+    const nxt=dir==='up'?(c.prereqs||[]).map(p=>m[NC(p)]).filter(Boolean):S.courses.filter(o=>(o.prereqs||[]).some(p=>NC(p)===NC(c.code)));
+    nxt.forEach(n=>{if(!res[n.id]){res[n.id]=1;walk(n.id)}});
+  })(id);
+  return res;
+}
+function vRoadmap(){
+  if(!S.courses.length)return head('Roadmap','How your courses build on each other.')+'<div class="empty">Add courses with their prerequisites and the map draws itself.</div>';
+  const m=byCode(),NW=156,NH=48,GX=64,GY=12,PX=18,PY=34;
+  let list=S.courses.filter(counts);
+  if(U.hideDone)list=list.filter(c=>status(c)!=='done');
+  const dep={};list.forEach(c=>dep[c.id]=depth(c,m));
+  const maxD=Math.max.apply(null,list.map(c=>dep[c.id]).concat([0]));
+  const cols=[];for(let i=0;i<=maxD;i++)cols.push(list.filter(c=>dep[c.id]===i).sort((a,b)=>(termIdx(a.term)<0?99:termIdx(a.term))-(termIdx(b.term)<0?99:termIdx(b.term))||a.code.localeCompare(b.code)));
+  const pos={};cols.forEach((cs,i)=>cs.forEach((c,j)=>pos[c.id]={x:PX+i*(NW+GX),y:PY+j*(NH+GY)}));
+  const W=PX*2+(maxD+1)*NW+maxD*GX,H=PY+Math.max.apply(null,cols.map(c=>c.length))*(NH+GY)+8;
+  const up=U.sel?chain(U.sel,m,'up'):{},down=U.sel?chain(U.sel,m,'down'):{};
+  const on=id=>!U.sel||id===U.sel||up[id]||down[id];
+  let ed='';
+  list.forEach(c=>(c.prereqs||[]).forEach(code=>{const p=m[NC(code)];if(!p||!pos[p.id]||!pos[c.id])return;
+    const a=pos[p.id],b=pos[c.id],x1=a.x+NW,y1=a.y+NH/2,x2=b.x,y2=b.y+NH/2,mx=(x1+x2)/2;
+    const hi=U.sel&&on(p.id)&&on(c.id);
+    ed+=`<path class="ed ${hi?'hi':U.sel?'dim':''}" d="M${x1} ${y1} C${mx} ${y1} ${mx} ${y2} ${x2} ${y2}"/>`}));
+  let nd='';
+  list.forEach(c=>{const p=pos[c.id],ns=nodeState(c,m),t=termOf(c.term);
+    const title=c.title.length>20?c.title.slice(0,19)+'…':c.title;
+    nd+=`<g class="nd ${ns} ${on(c.id)?'':'dim'}" data-a="sel" data-id="${c.id}" transform="translate(${p.x} ${p.y})" tabindex="0" role="button" aria-label="${esc(c.code+' '+c.title)}"><rect width="${NW}" height="${NH}" rx="7"/><text class="c" x="10" y="19">${esc(c.code)}${U.sel===c.id?'  ●':''}</text><text class="c" x="${NW-10}" y="19" text-anchor="end">${c.credits} cr</text><text class="n" x="10" y="37">${esc(title)}</text></g>`});
+  let hd='';cols.forEach((cs,i)=>{if(cs.length)hd+=`<text class="colh" x="${PX+i*(NW+GX)}" y="18">${esc((ORD[i]||'Step '+(i+1)).toUpperCase())}</text>`});
+  const s=U.sel?getC(U.sel):null;
+  const info=s?`<div class="card row between" style="margin-top:14px"><div style="min-width:0"><span class="code">${esc(s.code)} · ${esc(catName(s.cat))}</span><h3>${esc(s.title)}</h3><div class="small muted" style="margin-top:4px">Needs ${Object.keys(up).length} course${Object.keys(up).length===1?'':'s'} before it · opens the way to ${Object.keys(down).length}</div></div><div class="row">${stPill(s)}<button class="btn" data-a="open" data-id="${s.id}">Open</button><button class="btn ghost" data-a="sel" data-id="">Clear</button></div></div>`:'';
+  const open=S.courses.filter(c=>counts(c)&&nodeState(c,m)==='open').map(c=>({c,n:Object.keys(chain(c.id,m,'down')).length})).sort((a,b)=>b.n-a.n||a.c.code.localeCompare(b.c.code));
+  return head('Roadmap','Read left to right. Each course sits one step after the longest chain of prerequisites that leads to it. Select a course to trace what it needs and what it opens.',`<button class="btn" data-a="hidedone">${U.hideDone?'Show finished courses':'Hide finished courses'}</button>`)+
+  `<div class="map"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${hd}${ed}${nd}</svg></div>
+  <div class="legend" style="margin-top:12px"><span><i style="background:var(--good-soft);border-color:var(--good)"></i>Finished</span><span><i style="background:var(--accent-soft);border-color:var(--accent)"></i>This term</span><span><i style="border-style:dashed"></i>Planned</span><span><i style="border-color:var(--accent);border-style:dotted"></i>Ready to take, not scheduled</span><span><i></i>Locked behind a prerequisite</span></div>${info}
+  <div class="sec"><h2>Good next picks</h2>${open.length?`<div class="card list" style="padding:2px 16px">${open.slice(0,8).map(o=>`<div class="li click" data-a="open" data-id="${o.c.id}"><div><span class="code">${esc(o.c.code)} · ${o.c.credits} cr</span><h3>${esc(o.c.title)}</h3></div><span class="pill acc">opens ${o.n}</span></div>`).join('')}</div><p class="small muted">Courses you could schedule today, ranked by how many later courses depend on them.</p>`:'<div class="empty">Every unscheduled course is still waiting on a prerequisite, or everything is scheduled.</div>'}</div>`;
+}
+
+/* ---------- four-year grid ---------- */
+function gcard(c){
+  const is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c);
+  return`<div class="cc ${status(c)} ${is.length?'warn':''}" draggable="true" data-drag="${c.id}" data-a="open" data-id="${c.id}" title="${is.length?'A prerequisite is not finished before this course':'Drag to another term, or tap to edit'}"><div class="t1"><span class="code">${esc(c.code)}</span><span class="mono small muted">${c.credits}${l?' · '+esc(l):''}</span></div><div class="t2">${esc(c.title)}</div></div>`;
+}
+function vGrid(){
+  if(!S.terms.length)return head('Four years','Every term at a glance.')+setupPanel();
+  const cat=S.courses.filter(c=>!termOf(c.term));
+  const cols=S.terms.map(t=>{const cs=S.courses.filter(c=>c.term===t.id),cr=loadOf(t.id),all=termCredits(t.id),g=termGpa(t);
+    return`<div class="term" data-drop="${t.id}"><header><b>${esc(t.name)}</b><span class="mono small ${cr>S.settings.maxLoad&&t.status!=='done'?'':'muted'}" style="${cr>S.settings.maxLoad&&t.status!=='done'?'color:var(--warn)':''}">${cr} cr${all>cr?` +${all-cr}`:''}</span></header><div class="row" style="margin:-4px 0 10px;gap:6px"><span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>${g.gpa!=null?`<span class="pill">GPA ${fmt(g.gpa)}</span>`:''}</div>${cs.map(gcard).join('')}${cs.length?'':'<div class="small muted">Drop courses here</div>'}</div>`}).join('');
+  const tot=S.courses.filter(c=>termOf(c.term)&&counts(c)).reduce((a,c)=>a+c.credits,0);
+  return head('Four years','Drag a course to move it between terms. On a phone, tap a course and pick its term. A dashed outline means a prerequisite is not finished before that course.',`<span class="pill">${tot} of ${S.settings.totalCredits} credits placed</span>`)+
+  `<div class="termwrap"><div class="term" data-drop=""><header><b>Catalog</b><span class="mono small muted">${cat.reduce((a,c)=>a+c.credits,0)} cr</span></header><div class="small muted" style="margin:-4px 0 10px">Not in a term yet</div>${cat.map(gcard).join('')||'<div class="small muted">Nothing waiting</div>'}</div>${cols}</div>`;
+}
+
+/* ---------- GPA lab ---------- */
+/* What the rest of the degree has to average. Retaken courses drop their old grade, CR courses carry no points, and credits not yet in a term still count as future work. */
+function outlook(){
+  const sc=S.settings.scale,maxP=Math.max.apply(null,sc.map(x=>x.p)),tg=S.settings.targetGpa,tot=S.settings.totalCredits,rp=S.settings.retakeReplaces!==false;
+  const hasRt=c=>rp&&S.courses.some(o=>o.retakeOf===c.id),crTerm=c=>!!(termOf(c.term)||{}).cr;
+  const base=gpaOf(doneCourses().filter(c=>!hasRt(c)),false);
+  const rest=S.courses.filter(c=>status(c)!=='done'&&counts(c)&&!crTerm(c)).reduce((a,c)=>a+c.credits,0);
+  const ung=doneCourses().filter(c=>counts(c)&&!c.grade&&!crTerm(c)).reduce((a,c)=>a+c.credits,0);
+  const R=rest+ung+Math.max(0,tot-placedCredits()),N=base.cr+R;
+  const need=R>0?(tg*N-base.pts)/R:null,best=R>0?(base.pts+maxP*R)/N:base.gpa;
+  const retaken=S.courses.filter(c=>hasRt(c)&&c.grade);
+  const cands=doneCourses().filter(c=>counts(c)&&!hasRt(c)&&c.grade&&!crTerm(c)&&pointsOf(c.grade)!=null&&pointsOf(c.grade)<maxP).map(c=>{
+    const p=pointsOf(c.grade),w=rp?(base.pts-p*c.credits+maxP*(R+c.credits))/N:(base.pts+maxP*(R+c.credits))/(N+c.credits);
+    return{c,p,gain:w-best};}).filter(x=>x.gain>=0.005).sort((a,b)=>b.gain-a.gain).slice(0,4);
+  const retakes=S.courses.filter(o=>o.retakeOf&&getC(o.retakeOf));
+  return{maxP,tg,R,N,base,need,best,cands,retakes,ung};
+}
+function vGpa(){
+  const cum=cumulative(),o=outlook(),tg=o.tg,maxP=o.maxP;
+  const lab=curCourses().concat(planCourses());
+  const over=U.whatif;
+  const pr=gpaOf(doneCourses().concat(lab),true,over);
+  const ladder=[maxP,3.7,3.3,3,2.7].map(x=>({x,f:o.R>0?(o.base.pts+x*o.R)/o.N:cum.gpa}));
+  const tr=trend();
+  const curCr=curCourses().filter(c=>!(termOf(c.term)||{}).cr).reduce((a,c)=>a+c.credits,0);
+  const thisNeed=curCr>0&&cum.cr>0?(tg*(cum.cr+curCr)-cum.pts)/curCr:null;
+  const thisBest=curCr>0&&cum.cr>0?(cum.pts+maxP*curCr)/(cum.cr+curCr):null;
+  const opts=sel=>['<option value="">–</option>'].concat(S.settings.scale.map(x=>`<option ${sel===x.l?'selected':''}>${x.l}</option>`)).join('');
+  const far=o.need!=null&&o.need>maxP+1e-6,farT=thisNeed!=null&&thisNeed>maxP+1e-6;
+  const rtNote=o.retakes.length?` It counts your retake${o.retakes.length>1?'s':''} of ${o.retakes.map(r=>esc((getC(r.retakeOf)||{}).code||r.code)).join(', ')}, which replace${o.retakes.length>1?'':'s'} the old grade.`:'';
+  const card2=o.need==null?`<div class="num" style="margin:10px 0 6px">–</div><div class="small muted">Every degree credit is graded.</div>`:
+    far?`<div class="num" style="margin:10px 0 6px;color:var(--bad);font-size:34px;line-height:1.35">Out of reach</div><div class="small muted">It would take an average of ${fmt(o.need)}, and the top grade is ${fmt(maxP,1)}. The best you can finish at is <b>${fmt(o.best)}</b> with straight ${fmt(maxP,1)}s from here.${rtNote}</div>`:
+    `<div class="num" style="margin:10px 0 6px">${o.need<=0?'0.00':fmt(o.need)}</div><div class="small muted">${o.need<=0?'Already secured.':`average over the remaining ${o.R} credits. The best you can finish at is ${fmt(o.best)}.`}${rtNote}</div>`;
+  const card3=thisNeed==null?`<div class="num" style="margin:10px 0 6px">–</div><div class="small muted">No graded credits yet.</div>`:
+    farT?`<div class="num" style="margin:10px 0 6px;color:var(--bad);font-size:34px;line-height:1.35">Not this term</div><div class="small muted">Even straight ${fmt(maxP,1)}s only lift you to <b>${fmt(thisBest)}</b> this term. ${fmt(tg)} is a goal for later terms.</div>`:
+    `<div class="num" style="margin:10px 0 6px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">to sit at ${fmt(tg)} when this term posts. Straight ${fmt(maxP,1)}s would give ${fmt(thisBest)}.</div>`;
+  return head('GPA lab','See where your GPA stands, what the rest of the degree has to average to reach your target, and what a few grades would do.')+
+  `<div class="grid g3"><div class="card"><div class="lbl">Cumulative now</div><div class="num" style="margin:10px 0 6px">${fmt(cum.gpa)}</div><div class="small muted">${cum.cr} graded credits</div></div>
+  <div class="card"><div class="lbl">Needed for ${fmt(tg)} at graduation</div>${card2}</div>
+  <div class="card"><div class="lbl">Needed this term</div>${card3}</div></div>
+  <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 16px">${ladder.map(l=>`<div class="kv"><span>${fmt(l.x,1)} on the remaining ${o.R} credits</span><span class="mono" style="color:var(--${l.f>=tg?'good':'bad'})">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:8px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
+  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 16px">${o.cands.map(x=>`<div class="kv"><span>${esc(x.c.code)} · ${esc(x.c.grade)} · ${x.c.credits} cr</span><span class="mono" style="color:var(--good)">+${fmt(x.gain)}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">How much higher you could finish if you retook it and earned ${fmt(maxP,1)}.</div></div>`:''}</div>
+  <div><h2>By term</h2><div class="card scroll" style="padding:4px 16px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td>${esc(r.name)}${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono">${fmt(r.cum)}</td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
+`+termPlanSection()+whatIf(cum)+transcriptSection();
+}
+
+/* ---------- requirements and minors ---------- */
+function vReq(){
+  const cp=catProgress().filter(x=>!(x.k.k==='minor'&&!S.courses.some(c=>c.cat==='minor')));
+  const placed=placedCredits(),tot=S.settings.totalCredits,diff=tot-placed;
+  const chips=k=>S.courses.filter(c=>c.cat===k).map(c=>`<button class="pill ${status(c)==='done'?'good':status(c)==='current'?'acc':''}" data-a="open" data-id="${c.id}" style="border:0;cursor:pointer">${esc(c.code)}</button>`).join(' ');
+  const state=x=>x.k.req<=0?`<span class="mono small muted">${x.e+x.cu+x.pl} cr</span>`:`<span class="mono small muted">${x.e} earned · ${x.cu} now · ${x.pl} planned · ${x.over>0?`<b style="color:var(--warn)">${x.over} over</b>`:x.left>0?`<b style="color:var(--warn)">${x.left} not yet in a term</b>`:'<b style="color:var(--good)">fully planned</b>'}</span>`;
+  const free=S.courses.filter(c=>isFree(c)&&isPh(c));
+  return head('Requirements','Credits by category, and how a minor would fit around them.')+
+  `<div class="grid g2"><div class="card" style="display:flex;flex-direction:column;gap:18px">${cp.map(x=>`<div><div class="row between"><h3>${esc(x.k.n)}</h3>${state(x)}</div>${x.k.req>0?`<div class="bar" style="margin:8px 0 10px"><i class="d" style="width:${Math.min(100,x.e/x.k.req*100)}%"></i><i style="width:${Math.min(100,x.cu/x.k.req*100)}%"></i><i class="p" style="width:${Math.min(100,x.pl/x.k.req*100)}%"></i></div>`:'<div style="height:8px"></div>'}<div class="row" style="gap:6px">${chips(x.k.k)||'<span class="small muted">No courses yet</span>'}</div></div>`).join('')}<p class="small muted" style="margin:0">“Not yet in a term” means the category still needs that many credits and no course for them is in any term. “Over” means you have planned more than it asks for.</p></div>
+  <div class="card"><div class="lbl">Credits planned</div><div class="num" style="margin:10px 0 6px">${placed}<span class="muted" style="font-size:22px"> / ${tot}</span></div><div class="small muted">${diff>0?`${diff} credits of the degree are not in any term yet.`:diff===0?'Every credit of your degree has a place in a term, so the plan is full. A minor course either takes the place of a free elective, or goes on top and adds to your total.':`Your plan holds ${-diff} credits beyond the ${tot} your degree needs. That is normal with a minor. It only matters if a term goes over its credit limit.`}${free.length?` Free elective slots left: ${free.length}.`:''}</div></div></div>`+minorsSection();
+}
+
+function vPlan(){
+  const t=U.planTab||'grid',tabs=[['grid','Four years'],['roadmap','Roadmap'],['req','Requirements'],['enroll','Enrollment']];
+  let v='';INNER=true;try{v=({grid:vGrid,roadmap:vRoadmap,req:vReq,enroll:vEnroll})[t]()}finally{INNER=false}
+  return head('Plan','Where every course sits, how they connect, and what the degree still needs.')+`<div class="tabs">${tabs.map(x=>`<a href="#${x[0]}" ${t===x[0]?'aria-current="page"':''}>${x[1]}</a>`).join('')}</div>`+v;
+}
+
+/* ---------- add a course ---------- */
+const termSel=(id,val,none)=>`<select id="${id}">${none?`<option value="">${none}</option>`:''}${S.terms.map(t=>`<option value="${t.id}" ${val===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select>`;
+const catSel=(id,val)=>`<select id="${id}">${S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${val===k.k?'selected':''}>${esc(k.n)}</option>`).join('')}</select>`;
+function sylPreview(){
+  const o=U.syl.out;if(!o)return'';
+  const W=o.assessments.reduce((a,x)=>a+(+x.weight||0),0);
+  return`<div class="card" style="margin-top:16px;border-color:var(--accent)"><h2>Check what was read</h2><p class="small muted" style="margin-top:-6px">Fix anything that looks off, then add it. Nothing is saved until you do.</p>
+  <div class="fgrid"><label class="f"><span>Code</span><input data-c="syl" data-f="code" value="${esc(o.code)}"></label><label class="f"><span>Credits</span><input type="number" step="any" data-c="syl" data-f="credits" value="${o.credits}"></label><label class="f"><span>Counts toward</span><select data-c="syl" data-f="cat">${S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${o.cat===k.k?'selected':''}>${esc(k.n)}</option>`).join('')}</select></label><label class="f"><span>Term</span><select data-c="syl" data-f="term"><option value="">Not scheduled</option>${S.terms.map(t=>`<option value="${t.id}" ${o.term===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label></div>
+  <label class="f" style="margin-top:12px"><span>Title</span><input data-c="syl" data-f="title" value="${esc(o.title)}"></label>
+  <label class="f" style="margin-top:12px"><span>Prerequisites</span><input data-c="syl" data-f="prereqs" value="${esc(o.prereqs.join(', '))}"></label>
+  <div class="scroll" style="margin-top:14px"><table class="t"><thead><tr><th>Group</th><th>Type</th><th class="r">Weight %</th><th class="r">Items</th><th class="r">Drop lowest</th><th></th></tr></thead><tbody>${o.assessments.map((a,i)=>`<tr><td><input data-c="sylA" data-f="name" data-i="${i}" value="${esc(a.name)}" style="min-width:110px"></td><td><select data-c="sylA" data-f="type" data-i="${i}">${ATYPES.map(t=>`<option ${a.type===t?'selected':''}>${t}</option>`).join('')}</select></td><td class="r"><input class="w" type="number" step="any" data-c="sylA" data-f="weight" data-i="${i}" value="${a.weight==null?'':a.weight}"></td><td class="r"><input class="w" type="number" min="1" data-c="sylA" data-f="count" data-i="${i}" value="${a.count||1}"></td><td class="r"><input class="w" type="number" min="0" data-c="sylA" data-f="drop" data-i="${i}" value="${a.drop||0}"></td><td><button class="btn ghost danger" data-a="sylDel" data-i="${i}" aria-label="Remove">✕</button></td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2" class="small muted">Total weight</td><td class="r mono" style="${Math.abs(W-100)>0.01?'color:var(--warn)':''}">${fmt(W,0)}</td><td colspan="3"></td></tr></tfoot></table></div>
+  ${o.notes?`<div class="small muted" style="margin-top:10px"><b>Policies noticed:</b> ${esc(o.notes)}</div>`:''}
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-a="sylAdd">Add this course</button><button class="btn" data-a="sylRow">Add a row</button><button class="btn ghost" data-a="sylDiscard">Discard</button></div></div>`;
+}
+function vAdd(){
+  if(!S.terms.length)return head('Add a course','From a syllabus, or by hand.')+setupPanel();
+  const y=U.syl,can=U.hasSample||!!AI.key;
+  const imp=can?`<div class="card"><h2>From a syllabus</h2><p class="small muted" style="margin:-6px 0 12px">Paste the text, or drop in a text file${', a PDF'}${U.imgMax?' or photos of the pages':''}. It reads the grading breakdown, dates, credits and prerequisites and builds the course for you to check.</p>
+  <textarea id="syl-text" rows="7" data-c="syltext" placeholder="Paste the syllabus here…">${esc(y.text)}</textarea>
+  <div class="row" style="margin-top:10px"><label class="btn" style="cursor:pointer">Choose files<input type="file" id="syl-file" data-c="sylf" multiple accept="${U.imgMax?'image/*,':''}.pdf,.txt,.md,text/plain,application/pdf" hidden></label>${y.files.length?`<span class="small muted">${y.files.length} image${y.files.length>1?'s':''} attached</span><button class="btn ghost" data-a="sylClearImg">Remove</button>`:''}<span class="small muted" id="syl-msg">${esc(y.msg||'')}</span></div>
+  <div class="row" style="margin-top:14px"><label class="f" style="min-width:160px"><span>Term</span>${termSel('syl-term',y.term||(S.terms.find(t=>t.status==='current')||{}).id,'Not scheduled')}</label><button class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read syllabus'}</button></div>
+  ${y.err?`<p class="small" style="color:var(--bad)">${esc(y.err)}</p>`:''}</div>${sylPreview()}`:`<div class="card"><h2>From a syllabus</h2><p class="small muted">Reading a syllabus needs Claude (when this page is open inside Claude) or a free Gemini key (when you run the downloaded file). You can also add the course by hand below.</p><button class="btn" data-a="go" data-v="settings">Set up syllabus reading</button></div>`;
+  return head('Add a course','Build a course from its syllabus, or fill it in yourself.')+imp+
+  `<div class="card" style="margin-top:20px"><h2>By hand</h2><div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Counts toward</span>${catSel('ma-cat')}</label><label class="f"><span>Term</span>${termSel('ma-term','','Not scheduled')}</label></div><label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics"></label><label class="f" style="margin-top:12px"><span>Prerequisites</span><input id="ma-pre" placeholder="EE 202, MTH 202"></label><div style="margin-top:14px"><button class="btn primary" data-a="manual">Add course</button></div></div>`;
+}
+
+/* ---------- settings ---------- */
+function vSettings(){
+  const s=S.settings;
+  return head('Settings','Make Atlas match how your university counts things.')+
+  `<div class="card"><h2>Degree</h2><div class="fgrid"><label class="f"><span>Your name</span><input data-c="set" data-f="name" value="${esc(s.name||'')}"></label><label class="f"><span>Programme</span><input data-c="set" data-f="program" value="${esc(s.program)}"></label><label class="f"><span>University</span><input data-c="set" data-f="school" value="${esc(s.school)}"></label><label class="f"><span>Credits to graduate</span><input type="number" data-c="set" data-f="totalCredits" value="${s.totalCredits}"></label><label class="f"><span>Credit limit per term</span><input type="number" data-c="set" data-f="maxLoad" value="${s.maxLoad}"></label><label class="f"><span>Your school (for minors)</span><input data-c="set" data-f="unit" placeholder="DSSE" value="${esc(s.unit||'')}"></label><label class="f"><span>Credit limit applies to</span><select data-c="set" data-f="capOwn"><option value="no" ${!s.capOwn?'selected':''}>All courses</option><option value="yes" ${s.capOwn?'selected':''}>Only courses from my own school</option></select></label><label class="f"><span>Target GPA</span><input type="number" step="0.01" data-c="set" data-f="targetGpa" value="${s.targetGpa}"></label><label class="f"><span>Retaken courses</span><select data-c="set" data-f="retakeReplaces"><option value="yes" ${s.retakeReplaces!==false?'selected':''}>Retake replaces the old grade</option><option value="no" ${s.retakeReplaces===false?'selected':''}>Both grades count</option></select></label></div></div>
+  <div class="grid g2 sec"><div class="card scroll"><h2>Terms</h2><table class="t"><tbody>${S.terms.map((t,i)=>`<tr><td><input data-c="tf" data-f="name" data-id="${t.id}" value="${esc(t.name)}"></td><td><select data-c="tf" data-f="status" data-id="${t.id}">${['done','current','planned'].map(x=>`<option value="${x}" ${t.status===x?'selected':''}>${x==='done'?'Finished':x==='current'?'Current':'Planned'}</option>`).join('')}</select></td><td><select data-c="tf" data-f="cr" data-id="${t.id}" aria-label="Grading"><option value="">Graded</option><option value="1" ${t.cr?'selected':''}>Credit / no credit</option></select></td><td><button class="btn ghost" data-a="termUp" data-id="${t.id}" aria-label="Move earlier" ${i?'':'disabled'}>↑</button></td><td><button class="btn ghost danger" data-a="delterm" data-id="${t.id}" aria-label="Delete term">✕</button></td></tr>`).join('')}</tbody></table><div style="margin-top:12px"><button class="btn" data-a="addterm">Add a term</button></div></div>
+  <div class="card scroll"><h2>Requirement categories</h2><table class="t"><thead><tr><th>Name</th><th class="r">Credits</th><th></th></tr></thead><tbody>${s.cats.map(k=>`<tr><td><input data-c="kf" data-f="n" data-id="${esc(k.k)}" value="${esc(k.n)}"></td><td class="r"><input class="w" type="number" data-c="kf" data-f="req" data-id="${esc(k.k)}" value="${k.req}"></td><td><button class="btn ghost danger" data-a="delcat" data-id="${esc(k.k)}" aria-label="Delete category">✕</button></td></tr>`).join('')}</tbody></table><div style="margin-top:12px"><button class="btn" data-a="addcat">Add a category</button></div></div></div>
+  <details class="card scroll sec"><summary>Grade scale</summary><p class="small muted" style="margin:0 0 10px">Letter, grade points, and the lowest percentage that earns it. Used for GPA and for turning marks into a letter.</p><table class="t" style="max-width:520px"><thead><tr><th>Letter</th><th class="r">Points</th><th class="r">From %</th><th></th></tr></thead><tbody>${s.scale.map((g,i)=>`<tr><td><input data-c="sf" data-f="l" data-i="${i}" value="${esc(g.l)}" style="width:70px"></td><td class="r"><input class="w" type="number" step="0.01" data-c="sf" data-f="p" data-i="${i}" value="${g.p}"></td><td class="r"><input class="w" type="number" step="any" data-c="sf" data-f="min" data-i="${i}" value="${g.min}"></td><td><button class="btn ghost danger" data-a="delgrade" data-i="${i}" aria-label="Delete grade">✕</button></td></tr>`).join('')}</tbody></table><div class="row" style="margin-top:12px"><button class="btn" data-a="addgrade">Add a grade</button><button class="btn ghost" data-a="resetscale">Restore the common 4.0 scale</button></div></details>
+  <div class="card sec"><h2>Syllabus reading</h2><p class="small muted" style="margin:-6px 0 12px">${U.hasSample?'Claude is reading syllabi for you on this page. Nothing to set up.':'Add a free Gemini key to read syllabi from the downloaded file. The key stays in this browser and is never saved with your plan. It does not work inside Claude’s page, which blocks outside connections.'}</p>${U.hasSample?'':`<div class="fgrid"><label class="f"><span>Gemini API key</span><input type="password" data-c="ai" data-f="key" value="${esc(AI.key)}" autocomplete="off" placeholder="Paste your key"></label><label class="f"><span>Model</span><input data-c="ai" data-f="model" value="${esc(AI.model)}"></label></div>`}</div>
+  <div class="card sec"><h2>Your data</h2><p class="small muted" style="margin:-6px 0 12px">${U.sync||''}</p><div class="row"><button class="btn" data-a="export">Download a backup</button><label class="btn" style="cursor:pointer">Restore from a backup<input type="file" accept=".json,application/json" data-c="impf" hidden></label>${U.confirmReset?`<span class="small">Erase every term, course and grade?</span><button class="btn danger" data-a="resetall">Yes, erase all</button><button class="btn ghost" data-a="noreset">Keep</button>`:`<button class="btn danger" data-a="askreset">Erase everything</button>`}</div></div>`;
+}
+
+/* ---------- Canvas sync ---------- */
+/* This function is never run on this page. It is copied into a bookmark and run on your Canvas page,
+   where your own login lets it read your own courses, grades and due dates. It only reads, and it only shows the result on screen. */
+const CANVAS_EXPORT=async()=>{try{
+  const J=async u=>{let o=[];while(u){const r=await fetch(u,{credentials:'same-origin',headers:{Accept:'application/json'}});if(!r.ok)throw new Error('Canvas answered '+r.status);const t=(await r.text()).replace(/^while\(1\);/,'');o=o.concat(JSON.parse(t));const l=r.headers.get('Link'),m=l&&l.match(/<([^>]+)>;\s*rel="next"/);u=m?m[1]:null}return o};
+  const cs=await J('/api/v1/courses?enrollment_state=active&include[]=teachers&include[]=term&per_page=100');
+  const out=[];
+  for(const c of cs){if(!c.name)continue;
+    const gs=await J('/api/v1/courses/'+c.id+'/assignment_groups?include[]=assignments&include[]=submission&per_page=100');
+    out.push({id:c.id,name:c.name,code:c.course_code||'',term:(c.term||{}).name||'',teachers:(c.teachers||[]).map(t=>t.display_name),groups:gs.map(g=>({name:g.name,weight:g.group_weight||0,items:(g.assignments||[]).map(a=>{const s=a.submission||{};return{name:a.name,max:a.points_possible,due:a.due_at,score:s.score==null?null:s.score,state:s.workflow_state||'',late:!!s.late,missing:!!s.missing,excused:!!s.excused}})}))});
+  }
+  const j=JSON.stringify({v:1,courses:out});
+  const d=document.createElement('div');d.style.cssText='position:fixed;z-index:99999;left:8%;right:8%;top:8%;background:#fff;color:#111;padding:16px;border:2px solid #333;border-radius:8px;font:14px sans-serif';
+  d.innerHTML='<b>Atlas export</b><p>Copy everything below and paste it into Atlas. It was copied for you if your browser allowed it.</p><textarea style="width:100%;height:240px"></textarea><p><button>Close</button></p>';
+  document.body.appendChild(d);const ta=d.querySelector('textarea');ta.value=j;ta.select();d.querySelector('button').onclick=()=>d.remove();
+  try{await navigator.clipboard.writeText(j)}catch(e){}
+}catch(e){alert('Atlas export failed: '+e.message)}};
+const bmCode=()=>'javascript:('+CANVAS_EXPORT.toString().replace(/\s*\n\s*/g,' ')+')()';
+
+const nn=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'').replace(/([a-z])0+(\d)/g,'$1$2').replace(/parti$/,'part1');
+const cvBase=n=>String(n||'').replace(/-[A-Za-z0-9,\s]*$/,'');
+function cvMatch(cv){
+  const b=nn(cvBase(cv.name)),code=nn(cv.code);let best='',bs=0;
+  S.courses.forEach(c=>{let sc=0;const t=nn(c.title);
+    if(b&&t===b)sc=100;else if(b&&(t.startsWith(b)||b.startsWith(t))&&Math.abs(t.length-b.length)<=6)sc=60;
+    if(code&&nn(c.code)&&code.includes(nn(c.code)))sc=Math.max(sc,80);
+    if(sc>0&&status(c)==='current')sc+=5;
+    if(sc>bs){bs=sc;best=c.id}});
+  return bs>=60?best:'';
+}
+function cvItem(a){
+  const sc=a.score==null?null:+a.score;
+  return{id:uid(),n:String(a.name||'').replace(/[\u{1F000}-\u{1FAFF}☀-➿]/gu,'').trim()||'Item',s:sc,m:a.max==null?null:+a.max,due:a.due?dstr(new Date(a.due)):'',
+    st:a.excused?'excused':sc!=null?'':(a.state==='submitted'||a.state==='pending_review')?'submitted':a.missing?'missing':'',late:!!a.late};
+}
+function cvFind(c,name){const k=nn(name.replace(/[\u{1F000}-\u{1FAFF}☀-➿]/gu,''));const al={oel:'openendedlab'};const kk=al[k]||k;
+  for(const g of c.assess||[])for(const it of g.items||[])if(nn(it.n)===kk)return it;return null}
+const KW=[['quiz','Quiz'],['lab','Lab'],['home','Assignment'],['assign','Assignment'],['hw','Assignment'],['mid','Midterm'],['test','Midterm'],['exam','Final'],['final','Final'],['project','Project'],['present','Project'],['discuss','Assignment'],['particip','Participation']];
+function cvGroup(c,name){
+  const n=name.toLowerCase();let best=null,bs=0;
+  (c.assess||[]).forEach(g=>{let sc=0;const gn=String(g.n).toLowerCase();KW.forEach(([k,ty])=>{if(n.includes(k)){if(gn.includes(k))sc+=3;if(g.type===ty)sc+=1}});if(sc>bs){bs=sc;best=g}});
+  return bs>=3?best:null;
+}
+function cvGuessType(n){const l=String(n).toLowerCase();for(const [k,ty] of KW)if(l.includes(k))return ty;return 'Other'}
+function cvApply(){
+  let upd=0,add=0,un=0;
+  (U.cv||[]).forEach(cv=>{const c=getC(cv.target);if(!c)return;
+    if(!c.instructor&&cv.teachers&&cv.teachers.length)c.instructor=cv.teachers.join(', ');
+    if(!(c.assess||[]).length){
+      c.assess=cv.groups.filter(g=>g.items.length).map(g=>({id:uid(),n:g.name,type:cvGuessType(g.name),w:+g.weight||0,cnt:g.items.length,drop:0,items:g.items.map(cvItem)}));
+      add+=c.assess.reduce((a,g)=>a+g.items.length,0);return;
+    }
+    cv.groups.forEach(g=>g.items.forEach(a=>{
+      const it=cvItem(a),old=cvFind(c,a.name);
+      if(old){old.s=it.s!=null?it.s:old.s;old.m=it.m!=null?it.m:old.m;old.due=it.due||old.due;old.st=it.s!=null?'':it.st||old.st;old.late=it.late;upd++}
+      else{let grp=cvGroup(c,a.name);if(!grp){grp=c.assess.find(x=>x.n==='Unsorted from Canvas');if(!grp){grp={id:uid(),n:'Unsorted from Canvas',type:'Other',w:0,cnt:1,drop:0,items:[]};c.assess.push(grp)}un++}
+        grp.items.push(it);add++}
+    }));
+  });
+  return{upd,add,un};
+}
+function vCanvas(){
+  const y=U.cvText||'',list=U.cv||[];
+  const opts=sel=>`<option value="">Skip this one</option>`+S.courses.filter(c=>status(c)!=='done'||c.id===sel).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('');
+  return head('Sync from Canvas','Pull your scores, due dates and instructors from Canvas in one go. Nothing leaves your browser except what you paste here.',`<button class="btn" data-a="go" data-v="courses">Back to courses</button>`)+
+  (HOST?hostCanvasCard():'')+`<div class="card"><h2>${HOST?'Or use the bookmark':'One-time setup'}</h2><p class="small muted" style="margin:-6px 0 12px">Canvas blocks access tokens at Habib, so this uses your own login on the Canvas page instead. It only reads, and it only shows the result on screen.</p>
+  <ol class="small" style="margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>Copy the code below.</li><li>In your computer’s browser, bookmark any page, then edit the bookmark and paste this code as its address. Name it “Atlas export”.</li><li>Open hulms.instructure.com while signed in and click that bookmark.</li><li>Copy the box that appears and paste it below.</li></ol>
+  <textarea id="bm-code" rows="3" readonly class="mono small">${esc(bmCode())}</textarea><div class="row" style="margin-top:8px"><button class="btn" data-a="copybm">Copy code</button></div></div>
+  <div class="card" style="margin-top:16px"><h2>Paste the export</h2><textarea id="cv-text" rows="5" data-c="cvtext" placeholder="Paste here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  (list.length?`<div class="card" style="margin-top:16px"><h2>Match to your courses</h2><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Your course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td>${esc(cv.name)}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into the matched courses</button></div><p class="small muted">Scores and dates you already have are kept when Canvas has nothing newer. Items that do not fit a group go into “Unsorted from Canvas” with no weight, so they never change your grade until you move them.</p></div>`:'');
+}
+const ACT2={
+  copybm(){const t=$('#bm-code');if(!t)return;t.select();let ok=false;try{ok=navigator.clipboard&&navigator.clipboard.writeText(t.value)}catch(e){}Promise.resolve(ok).then(()=>toast('Code copied'),()=>toast('Press Ctrl+C to copy the selected code'))},
+  cvread(){
+    const t=($('#cv-text')||{}).value||U.cvText||'';U.cvText=t;U.cvErr='';
+    try{const j=JSON.parse(t.trim());if(!j||!Array.isArray(j.courses)||!j.courses.length)throw 0;U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)}))}
+    catch(e){U.cv=[];U.cvErr='That does not look like an Atlas export. Copy the whole box again.'}
+    render();
+  },
+  cvapply(){const r=cvApply();U.cv=[];U.cvText='';persist();toast(`Updated ${r.upd} items, added ${r.add}${r.un?`, ${r.un} unsorted`:''}`);render()},
+};
+const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v}};
+
+/* ---------- transcript ---------- */
+function transcript(){
+  const out=[];let done=[];
+  S.terms.forEach(t=>{
+    if(t.status==='planned')return;const cs=S.courses.filter(c=>c.term===t.id);if(!cs.length)return;
+    if(t.status==='done')done=done.concat(cs);
+    const rows=cs.map(c=>{const g=c.grade||(t.status==='current'?standing(c).letter:'');return{code:c.code,title:c.title,cr:c.credits,grade:g?(t.status==='current'&&!c.grade?g+' (so far)':g):(t.status==='current'?'In progress':'–'),pts:c.grade&&pointsOf(c.grade)!=null?pointsOf(c.grade):null,note:c.retakeOf?'Retake':S.courses.some(o=>o.retakeOf===c.id)?'Retaken':''}});
+    out.push({name:t.name,status:t.status,cr:!!t.cr,rows,credits:cs.reduce((a,c)=>a+c.credits,0),tg:t.status==='done'&&!t.cr?gpaOf(cs,false).gpa:null,cg:t.status==='done'?gpaOf(done,false).gpa:null});
+  });
+  return out;
+}
+const csvQ=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+function transcriptCsv(){
+  const T=transcript(),L=[['Term','Code','Title','Credits','Grade','Grade points','Note'].map(csvQ).join(',')];
+  T.forEach(t=>{t.rows.forEach(r=>L.push([t.name+(t.cr?' (credit/no credit)':''),r.code,r.title,r.cr,r.grade,r.pts==null?'':r.pts,r.note].map(csvQ).join(',')));
+    L.push([t.name,'','Term summary',t.credits,t.tg==null?'':fmt(t.tg),'',t.cg==null?'':'Cumulative '+fmt(t.cg)].map(csvQ).join(','))});
+  return L.join('\n');
+}
+async function transcriptPdf(){
+  if(!window.jspdf)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  const doc=new window.jspdf.jsPDF({unit:'pt',format:'a4'}),T=transcript(),cum=cumulative();
+  const M=44,W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight();let y=M;
+  const need=n=>{if(y+n>H-M){doc.addPage();y=M}};
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('Unofficial transcript',M,y);y+=22;
+  doc.setFont('helvetica','normal');doc.setFontSize(10);
+  [S.settings.name,S.settings.program,S.settings.school,'Generated '+todayStr()+' with Atlas. Not an official record.'].filter(Boolean).forEach(l=>{doc.text(l,M,y);y+=14});
+  y+=6;
+  T.forEach(t=>{need(60);
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.text(t.name+(t.cr?'  (credit / no credit)':t.status==='current'?'  (in progress)':''),M,y);y+=6;doc.setDrawColor(150);doc.line(M,y,W-M,y);y+=13;
+    doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    t.rows.forEach(r=>{need(16);doc.text(r.code,M,y);doc.text(r.title.length>58?r.title.slice(0,57)+'…':r.title,M+78,y);doc.text(String(r.cr),W-M-110,y,{align:'right'});doc.text(r.grade+(r.note?'  '+r.note:''),W-M-90,y);y+=14});
+    need(18);doc.setFont('helvetica','bold');doc.text('Credits '+t.credits+(t.tg!=null?'    Term GPA '+fmt(t.tg):'')+(t.cg!=null?'    Cumulative GPA '+fmt(t.cg):''),M,y+2);y+=24;
+  });
+  need(30);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Cumulative GPA '+(cum.gpa==null?'–':fmt(cum.gpa))+'     Credits earned '+earnedCredits(),M,y);
+  return doc.output('arraybuffer');
+}
+function transcriptSection(){
+  const T=transcript();
+  return`<details class="card sec"><summary>Transcript</summary><div class="row" style="margin-bottom:14px"><button class="btn" data-a="trcsv">Download CSV</button><button class="btn" data-a="trpdf">Download PDF</button></div>${T.map(t=>`<div style="margin-bottom:16px"><div class="row between"><h3>${esc(t.name)}${t.cr?' <span class="pill">credit / no credit</span>':t.status==='current'?' <span class="pill acc">in progress</span>':''}</h3><span class="mono small muted">${t.credits} cr${t.tg!=null?' · GPA '+fmt(t.tg):''}${t.cg!=null?' · cumulative '+fmt(t.cg):''}</span></div><div class="scroll"><table class="t"><tbody>${t.rows.map(r=>`<tr><td class="mono small" style="white-space:nowrap">${esc(r.code)}</td><td>${esc(r.title)}${r.note?` <span class="pill">${r.note}</span>`:''}</td><td class="r mono">${r.cr}</td><td class="r mono">${esc(r.grade)}</td></tr>`).join('')}</tbody></table></div></div>`).join('')||'<div class="empty">Finished and current terms appear here.</div>'}</details>`;
+}
+Object.assign(ACT2,{
+  trcsv(){saveFile('atlas-transcript.csv',transcriptCsv()).then(()=>toast('Transcript saved'),e=>{if(!e||e.code!=='declined')toast('The file could not be saved')})},
+  async trpdf(){try{const buf=await transcriptPdf();await saveFile('atlas-transcript.pdf',buf);toast('Transcript saved')}catch(e){if(!e||e.code!=='declined')toast('The PDF could not be made. Try the CSV.')}},
+});
+
+/* ---------- minors ---------- */
+/* Read from habib.edu.pk/academics/minors (Class of 2023 and later versions). Credits per course are estimates where the page gives only a total. */
+const mk=(label,opts,cr,n)=>Array.from({length:n||1},()=>({label,opts:opts||[],cr:cr||3}));
+const MINOR_CATALOG=[
+ {id:'mus',name:'South Asian Music',unit:'SAHSS',credits:15,minGrade:'C+',note:'Needs three semesters of music tutorials (1 credit each) ending in a recital. Link each tutorial course as you take it.',
+  slots:[].concat(mk('Foundations of Musicianship',['MUS 102']),mk('Sound and Subjectivity',['MUS 222']),mk('History of South Asian Music',['MUS/HIS 221/253']),mk('Elective: one of these',['MUS 300','RL/MS/AT 333','LIT/MUS 319']),[Object.assign(mk('Music tutorials, one credit each over three semesters',[],1)[0],{n:3})])},
+ {id:'cl',name:'Comparative Literature',unit:'SAHSS',credits:18,not:/comparative humanities/i,note:'The last course may not come from the Liberal Core.',
+  slots:[].concat(mk('What is World Literature',['LIT 104']),mk('Introduction to Literary Theory and Criticism',['LIT 225']),mk('Jehan-e-Urdu',['CORE 121']),mk('LIT elective, 300/400 level',[],3,2),mk('Comparative Humanities course (HUM, HIST, LIT, PHIL, RELS or MUS)',[]))},
+ {id:'phil',name:'Philosophy',unit:'SAHSS',credits:15,not:/comparative humanities/i,note:'The intermediate course needs approval from the program.',
+  slots:[].concat(mk('Introduction to philosophy',['PHIL 200','PHIL 122']),mk('Hikma I, or formal reasoning (not both)',['CORE 202','CORE 111','CS 101']),mk('Epistemology or ontology, 200 level or higher',[]),mk('PHIL elective, 300/400 level',[],3,2))},
+ {id:'rels',name:'Religious Studies',unit:'SAHSS',credits:15,not:/comparative humanities/i,note:'CORE 302 (Hikma II) can count as an elective if the Liberal Core is not already using it.',
+  slots:[].concat(mk('World Religions',['REL 122','RELS 122']),mk('Hikma I',['CORE 202']),mk('Approaches to the study of religion',['REL 223','RELS 223']),mk('RELS elective, 300/400 level',[],3,2))},
+ {id:'hist',name:'History',unit:'SAHSS',credits:15,not:/comparative humanities/i,note:'',
+  slots:[].concat(mk('Global Histories course',[]),mk('Pakistan and Modern South Asia',['CORE 201']),mk('Understanding Histories',['HIST 227']),mk('HIST elective, 300/400 level',[],3,2))},
+ {id:'comm',name:'Communication',unit:'SAHSS',credits:19,not:/communication and design/i,note:'For the Class of 2025 and later.',
+  slots:[].concat(mk('Intro to Design and Media',['CND 103'],5),mk('Production Fundamentals I',['COM 201'],5),mk('Elements of Aesthetics I',['COM 204']),mk('COM elective, 100/200 level',[]),mk('COM elective, 300/400 level',[]))},
+ {id:'des',name:'Design',unit:'SAHSS',credits:18,not:/communication and design/i,note:'For the Class of 2025 and later.',
+  slots:[].concat(mk('Intro to Design and Media',['CND 103'],5),mk('Designing for and with People',['DES 203'],5),mk('Design and Social Change, or Research in Design',['DES 302','DES 204'],2),mk('DES elective, 100/200 level',[]),mk('DES elective, 300/400 level',[]))},
+ {id:'sdp',name:'Social Development and Policy',unit:'SAHSS',credits:18,not:/social development/i,note:'',
+  slots:[].concat(mk('Development and Social Change',['SDP 101'],4),mk('Research methods',['SDP 201','SDP 202'],4),mk('Public policy',['SDP 204','SDP 301'],4),mk('SDP elective, any level',[]),mk('SDP elective, 300/400 level',[]))},
+ {id:'phy',name:'Physics',unit:'DSSE',credits:20,minGrade:'C',note:'C or higher in the foundation courses. Electives run only when enough students sign up. ME 432 is also on the EE degree’s interdisciplinary elective list.',
+  slots:[].concat(mk('Mechanics and Thermodynamics',['PHY 101']),mk('Mechanics and Thermodynamics Lab',['PHY 101L'],1),mk('Modern Physics',['PHY 201']),mk('Advanced Physics Lab',['PHY 102L'],1),mk('Quantum Mechanics',['PHY 202']),mk('Electromagnetic Theory',['PHY 241']),mk('Elective, 300 level or above',['ME 432','PHY 301','PHY/MATH 302','PHY 351','PHY 401','PHY/EE 441','PHY 360','PHY 300/CS 314'],3,3))},
+ {id:'math',name:'Mathematics',unit:'DSSE',credits:20,minGrade:'C',note:'C or higher in the four foundation courses. At least two electives at 300 level or above. Electives run only when enough students sign up.',
+  slots:[].concat(mk('Calculus II',['MATH 102']),mk('Engineering Mathematics',['MATH 202']),mk('Linear Algebra',['MATH 205']),mk('Probability and Statistics',['MATH 310/EE 354']),mk('Mathematics elective, 300 level or above',[],3,3))},
+ {id:'bio',name:'Bioscience',unit:'DSSE',credits:17,note:'',
+  slots:[].concat(mk('Cell Biology and Public Health',['BIO 101']),mk('Cell Biology and Public Health Lab',['BIO 101L'],1),mk('Understanding the Human Body',['BIO 211']),mk('Understanding the Human Body Lab',['BIO 211L'],1),mk('Upper-level elective',['BIO 301']))},
+ {id:'cs',name:'Computer Science',unit:'DSSE',credits:21,not:/computer science/i,note:'Up to four courses can count toward both your major and this minor (Class of 2025 and later). Credits include labs. The page lists AI as CS 353, your degree grid calls it CS 351.',
+  slots:[].concat(mk('Programming Fundamentals',['CS 101']),mk('Discrete Mathematics',['CS 113']),mk('Data Structures and Algorithms',['CS 102'],4),mk('Kernel course, 200 level or above',['CS 201','CS 224','CS 212','CS 232','CS 355','CS 412','CS 353','CS 351'],3,2),mk('CS elective, 200 level or above',['CS 261','CS 262','CS 222'],3,2))}
+];
+const eligibleMinors=()=>MINOR_CATALOG.filter(m=>!(m.not&&m.not.test(S.settings.program||'')));
+const ensureMinorCat=set=>{set=set||S.settings;if(!set.cats.some(k=>k.k==='minor'))set.cats.push({k:'minor',n:'Minor courses, on top of the degree',req:0})};
+
+/* "MUS/HIS 221/253" means one course listed under several codes, so it matches any of MUS 221, MUS 253, HIS 221, HIS 253 */
+function aliases(s){const t=String(s||'').toUpperCase(),d=t.match(/[A-Z]{2,5}/g)||[],n=t.match(/\d{3,4}[A-Z]?/g)||[],o=[];d.forEach(a=>n.forEach(b=>o.push(a+b)));return o}
+function primary(s){const t=String(s||'').toUpperCase(),d=t.match(/[A-Z]{2,5}/g),n=t.match(/\d{3,4}[A-Z]?/g);return d&&n?d[0]+' '+n[0]:String(s||'')}
+const slotName=sl=>sl.label||(sl.opts||[]).join(' or ')||'Course';
+const slotIds=sl=>sl.ids||(sl.courseId?[sl.courseId]:[]);
+const isPh=c=>/elective|^idee\b|\dxx|\bxx\b/i.test(c.code)&&counts(c)&&status(c)!=='done'&&!c.was&&!S.minors.some(m=>(m.slots||[]).some(s=>slotIds(s).indexOf(c.id)>=0));
+const isFree=c=>/^free elective/i.test(c.code);
+const termNm=c=>(termOf(c.term)||{}).name||'no term';
+/* credits in a term that count against the limit. Courses from another school can be left out if you turn that on. */
+const outside=c=>{const u=(S.settings.unit||'').trim().toUpperCase();if(!u)return false;return S.minors.some(m=>(m.slots||[]).some(s=>slotIds(s).indexOf(c.id)>=0)&&m.unit&&m.unit.toUpperCase()!==u)};
+const loadOf=id=>S.courses.filter(c=>c.term===id&&!(S.settings.capOwn&&outside(c))).reduce((a,c)=>a+c.credits,0);
+
+function minorRows(mn){
+  const used={},rank={done:0,current:1,planned:2,catalog:3},cells=[];
+  (mn.slots||[]).forEach(sl=>slotIds(sl).forEach(id=>{if(getC(id))used[id]=1}));
+  (mn.slots||[]).forEach(sl=>{
+    const n=Math.max(1,+sl.n||1),own=slotIds(sl).map(getC).filter(Boolean),cs=own.slice();
+    if(cs.length<n){const cand=[];(sl.opts||[]).forEach(o=>aliases(o).forEach(a=>S.courses.forEach(x=>{if(NC(x.code)===a&&!used[x.id]&&counts(x)&&cand.indexOf(x)<0)cand.push(x)})));
+      cand.sort((a,b)=>rank[status(a)]-rank[status(b)]);for(const x of cand){if(cs.length>=n)break;cs.push(x);used[x.id]=1}}
+    for(let i=0;i<n;i++){const c=cs[i]||null,st=c?(termOf(c.term)?status(c):'catalog'):'none';
+      cells.push({sl,c,st,cr:c?c.credits:(+sl.cr||3),linked:!!c&&own.indexOf(c)>=0,n})}
+  });
+  return cells;
+}
+function minorStat(mn){
+  const rows=minorRows(mn),ok=r=>r.c&&r.st!=='none'&&r.st!=='catalog',sum=f=>rows.filter(f).reduce((a,r)=>a+r.cr,0);
+  const need=Math.max(+mn.credits||0,rows.reduce((a,r)=>a+r.cr,0)),have=sum(ok),done=sum(r=>ok(r)&&r.st==='done'),cur=sum(r=>ok(r)&&r.st==='current');
+  return{rows,need,have,done,cur,pl:have-done-cur,left:Math.max(0,need-have),extra:sum(r=>ok(r)&&r.c.cat==='minor'),open:rows.filter(r=>!ok(r)),waiting:sum(r=>r.c&&r.st==='catalog')};
+}
+const placedCredits=()=>S.courses.filter(c=>termOf(c.term)&&counts(c)).reduce((a,c)=>a+c.credits,0);
+
+function planSelect(mn,sl){
+  const phs=S.courses.filter(isPh),terms=S.terms.filter(t=>t.status!=='done');
+  const have=S.courses.filter(c=>counts(c)&&!isPh(c)&&!/\dxx/i.test(c.code)&&slotIds(sl).indexOf(c.id)<0).sort((a,b)=>termIdx(a.term)-termIdx(b.term));
+  return`<select data-c="mplan" data-m="${mn.id}" data-s="${sl.id}" aria-label="Plan ${esc(slotName(sl))}"><option value="">Plan it…</option><option value="cat:">Add to my catalog, place it in the grid later</option>`+
+   (phs.length?`<optgroup label="Take the place of a slot you already have">${phs.map(p=>`<option value="ph:${p.id}">${esc(p.code)} · ${esc(termNm(p))}</option>`).join('')}</optgroup>`:'')+
+   `<optgroup label="Add on top, in a term">${terms.map(t=>`<option value="term:${t.id}">${esc(t.name)} · ${loadOf(t.id)} cr now</option>`).join('')}</optgroup>`+
+   `<optgroup label="Use a course already in your plan">${have.map(c=>`<option value="use:${c.id}">${esc(c.code)} · ${esc(termNm(c))}</option>`).join('')}</optgroup></select>`;
+}
+function minorCard(mn){
+  const t=minorStat(mn),pc=x=>Math.min(100,x/t.need*100);
+  const free=S.courses.filter(c=>isFree(c)&&isPh(c)),freeCr=free.reduce((a,c)=>a+c.credits,0);
+  const openCr=t.open.filter(r=>!r.c).reduce((a,r)=>a+r.cr,0),spill=Math.max(0,openCr+t.waiting-freeCr);
+  const slots=[],seen={};t.rows.forEach(r=>{if(!seen[r.sl.id]){seen[r.sl.id]=[];slots.push(r.sl)}seen[r.sl.id].push(r)});
+  const rows=slots.map(sl=>{
+    const cells=seen[sl.id],n=cells.length,placed=cells.filter(r=>r.c);
+    const chips=placed.map(r=>{const mg=mn.minGrade&&r.c.grade&&r.c.grade!=='CR'&&(pointsOf(r.c.grade)||0)<(pointsOf(mn.minGrade)||0);
+      const cls=r.st==='done'?'good':r.st==='current'?'acc':'';
+      return`<span class="row" style="gap:4px"><button class="pill ${cls}" data-a="open" data-id="${r.c.id}" style="border:0;cursor:pointer">${esc(r.c.code)} · ${r.st==='catalog'?'in catalog':esc(termNm(r.c))}</button>${mg?`<span class="pill warn">below ${esc(mn.minGrade)}</span>`:''}${r.linked?`<button class="btn ghost" data-a="munlink" data-m="${mn.id}" data-s="${sl.id}" data-c2="${r.c.id}" aria-label="Unlink ${esc(r.c.code)}">✕</button>`:''}</span>`}).join('');
+    const openCells=cells.length-placed.length,ctl=openCells>0?`${(sl.opts||[]).length>1?`<select data-c="mpick" data-m="${mn.id}" data-s="${sl.id}" aria-label="Which course">${sl.opts.map((o,i)=>`<option value="${i}" ${(sl.pick||0)===i?'selected':''}>${esc(primary(o))}</option>`).join('')}</select>`:''}${planSelect(mn,sl)}`:'';
+    return`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div style="min-width:0"><span class="code">${esc((sl.label&&(sl.opts||[]).length)?sl.opts.join(' or '):(placed.length?'':'pick any course'))}${n>1?` · ${placed.length} of ${n}`:''}</span><h3>${esc(slotName(sl))}</h3></div><div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">${chips}${ctl}</div></div>`}).join('');
+  const waitH=t.waiting?` ${t.waiting} credits are in your catalog waiting for a term, so drag them into the grid.`:'';
+  const msg=t.open.length===0?'<b style="color:var(--good)">Every requirement has a course in your plan.</b>':
+    `<b>${t.open.filter(r=>!r.c).reduce((a,r)=>a+r.cr,0)} credits</b> still need a course.${waitH} You have ${free.length?`${free.length} free elective slot${free.length>1?'s':''} (${freeCr} credits) that can take any course`:'no free elective slots left'}${spill>0?`, so about <b>${spill} credits</b> would sit on top of the ${S.settings.totalCredits} your degree needs. That is fine as long as no term goes over its credit limit.`:', so this fits inside your degree.'}`;
+  return`<div class="card"><div class="row between" style="align-items:flex-start"><div><h3 style="font-size:19px">${esc(mn.name)} ${mn.unit?`<span class="pill">${esc(mn.unit)}</span>`:''}</h3><div class="small muted">${t.have} of ${t.need} credits planned${t.extra?` · ${t.extra} on top of your degree`:''}${mn.minGrade?` · ${esc(mn.minGrade)} or higher needed`:''}</div></div><button class="btn ghost danger" data-a="delminor" data-id="${mn.id}" aria-label="Remove minor">✕</button></div>
+  <div class="bar" style="margin:12px 0"><i class="d" style="width:${pc(t.done)}%"></i><i style="width:${pc(t.cur)}%"></i><i class="p" style="width:${pc(t.pl)}%"></i></div>
+  <div class="small" style="margin-bottom:8px">${msg}</div>
+  <div class="card list" style="padding:2px 12px;margin:10px 0">${rows}</div>
+  ${mn.note?`<p class="small muted" style="margin:0 0 10px">${esc(mn.note)}</p>`:''}
+  <div class="row"><input id="ms-${mn.id}" placeholder="Add a requirement, for example PHIL 300 or MUS 300" style="flex:1;min-width:180px"><button class="btn" data-a="addslot" data-id="${mn.id}">Add</button></div></div>`;
+}
+function minorsSection(){
+  const el=eligibleMinors();
+  return`<div class="sec"><div class="row between" style="margin-bottom:14px"><h2 style="margin:0">Minors</h2></div>
+  <div class="grid g2" style="align-items:start">${S.minors.map(minorCard).join('')||'<div class="empty">No minors tracked yet. Pick one below.</div>'}</div>
+  <div class="card" style="margin-top:16px"><h3 style="margin-bottom:6px">Track a minor</h3><p class="small muted" style="margin:0 0 12px">These come from the Habib minors page. Ones you cannot take with your major are left out.</p>
+   <div class="row"><select id="mn-cat" aria-label="Minor">${el.map(m=>`<option value="${m.id}">${esc(m.name)} · ${m.unit} · ${m.credits} cr</option>`).join('')}</select><button class="btn primary" data-a="addcatminor">Add</button></div>
+   <details style="margin-top:14px"><summary class="small" style="cursor:pointer">Build your own</summary><div class="fgrid" style="margin-top:10px"><label class="f"><span>Name</span><input id="mn-name" placeholder="Economics"></label><label class="f"><span>School offering it</span><input id="mn-unit" placeholder="SAHSS"></label></div>
+   <label class="f" style="margin-top:10px"><span>Requirements, one per line. Put “or” between alternatives. Add “x2” for two of the same.</span><textarea id="mn-reqs" rows="5" placeholder="ECO 101&#10;ECO 201 or ECO 202&#10;ECO elective, 300 level x2"></textarea></label>
+   <div class="row" style="margin-top:10px"><label class="f" style="width:140px"><span>Credits each</span><input id="mn-cr" type="number" value="3"></label><button class="btn primary" data-a="addminor">Add minor</button></div></details></div></div>`;
+}
+function parseReq(text,cr){
+  const out=[];
+  String(text||'').split(/\n/).forEach(raw=>{
+    const lines=/\s+or\s+/i.test(raw)?[raw]:raw.split(',');
+    lines.map(x=>x.trim()).filter(Boolean).forEach(line=>{
+      let n=1;const m=line.match(/\s+x\s*(\d)$/i);if(m){n=+m[1];line=line.slice(0,m.index).trim()}
+      const alts=line.split(/\s+or\s+|;|\|/i).map(x=>x.trim()).filter(Boolean),coded=alts.filter(a=>aliases(a).length);
+      for(let i=0;i<n;i++)out.push(coded.length?{id:uid(),label:'',opts:alts,cr,pick:0,ids:[]}:{id:uid(),label:line,opts:[],cr,pick:0,ids:[]});
+    });
+  });
+  return out;
+}
+function unlinkCourse(sl,id){
+  sl.ids=slotIds(sl).filter(x=>x!==id);delete sl.courseId;
+  const c=getC(id);if(c&&c.was){c.code=c.was.code;c.title=c.was.title;c.credits=c.was.credits;c.notes=String(c.notes||'').replace(/\s*Counts toward the .* minor\./,'').trim();delete c.was}
+}
+Object.assign(ACT2,{
+  addcatminor(){const m=MINOR_CATALOG.find(x=>x.id===val('mn-cat'));if(!m)return;if(S.minors.some(x=>x.cid===m.id))return toast('That minor is already tracked');
+    S.minors.push({id:uid(),cid:m.id,name:m.name,unit:m.unit,credits:m.credits,minGrade:m.minGrade||'',note:m.note||'',slots:m.slots.map(s=>({id:uid(),label:s.label,opts:s.opts.slice(),cr:s.cr,n:s.n||1,pick:0,ids:[]}))});ensureMinorCat();persist();render()},
+  addminor(){const n=val('mn-name');if(!n)return toast('Give the minor a name first');const cr=parseInt(val('mn-cr'))||3,sl=parseReq(val('mn-reqs'),cr);
+    S.minors.push({id:uid(),name:n,unit:val('mn-unit'),credits:0,minGrade:'',note:'',slots:sl});ensureMinorCat();persist();render()},
+  delminor(e,d){mut(()=>{S.minors.forEach(m=>m.id===d.id&&(m.slots||[]).forEach(s=>slotIds(s).slice().forEach(id=>unlinkCourse(s,id))));S.minors=S.minors.filter(x=>x.id!==d.id)})},
+  munlink(e,d){const mn=S.minors.find(x=>x.id===d.m),sl=mn&&mn.slots.find(x=>x.id===d.s);if(sl){unlinkCourse(sl,d.c2);persist();render()}},
+  addslot(e,d){const mn=S.minors.find(x=>x.id===d.id),t=val('ms-'+d.id);if(!mn||!t)return;mn.slots=(mn.slots||[]).concat(parseReq(t,3));persist();render()},
+});
+Object.assign(CHG2,{
+  mpick(e,d,v){const mn=S.minors.find(x=>x.id===d.m),sl=mn&&mn.slots.find(x=>x.id===d.s);if(sl)sl.pick=+v||0},
+  mplan(e,d,v){
+    const mn=S.minors.find(x=>x.id===d.m),sl=mn&&mn.slots.find(x=>x.id===d.s);if(!sl||!v)return;
+    const i=v.indexOf(':'),k=v.slice(0,i),id=v.slice(i+1),o=(sl.opts||[]).length?sl.opts[Math.min(sl.pick||0,sl.opts.length-1)]:'';
+    const code=o?primary(o):String(sl.label||'Course').split(',')[0],title=sl.label||code,note='Counts toward the '+mn.name+' minor.';
+    const link=cid=>{sl.ids=slotIds(sl).concat(cid);delete sl.courseId};
+    const mkc=term=>{const c={id:uid(),code,title,credits:+sl.cr||3,term:term||null,cat:'minor',prereqs:[],coreqs:[],grade:null,assess:[],notes:note,instructor:''};S.courses.push(c);link(c.id);ensureMinorCat()};
+    if(k==='use')link(id);
+    else if(k==='ph'){const p=getC(id);if(!p)return;p.was={code:p.code,title:p.title,credits:p.credits};p.code=code;p.title=title;p.credits=+sl.cr||p.credits;p.notes=((p.notes||'')+' '+note).trim();link(p.id)}
+    else if(k==='term')mkc(id);
+    else if(k==='cat')mkc(null);
+  },
+});
+
+/* ---------- this term: goals and what each course needs ---------- */
+function termPlan(){
+  const t=S.terms.find(x=>x.status==='current');if(!t||t.cr)return null;
+  const cs=S.courses.filter(c=>c.term===t.id);if(!cs.length)return null;
+  const cum=cumulative(),o=outlook(),maxP=o.maxP,tg=S.settings.targetGpa;
+  const sc=S.settings.scale.slice().sort((a,b)=>a.p-b.p||a.min-b.min);
+  const rows=cs.map(c=>{const st=standing(c),has=st.W>0;
+    const fl=has?(pointsOf(letterFor(st.floor))||0):0,ce=has?(pointsOf(letterFor(st.ceil)))||0:maxP;
+    return{c,st,has,fl,ce,ceL:has?letterFor(st.ceil):null};});
+  const crT=rows.reduce((a,r)=>a+r.c.credits,0);
+  const need=cum.cr>0?(tg*(cum.cr+crT)-cum.pts)/crT:tg;
+  const T=need*crT,lo=rows.reduce((a,r)=>a+r.c.credits*r.fl,0),hi=rows.reduce((a,r)=>a+r.c.credits*r.ce,0);
+  const state=T<=lo+1e-9?'secured':T>hi+1e-9?'out':'plan';
+  let L=0;
+  if(state==='plan'){let a=0,b=maxP;for(let i=0;i<40;i++){const m=(a+b)/2,f=rows.reduce((s,r)=>s+r.c.credits*Math.min(r.ce,Math.max(r.fl,m)),0);if(f<T)a=m;else b=m}L=b}
+  rows.forEach(r=>{
+    r.aimP=state==='plan'?Math.min(r.ce,Math.max(r.fl,L)):state==='secured'?r.fl:r.ce;
+    const aim=sc.find(x=>x.p>=r.aimP-1e-9&&x.p>0)||sc[sc.length-1];r.aim=aim.l;r.aimMin=aim.min;
+    const g=r.c.goal&&sc.find(x=>x.l===r.c.goal);r.goal=g?g.l:'';r.goalMin=g?g.min:null;
+    const tgtMin=g?g.min:aim.min;r.need=r.has?needed(r.c,tgtMin):null;
+    r.pts=g?g.p:r.aimP;
+  });
+  const sum=rows.reduce((a,r)=>a+r.c.credits*r.pts,0),proj=sum/crT,after=(cum.pts+sum)/(cum.cr+crT);
+  return{t,rows,need,state,crT,proj,after,cum,maxP,tg,best:(hi/crT)};
+}
+function termPlanSection(){
+  const p=termPlan();if(!p)return'';
+  const opts=sel=>('<option value="">–</option>'+S.settings.scale.map(x=>`<option ${sel===x.l?'selected':''}>${esc(x.l)}</option>`).join(''));
+  const head1=p.state==='secured'?`Your target of ${fmt(p.tg)} is already safe this term, even if the unmarked work goes badly.`:
+    p.state==='out'?`Reaching ${fmt(p.tg)} overall would take an average of ${fmt(p.need)} this term, and even your best case is ${fmt(p.best)}. Aim for the grades below and your overall target moves out to later terms.`:
+    `To be on track for ${fmt(p.tg)} overall you need about <b>${fmt(p.need)}</b> across this term. The grades under "Aim for" are the lightest way to get there, given how much of each course is left to mark.`;
+  const rowsH=p.rows.map(r=>{
+    const lim=r.has?`can still reach <b>${esc(r.ceL)}</b>`:'no grading breakdown yet';
+    const nd=r.need==null?'':r.need<=0?'<span style="color:var(--good)">already secured</span>':r.need>100?'<span style="color:var(--bad)">out of reach</span>':`needs <b>${fmt(r.need,0)}%</b> on the remaining ${fmt(r.st.rem,0)}%`;
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="align-items:flex-start;gap:12px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 200px"><span class="code">${esc(r.c.code)} · ${r.c.credits} cr${r.st.pct!=null?` · now ${fmt(r.st.pct,0)}% ${esc(r.st.letter||'')}`:''}</span><h3>${esc(r.c.title)}</h3><div class="small muted">${lim}</div></div>
+    <div class="row" style="gap:14px;flex-wrap:wrap;justify-content:flex-end"><div><div class="lbl">Aim for</div><div class="mono" style="padding:6px 0">${esc(r.aim)}</div></div><label><div class="lbl">Goal</div><select data-c="goal" data-id="${r.c.id}" aria-label="Goal grade for ${esc(r.c.code)}">${opts(r.goal)}</select></label></div></div>${nd?`<div class="small" style="margin-top:4px">${r.goal?`For your goal of ${esc(r.goal)}, `:`For ${esc(r.aim)}, `}${nd}</div>`:''}</div>`}).join('');
+  return`<div class="sec"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 4px">${head1}</p>${rowsH}
+  <div class="row between" style="padding-top:14px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals, or the aim where you have none</span><span class="mono">term ${fmt(p.proj)} · overall ${fmt(p.after)}</span></div></div></div>`;
+}
+
+/* ---------- what if, one term at a time ---------- */
+function whatIf(cum){
+  const over=U.whatif,terms=S.terms.filter(t=>t.status!=='done'&&S.courses.some(c=>c.term===t.id));
+  if(!terms.length)return`<div class="sec"><h2>What if</h2><div class="empty">Schedule current or planned courses to try grades on them.</div></div>`;
+  let sel=U.wiTerm;if(sel!=='all'&&!terms.some(t=>t.id===sel))sel=(terms.find(t=>t.status==='current')||terms[0]).id;
+  const shown=sel==='all'?terms:terms.filter(t=>t.id===sel),lab=S.courses.filter(c=>terms.some(t=>t.id===c.term));
+  const pr=gpaOf(doneCourses().concat(lab),true,over);
+  const opts=v=>['<option value="">–</option>'].concat(S.settings.scale.map(x=>`<option ${v===x.l?'selected':''}>${esc(x.l)}</option>`)).join('');
+  const row=c=>{const run=c.grade||standing(c).letter;return`<div class="li"><div style="min-width:0"><span class="code">${esc(c.code)} · ${c.credits} cr${status(c)==='current'&&run?' · now '+esc(run):''}</span><h3>${esc(c.title)}</h3></div><select data-c="wi" data-id="${c.id}" aria-label="Grade for ${esc(c.code)}">${opts(over[c.id])}</select></div>`};
+  const strip=`<div class="tabs">${terms.map(t=>`<a href="#" data-a="witerm" data-v="${t.id}" ${sel===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="witerm" data-v="all" ${sel==='all'?'aria-current="page"':''}>All terms</a></div>`;
+  const block=t=>{const cs=S.courses.filter(c=>c.term===t.id),tg=gpaOf(cs,t.status==='current',over);
+    return`<div><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">${esc(t.name)}</h3><span class="mono small muted">term GPA ${tg.gpa==null?'–':fmt(tg.gpa)}</span></div><div class="card" style="padding:4px 16px">${cs.map(row).join('')}</div></div>`};
+  const single=shown.length===1?gpaOf(S.courses.filter(c=>c.term===shown[0].id),shown[0].status==='current',over):null;
+  return`<div class="sec"><div class="row between" style="margin-bottom:12px"><h2 style="margin:0">What if</h2><div class="row"><select data-c="wiall" aria-label="Set the whole term to"><option value="">Set ${sel==='all'?'everything':'this term'} to…</option>${S.settings.scale.map(x=>`<option>${esc(x.l)}</option>`).join('')}</select><button class="btn" data-a="wireset">Reset</button></div></div>${strip}
+  <div class="grid g2" style="align-items:start;margin-top:16px"><div style="display:flex;flex-direction:column;gap:16px">${shown.map(block).join('')}</div>
+  <div class="card"><div class="lbl">Projected cumulative</div><div class="num" style="margin:10px 0 6px">${fmt(pr.gpa)}</div><div class="small muted">${pr.cr} credits counted${cum.gpa!=null&&pr.gpa!=null?` · ${pr.gpa-cum.gpa>=0?'+':''}${fmt(pr.gpa-cum.gpa)} from today`:''}.${single?` This term alone: ${single.gpa==null?'–':fmt(single.gpa)}.`:''} Pick a grade for each course, or set a whole term at once. Courses with nothing chosen use their running grade, or are left out.</div></div></div></div>`;
+}
+Object.assign(ACT2,{witerm(e,d){U.wiTerm=d.v;render()}});
+Object.assign(CHG2,{goal(e,d,v){const c=getC(d.id);if(c)c.goal=v||null}});
+
+/* ---------- enrollment ---------- */
+const DAYN=['M','T','W','Th','F','Sa','Su'],DAYL={M:'Mon',T:'Tue',W:'Wed',Th:'Thu',F:'Fri',Sa:'Sat',Su:'Sun'};
+const hm=m=>{const h=Math.floor(m/60),mm=m%60;return(h%12||12)+':'+String(mm).padStart(2,'0')+(h<12?'a':'p')};
+function toMin(v){
+  if(v==null||v==='')return null;
+  if(v instanceof Date)return v.getHours()*60+v.getMinutes();
+  if(typeof v==='number')return Math.round((v%1)*1440);
+  const m=String(v).trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?$/i);if(!m)return null;
+  let h=+m[1];if(m[3]){const p=m[3].toLowerCase();if(p==='pm'&&h<12)h+=12;if(p==='am'&&h===12)h=0}return h*60+(+m[2]);
+}
+
+/* flexible column index: tries exact match first, then alias map */
+function colIx(hdr){
+  const map={};hdr.forEach((h,i)=>map[h]=i);
+  function ix(name){
+    if(map[name]!=null)return map[name];
+    const aliases={
+      'semester':['term'],'term':['semester'],
+      'day':['day(s)','days'],'day(s)':['day','days'],
+      'tot enrl':['total enrolled','enrollment','enrl tot'],
+      'offering program':['program','prog'],
+      'class nbr':['class number','classnbr'],
+      'course title':['title','course_title'],
+    };
+    const al=aliases[name]||[];
+    for(const a of al)if(map[a]!=null)return map[a];
+    /* partial match as last resort — both sides must be at least 3 chars */
+    if(name.length>=3)for(const h of hdr)if(h.length>=3&&(h.includes(name)||name.includes(h)))return map[h];
+    return -1;
+  }
+  return ix;
+}
+
+function parseOffers(rows){
+  const hdr=rows[0].map(x=>String(x||'').trim().toLowerCase()),ix=colIx(hdr);
+  const I={sem:ix('semester'),sub:ix('subject'),cat:ix('catalog'),title:ix('course title'),sec:ix('section'),tot:ix('tot enrl'),nbr:ix('class nbr'),day:ix('day'),ins:ix('instructor'),room:ix('room'),st:ix('start time'),en:ix('end time'),prog:ix('offering program')};
+  if(I.sub<0||I.cat<0||I.title<0||I.nbr<0)throw new Error('columns');
+  const map={};let term='';
+  rows.slice(1).forEach(r=>{
+    if(!r||r[I.nbr]==null||r[I.nbr]==='')return;
+    const k=String(r[I.nbr]);term=term||String(r[I.sem>=0?I.sem:0]||'');
+    const s=map[k]||(map[k]={k,code:(String(r[I.sub]||'').trim()+' '+String(r[I.cat]||'').trim()).trim(),title:String(r[I.title]||'').trim(),sec:String(r[I.sec]||'').trim(),tot:I.tot>=0?(+r[I.tot]||0):0,ins:String(r[I.ins>=0?I.ins:0]||'').trim(),prog:I.prog>=0?String(r[I.prog]||'').trim():'',meets:[]});
+    const dayCol=I.day>=0?I.day:I.st;
+    const days=String(r[I.day>=0?I.day:0]||'').match(/Th|Sa|Su|M|T|W|F/g)||[],a=toMin(r[I.st>=0?I.st:0]),b=toMin(r[I.en>=0?I.en:0]);
+    if(a!=null&&b!=null)days.forEach(d=>{if(!s.meets.some(m=>m.d===d&&m.s===a&&m.e===b))s.meets.push({d,s:a,e:b,r:String(r[I.room>=0?I.room:0]||'')})});
+  });
+  const list=Object.values(map);if(!list.length)throw new Error('empty');
+  return{term,at:todayStr(),sections:list,picks:{}};
+}
+async function onOffers(e){
+  const f=(e.target.files||[])[0];if(!f)return;U.enrMsg='';
+  try{
+    let rows;
+    if(/\.csv$/i.test(f.name)){rows=String(await f.text()).split(/\r?\n/).filter(Boolean).map(l=>l.match(/(\"([^\"]|\"\")*\"|[^,]*)(,|$)/g).map(x=>x.replace(/,$/,'').replace(/^\"|\"$/g,'').replace(/\"\"/g,'"')))}
+    else{if(!window.XLSX)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
+      const wb=window.XLSX.read(await f.arrayBuffer(),{type:'array'});rows=window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
+    const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);
+    o.picks={};Object.keys(keep).forEach(id=>{if(o.sections.some(s=>s.k===keep[id]))o.picks[id]=keep[id]});
+    S.enroll=o;persist();
+  }catch(err){U.enrMsg=err&&(err.message==='columns'||err.message==='empty')?'That file does not look like a schedule of classes. It needs the columns Subject, Catalog, Course Title, Class Nbr, Day, Start Time and End Time.':'The file could not be read ('+(err&&err.message||'unknown')+')';}
+  render();
+}
+const offered=c=>{const mine=aliases(c.code);const t=nn(c.title);return((S.enroll&&S.enroll.sections)||[]).filter(s=>aliases(s.code).some(a=>mine.indexOf(a)>=0)||(t&&nn(s.title)===t))};
+const secLabel=s=>`${s.sec} · ${s.ins||'TBA'} · ${s.meets.length?groupMeets(s.meets):'time TBA'}${s.tot?' · '+s.tot+' enrolled':''}`;
+function groupMeets(ms){const g={};ms.forEach(m=>{const k=m.s+'-'+m.e;(g[k]=g[k]||{s:m.s,e:m.e,d:[]}).d.push(m.d)});return Object.values(g).map(x=>x.d.sort((a,b)=>DAYN.indexOf(a)-DAYN.indexOf(b)).join('')+' '+hm(x.s)+'–'+hm(x.e)).join(', ')}
+function enrollTerm(){const ts=S.terms.filter(t=>t.status!=='done'),ci=S.terms.findIndex(t=>t.status==='current');
+  return S.terms.find(t=>t.id===U.enrTerm)||S.terms.find((t,i)=>t.status==='planned'&&i>ci)||ts[0]||S.terms[0]}
+function picked(){const E=S.enroll||{},out=[];Object.keys(E.picks||{}).forEach(id=>{const c=getC(id),s=(E.sections||[]).find(x=>x.k===E.picks[id]);if(c&&s)out.push({c,s})});return out}
+function clashes(list){
+  const out=[];
+  for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)list[i].s.meets.forEach(a=>list[j].s.meets.forEach(b=>{if(a.d===b.d&&a.s<b.e&&b.s<a.e)out.push({a:list[i],b:list[j],d:a.d,at:Math.max(a.s,b.s)})}));
+  return out;
+}
+function weekGrid(list,bad){
+  const ms=[];list.forEach(x=>x.s.meets.forEach(m=>ms.push(m)));if(!ms.length)return'';
+  const a=Math.floor(Math.min.apply(null,ms.map(m=>m.s))/60),b=Math.ceil(Math.max.apply(null,ms.map(m=>m.e))/60),H=46,days=DAYN.filter(d=>d!=='Su'&&(d!=='Sa'||ms.some(m=>m.d==='Sa')));
+  const badIds={};bad.forEach(x=>{badIds[x.a.c.id]=1;badIds[x.b.c.id]=1});
+  const hours=[];for(let h=a;h<b;h++)hours.push(h);
+  return`<div class="wk" style="grid-template-columns:44px repeat(${days.length},minmax(0,1fr))"><div></div>${days.map(d=>`<div class="wkh">${DAYL[d]}</div>`).join('')}<div style="position:relative;height:${(b-a)*H}px">${hours.map(h=>`<span class="wkt" style="top:${(h-a)*H}px">${hm(h*60)}</span>`).join('')}</div>${days.map(d=>`<div class="wkc" style="height:${(b-a)*H}px">${hours.map(h=>`<i style="top:${(h-a)*H}px"></i>`).join('')}${list.map(x=>x.s.meets.filter(m=>m.d===d).map(m=>`<div class="wkb${badIds[x.c.id]?' bad':''}" style="top:${(m.s/60-a)*H}px;height:${Math.max(18,(m.e-m.s)/60*H-2)}px"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)}<br><span>${hm(m.s)} ${esc(m.r)}</span></div>`).join('')).join('')}</div>`).join('')}</div>`;
+}
+
+/* ---------- seat reservations (hardcoded from Spring 2027 PDF) ---------- */
+const RESERVES={
+  '1191':{label:'EE 213 L1',res:[{who:'EE Freshman',seats:21}],cap:25},
+  '1192':{label:'EE 213 L2',res:[{who:'EE Freshman',seats:21}],cap:25},
+  '1198':{label:'EE/CE 211 L1',res:[{who:'EE Sophomore',seats:21}],cap:25},
+  '1199':{label:'EE/CE 211 L2',res:[{who:'EE Sophomore',seats:20}],cap:25},
+  '1200':{label:'EE/CE 211L T1',res:[{who:'EE Sophomore',seats:16}],cap:25},
+  '1201':{label:'EE/CE 211L T2',res:[{who:'EE Sophomore',seats:25}],cap:25},
+  '1208':{label:'EE/CE 354 L1',res:[{who:'CE Sophomore',seats:15},{who:'EE Sophomore',seats:10}],cap:25},
+  '1209':{label:'EE/CE 354 L2',res:[{who:'CE Sophomore',seats:12},{who:'EE Sophomore',seats:10}],cap:25},
+  '1210':{label:'EE/CE 354 L3',res:[{who:'CE Sophomore',seats:14},{who:'EE Sophomore',seats:10}],cap:25},
+  '1211':{label:'EE/CE 354 L4',res:[{who:'CE Sophomore',seats:12},{who:'EE Sophomore',seats:11}],cap:25},
+  '1212':{label:'EE/CE 361 L1',res:[{who:'EE Sophomore',seats:14}],cap:25},
+  '1213':{label:'EE/CE 361 L2',res:[{who:'EE Sophomore',seats:13}],cap:25},
+  '1214':{label:'EE/CE 361 L3',res:[{who:'EE Sophomore',seats:14}],cap:25},
+  '1215':{label:'EE/CE 361L T1',res:[{who:'EE Sophomore',seats:25}],cap:25},
+  '1216':{label:'EE/CE 361L T2',res:[{who:'EE Junior',seats:10}],cap:25},
+  '1217':{label:'EE/CE 361L T3',res:[{who:'EE Sophomore',seats:16},{who:'EE Junior',seats:9}],cap:25},
+  '1219':{label:'EE/CE 376 L1',res:[{who:'CE Sophomore',seats:14},{who:'EE Sophomore',seats:10}],cap:25},
+  '1220':{label:'EE/CE 376 L2',res:[{who:'CE Sophomore',seats:14},{who:'EE Sophomore',seats:10}],cap:25},
+  '1221':{label:'EE/CE 376 L3',res:[{who:'CE Sophomore',seats:12},{who:'EE Sophomore',seats:10}],cap:25},
+  '1222':{label:'EE/CE 376 L4',res:[{who:'CE Sophomore',seats:13},{who:'EE Sophomore',seats:10}],cap:25},
+  '1223':{label:'EE/CE 376L T1',res:[{who:'EE Sophomore',seats:25}],cap:25},
+  '1224':{label:'EE/CE 376L T2',res:[{who:'CE Sophomore',seats:19}],cap:25},
+  '1225':{label:'EE/CE 376L T3',res:[{who:'EE Sophomore',seats:16},{who:'CE Sophomore',seats:9}],cap:25},
+  '1226':{label:'EE/CE 376L T4',res:[{who:'CE Sophomore',seats:25}],cap:25},
+  '1077':{label:'CORE 106 L1',res:[{who:'CE Sophomore',seats:14},{who:'EE Sophomore',seats:10}],cap:25},
+  '1078':{label:'CORE 106 L2',res:[{who:'CE Sophomore',seats:14},{who:'EE Sophomore',seats:10}],cap:25},
+  '1079':{label:'CORE 106 L3',res:[{who:'CE Sophomore',seats:13},{who:'EE Sophomore',seats:10}],cap:25},
+  '1080':{label:'CORE 106 L4',res:[{who:'CE Sophomore',seats:12},{who:'EE Sophomore',seats:11}],cap:25},
+};
+function resInfo(section){
+  const r=RESERVES[section.k];if(!r)return null;
+  const ee=r.res.filter(x=>/^EE/i.test(x.who));
+  const mySeats=ee.reduce((a,x)=>a+x.seats,0);
+  return{res:r.res,cap:r.cap,mySeats,isGood:mySeats>0};
+}
+function resBadge(section){
+  const ri=resInfo(section);if(!ri)return'';
+  const ee=ri.res.filter(x=>/^EE/i.test(x.who));
+  if(ee.length)return`<span class="pill good" title="Phase I: ${ee.map(x=>x.who+': '+x.seats).join(', ')}" style="cursor:help">EE: ${ri.mySeats} seats</span>`;
+  const other=ri.res;
+  return other.length?`<span class="pill warn" title="${other.map(x=>x.who+': '+x.seats).join(', ')}" style="cursor:help">reserved for others</span>`:'';
+}
+
+/* ---------- auto-schedule generator ---------- */
+function autoSchedule(courseList,sections){
+  /* courseList: [{c,options:[section,...]},...] */
+  const n=courseList.length;if(!n)return[];
+  const results=[],cur=[];
+  function clash2(sa,sb){
+    for(const a of sa.meets)for(const b of sb.meets)if(a.d===b.d&&a.s<b.e&&b.s<a.e)return true;
+    return false;
+  }
+  function clashWith(sec){
+    for(let i=0;i<cur.length;i++)if(clash2(cur[i],sec))return true;
+    return false;
+  }
+  function solve(i){
+    if(results.length>=50)return; /* cap at 50 to avoid slowness */
+    if(i===n){results.push(cur.slice());return}
+    const opts=courseList[i].options;
+    for(let j=0;j<opts.length;j++){
+      if(!clashWith(opts[j])){cur.push(opts[j]);solve(i+1);cur.pop()}
+    }
+  }
+  solve(0);
+  return results;
+}
+
+function scoreSchedule(combo,prefs){
+  let score=0;
+  const pref=prefs||{};
+  combo.forEach(sec=>{
+    /* time preference: prefer mornings (before 2pm), penalise late (after 5pm) */
+    sec.meets.forEach(m=>{
+      if(pref.time==='morning'){score+=m.s<14*60?2:m.s<17*60?0:-2}
+      else if(pref.time==='afternoon'){score+=m.s>=12*60&&m.s<17*60?2:0}
+      else if(pref.time==='evening'){score+=m.s>=16*60?2:0}
+    });
+    /* instructor preference */
+    if(pref.prefInstructor&&sec.ins){
+      const prI=pref.prefInstructor.toLowerCase();
+      if(sec.ins.toLowerCase().includes(prI))score+=5;
+    }
+    if(pref.avoidInstructor&&sec.ins){
+      const avI=pref.avoidInstructor.toLowerCase();
+      if(sec.ins.toLowerCase().includes(avI))score-=5;
+    }
+    /* EE reserved seats bonus */
+    const ri=resInfo(sec);
+    if(ri&&ri.mySeats>0)score+=3;
+    if(ri&&ri.mySeats>=15)score+=2;
+    /* prefer fewer gaps in the day */
+  });
+  return score;
+}
+
+function findSchedules(){
+  const E=S.enroll;if(!E)return[];
+  const t=enrollTerm();if(!t)return[];
+  const cs=S.courses.filter(c=>c.term===t.id);
+  const courseList=cs.map(c=>{
+    const opts=offered(c);
+    return{c,options:opts.filter(s=>s.meets.length)};
+  }).filter(x=>x.options.length);
+  if(!courseList.length)return[];
+  const combos=autoSchedule(courseList);
+  const prefs=U.enrPrefs||{};
+  const scored=combos.map(combo=>{
+    const items=combo.map((sec,i)=>({c:courseList[i].c,s:sec}));
+    const sc=scoreSchedule(combo,prefs);
+    return{items,score:sc};
+  });
+  scored.sort((a,b)=>b.score-a.score);
+  return scored.slice(0,10);
+}
+
+function applySchedule(idx){
+  const scheds=findSchedules();
+  if(!scheds[idx])return;
+  const E=S.enroll;
+  E.picks={};
+  scheds[idx].items.forEach(x=>{E.picks[x.c.id]=x.s.k});
+  persist();render();
+}
+
+/* ---------- shopping cart / class numbers ---------- */
+function cartSection(){
+  const pk=picked();if(!pk.length)return'';
+  const nums=pk.map(x=>x.s.k);
+  const cartHTML=pk.map(x=>{
+    const rb=resBadge(x.s);
+    return`<div class="kv"><span><b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')}</span><span class="mono">${esc(x.s.k)} ${rb}</span></div>`;
+  }).join('');
+  return`<div class="sec"><h2>Shopping cart</h2><div class="card" style="padding:4px 16px">${cartHTML}
+  <div class="row between" style="padding:10px 0;border-top:1px solid var(--line);margin-top:6px"><div><div class="lbl">Class numbers for PSCS</div><div class="mono" style="margin-top:4px;user-select:all">${nums.join(', ')}</div></div><button class="btn" data-a="copycart" style="flex:none">Copy</button></div></div></div>`;
+}
+
+/* ---------- backup sections ---------- */
+function backupSection(){
+  const pk=picked();if(!pk.length)return'';
+  const E=S.enroll;if(!E)return'';
+  const rows=pk.map(x=>{
+    const all=offered(x.c).filter(s=>s.k!==x.s.k&&s.meets.length);
+    if(!all.length)return'';
+    const others=pk.filter(p=>p.c.id!==x.c.id);
+    const alts=all.map(s=>{
+      const ok=!others.some(o=>o.s.meets.some(a=>s.meets.some(b=>a.d===b.d&&a.s<b.e&&b.s<a.e)));
+      const rb=resBadge(s);
+      return`<div class="small" style="padding:4px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(s.ins||'TBA')} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
+    }).join('');
+    return`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.c.code)}</b> <span class="muted">if ${esc(x.s.sec)} is full:</span>${alts}</div>`;
+  }).filter(Boolean).join('');
+  if(!rows)return'';
+  return`<div class="sec"><h2>Backup sections</h2><div class="card" style="padding:4px 16px">${rows}</div><p class="small muted">Sections marked "fits" do not clash with the rest of your schedule. Sections crossed out would create a clash.</p></div>`;
+}
+
+/* ---------- auto-schedule UI ---------- */
+function autoScheduleSection(){
+  const E=S.enroll;if(!E)return'';
+  const t=enrollTerm();if(!t)return'';
+  const cs=S.courses.filter(c=>c.term===t.id);
+  const courseList=cs.map(c=>{
+    const opts=offered(c).filter(s=>s.meets.length);
+    return{c,options:opts};
+  }).filter(x=>x.options.length);
+  if(courseList.length<2)return''; /* need at least 2 courses to auto-schedule */
+
+  const prefs=U.enrPrefs||{};
+  const prefsUI=`<div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Preferences</h3>
+  <div class="fgrid"><label class="f"><span>Preferred times</span><select data-c="enrpref" data-f="time"><option value="" ${!prefs.time?'selected':''}>No preference</option><option value="morning" ${prefs.time==='morning'?'selected':''}>Morning (before 2pm)</option><option value="afternoon" ${prefs.time==='afternoon'?'selected':''}>Afternoon (12–5pm)</option><option value="evening" ${prefs.time==='evening'?'selected':''}>Evening (after 4pm)</option></select></label>
+  <label class="f"><span>Preferred instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
+  <label class="f"><span>Avoid instructor</span><input data-c="enrpref" data-f="avoidInstructor" value="${esc(prefs.avoidInstructor||'')}" placeholder="Partial name"></label></div></div>`;
+
+  if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${courseList.length} courses with sections. Atlas will generate all valid combinations and rank them by your preferences and seat reservations.</p></div>`;
+
+  const scheds=findSchedules();
+  if(!scheds.length)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<div class="card"><div class="empty">No clash-free combination found. Try reducing courses or adding sections with different times.</div></div><button class="btn" data-a="autosched">Try again</button></div>`;
+
+  const rows=scheds.map((sch,idx)=>{
+    const bad=clashes(sch.items);
+    return`<div class="card" style="margin-bottom:14px"><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">Option ${idx+1} <span class="pill acc">score ${sch.score}</span></h3><button class="btn primary" data-a="applysched" data-v="${idx}">Use this</button></div>
+    <div class="small" style="margin-bottom:8px">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
+    ${weekGrid(sch.items,bad)}</div>`;
+  }).join('');
+
+  return`<div class="sec"><h2>Auto-schedule · ${scheds.length} option${scheds.length>1?'s':''}</h2>${prefsUI}${rows}<button class="btn" data-a="autosched">Refresh</button></div>`;
+}
+
+/* ---------- main enrollment view ---------- */
+function vEnroll(){
+  const E=S.enroll,t=enrollTerm();
+  const up=`<div class="card"><h3 style="margin-bottom:6px">${E?'Update the offerings':'Import the course offerings'}</h3><p class="small muted" style="margin:0 0 12px">When the registrar publishes the schedule of classes for a term, drop the spreadsheet here (.xlsx or .csv). Atlas finds your planned courses in it, lets you pick sections, and warns you about clashes.${E?` Currently loaded: ${esc(E.term||'a schedule')}, ${E.sections.length} sections.`:''}</p><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes"><div class="small" style="color:var(--bad);margin-top:8px">${esc(U.enrMsg||'')}</div></div>`;
+  if(!E)return up;
+  const cs=t?S.courses.filter(c=>c.term===t.id):[];
+  const pk=picked(),bad=clashes(pk);
+  const rowsH=cs.map(c=>{
+    const ss=offered(c),cur=(E.picks||{})[c.id]||'';
+    const selSec=ss.find(s=>s.k===cur);
+    const rb=selSec?resBadge(selSec):'';
+    const ctl=!ss.length?`<span class="pill warn">not offered in this file</span>`:`<select data-c="enrpick" data-id="${c.id}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${ss.length})</option>${ss.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
+    const mine=pk.find(x=>x.c.id===c.id);
+    const resH=selSec?resDetail(selSec):'';
+    return`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${ctl}</div></div>${rb?`<div style="margin-top:4px">${rb}</div>`:''}${resH}${mine&&mine.s.meets.length?`<div class="small muted" style="margin-top:4px">${esc(groupMeets(mine.s.meets))} · ${esc(mine.s.meets[0].r)}</div>`:''}</div>`}).join('');
+  const clashH=bad.length?`<div class="card" style="border-color:var(--bad);margin-bottom:16px"><b style="color:var(--bad)">Clashes</b><div class="small" style="margin-top:6px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} and ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap on ${DAYL[x.d]} around ${hm(x.at)}`).join('<br>')}</div></div>`:'';
+  const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
+  const open=[];S.minors.forEach(mn=>minorStat(mn).open.forEach(r=>{const opts=(r.sl.opts||[]);const hits=opts.map(o=>({o,n:E.sections.filter(s=>aliases(o).some(a=>aliases(s.code).indexOf(a)>=0)).length}));open.push({mn,r,hits})}));
+  const minorH=open.filter(x=>x.hits.length).length?`<div class="sec"><h2>Minor courses on offer</h2><div class="card" style="padding:4px 16px">${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">✓ means a section is in the file you loaded.</div></div></div>`:'';
+  return up+`<div class="sec"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Choose sections for ${esc(t?t.name:'')}</h2><select data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>${clashH}
+  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:8px 0">The file is for ${esc(E.term||'one term')}. Pick the term your courses sit in, then choose sections.</div></div><div class="card">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
+  <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(s.ins||'TBA')} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
+}
+
+function resDetail(section){
+  const ri=resInfo(section);if(!ri)return'';
+  return`<div class="small" style="margin-top:4px;padding:4px 8px;background:var(--surface);border-radius:6px">${ri.res.map(x=>`<span style="margin-right:10px">${esc(x.who)}: <b>${x.seats}</b></span>`).join('')}<span class="muted">cap: ${ri.cap}</span></div>`;
+}
+
+Object.assign(ACT2,{
+  copycart(){const pk=picked();if(!pk.length)return;const txt=pk.map(x=>x.s.k).join(', ');
+    if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Class numbers copied'),()=>toast('Could not copy'));else toast('Select and copy: '+txt)},
+  autosched(){U.showAutoSched=true;render()},
+  applysched(e,d){applySchedule(+d.v);U.showAutoSched=false},
+});
+Object.assign(CHG2,{
+  enrpick(e,d,v){S.enroll.picks=S.enroll.picks||{};if(v)S.enroll.picks[d.id]=v;else delete S.enroll.picks[d.id]},
+  enrterm(e,d,v){U.enrTerm=v},
+  enrq(e,d,v){U.enrQ=v},
+  enrpref(e,d,v){U.enrPrefs=U.enrPrefs||{};U.enrPrefs[d.f]=v},
+});
+
+/* ---------- desktop app bridge (only present inside the Atlas desktop app) ---------- */
+const HOST=window.atlasHost||null;
+let HC={};
+const hostCanvasCard=()=>`<div class="card" style="margin-bottom:16px"><h2>Sign in and sync</h2><p class="small muted" style="margin:-6px 0 12px">Atlas opens ${esc(HC.canvasUrl||'your Canvas')} in its own window. Sign in the way you normally do. Atlas then reads your courses, scores and due dates, and the window closes. Your password is never stored.</p><div class="row"><button class="btn primary" data-a="hostcanvas">${U.hostBusy==='canvas'?'Waiting for you to sign in…':'Sign in to Canvas'}</button></div></div>`;
+const hostCard=()=>`<div class="sec"><h2>This computer</h2><div class="card">
+  <div class="small muted" style="margin-bottom:12px">Your plan is saved in a file on this computer, with a backup copy kept at most once an hour.<br><span class="mono">${esc(HC.dataPath||'')}</span></div>
+  <div class="row" style="margin-bottom:18px"><button class="btn" data-a="hostfolder">Open the data folder</button></div>
+  <h3 style="margin-bottom:8px">Portals</h3>
+  <div class="fgrid"><label class="f"><span>Canvas address</span><input data-c="hostcfg" data-f="canvasUrl" value="${esc(HC.canvasUrl||'')}" placeholder="https://hulms.instructure.com"></label><label class="f"><span>PSCS address</span><input data-c="hostcfg" data-f="pscsUrl" value="${esc(HC.pscsUrl||'')}" placeholder="https://…"></label><label class="f"><span>Simple Syllabus address</span><input data-c="hostcfg" data-f="syllabusUrl" value="${esc(HC.syllabusUrl||'')}" placeholder="https://…"></label></div>
+  <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn" data-a="hostopen" data-v="pscs">Open PSCS</button><button class="btn" data-a="hostopen" data-v="syllabus">Open Simple Syllabus</button><button class="btn" data-a="hostreport" data-v="pscs">Save a PSCS page report</button><button class="btn" data-a="hostreport" data-v="syllabus">Save a Simple Syllabus page report</button></div>
+  <p class="small muted" style="margin:10px 0 0">A page report lists the headings, tables, buttons and fields on the page you have open in that window, plus the text on it. It is how new importers get written. It can contain your grades or name, so read it and remove anything private before sharing it.</p></div></div>`;
+if(HOST){
+  Object.assign(ACT2,{
+    async hostcanvas(){if(U.hostBusy)return;U.hostBusy='canvas';U.cvErr='';render();
+      try{U.cvText=await HOST.canvasExport();U.hostBusy='';ACT2.cvread()}
+      catch(e){U.hostBusy='';U.cvErr=String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,'');render()}},
+    hostopen(e,d){HOST.openPortal(d.v).catch(x=>toast(String((x&&x.message)||x).replace(/^Error invoking remote method '[^']*': (Error: )?/,'')))},
+    hostreport(e,d){HOST.pageReport(d.v).then(r=>toast(r&&r.saved?'Report saved':'Nothing was saved'),x=>toast(String((x&&x.message)||x).replace(/^Error invoking remote method '[^']*': (Error: )?/,'')))},
+    hostfolder(){HOST.openDataFolder()},
+  });
+  Object.assign(CHG2,{hostcfg(e,d,v){HC[d.f]=v.trim();HOST.setConfig({[d.f]:v.trim()}).then(c=>{HC=c})}});
+  window.addEventListener('beforeunload',()=>{if(U.touched&&HOST.saveSync)try{HOST.saveSync(JSON.stringify(S))}catch(e){}});
+  const _vs=vSettings;vSettings=function(){return _vs()+hostCard()};
+}
+
+/* ---------- shell and render ---------- */
+const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
+const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,settings:vSettings};
+function render(){
+  const app=$('#app');if(!app)return;
+  const sy=window.scrollY,dr=$('.drawer'),dy=dr?dr.scrollTop:0,ae=document.activeElement;
+  let view='';try{view=(VIEWS[U.route]||vOverview)()}catch(e){view='<div class="empty">Something in your data could not be shown. Download a backup from Settings and restore it, or erase and start again.<br><small>'+esc(e&&e.message)+'</small></div>';console.error(e)}
+  app.innerHTML=`<div class="shell"><aside class="side"><div class="brand"><i>Atlas</i><small>${esc(S.settings.school||'Degree planner')}</small></div><nav class="nav" aria-label="Sections">${ROUTES.map(r=>`<a href="${r[2]}" ${U.route===r[0]||(r[0]==='courses'&&(U.route==='add'||U.route==='canvas'))?'aria-current="page"':''}>${r[1]}</a>`).join('')}</nav><div class="sidefoot">${esc(U.sync||'')}</div></aside><main class="main">${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status">${esc(U.toast)}</div>`:''}`;
+  window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
+}
+function toast(t){U.toast=t;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';render()},2200)}
+function routeFromHash(){const h=(location.hash||'').replace('#','');
+  if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
+  U.course=null;render();window.scrollTo(0,0)}
+
+/* ---------- helpers that work inside Claude and in a downloaded copy ---------- */
+const cap=n=>{try{return window.claude&&window.claude.use?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(null)}catch(e){return Promise.resolve(null)}};
+const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
+async function saveFile(name,data){
+  if(window.atlasHost&&window.atlasHost.saveFile){const r=await window.atlasHost.saveFile(name,data);if(r&&r.canceled)throw{code:'declined'};return}
+  const dl=await cap('downloads');
+  if(dl){await dl.save({filename:name,data});return}
+  const type=/\.pdf$/.test(name)?'application/pdf':/\.csv$/.test(name)?'text/csv':'application/json';
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
+}
+const b64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(f)});
+async function callAI(prompt,images){
+  if(U.hasSample){const sp=await cap('sample');return await sp.json(prompt,images.length?{images}:{})}
+  if(AI.key){
+    const parts=[{text:prompt}];
+    for(const f of images)parts.push({inline_data:{mime_type:f.type||'image/jpeg',data:await b64(f)}});
+    let r;
+    try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(AI.model||'gemini-2.5-flash')+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':AI.key},body:JSON.stringify({contents:[{role:'user',parts}],generationConfig:{responseMimeType:'application/json',temperature:0}})})}catch(e){throw{code:'network'}}
+    if(!r.ok){let m='';try{m=((await r.json()).error||{}).message||''}catch(x){}if(r.status===400&&/api key|API_KEY/i.test(m)||r.status===403)throw{code:'bad_key',status:r.status};throw{code:r.status===429?'rate_limited':'upstream_error',status:r.status,message:m}}
+    const j=await r.json(),ps=(((j.candidates||[])[0]||{}).content||{}).parts||[],t=ps.map(p=>p.text||'').join('');
+    try{return JSON.parse(t)}catch(e){const m=t.match(/[\{\[][\s\S]*[\}\]]/);if(m){try{return JSON.parse(m[0])}catch(x){}}throw{code:'invalid_json'}}
+  }
+  throw{code:'no_ai'};
+}
+
+/* ---------- actions ---------- */
+const splitList=v=>String(v||'').split(/[,;\n]/).map(x=>x.trim()).filter(Boolean);
+const val=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
+function termNames(first,season,n){const out=[];let y=first,s=season;for(let i=0;i<n;i++){out.push(s+' '+y);if(s==='Fall'){s='Spring';y++}else s='Fall'}return out}
+function nextCatKey(){return 'c'+uid()}
+const ACT={
+  go(e,d){location.hash=d.v},
+  open(e,d){U.course=d.id;U.tab='assess';render()},
+  close(){U.course=null;render()},
+  closebg(e){if(e.target.classList.contains('veil')){U.course=null;render()}},
+  tab(e,d){e.preventDefault();U.tab=d.v;render()},
+  sel(e,d){U.sel=(d.id&&U.sel!==d.id)?d.id:null;render()},
+  hidedone(){U.hideDone=!U.hideDone;render()},
+  allterms(){U.allTerms=!U.allTerms;render()},
+  cview(e,d){U.cview=d.v;render()},
+  setup(){
+    const n=Math.max(2,Math.min(14,parseInt(val('su-n'))||8)),dn=Math.max(0,Math.min(n,parseInt(val('su-done'))||0));
+    const names=termNames(parseInt(val('su-year'))||new Date().getFullYear(),val('su-season')||'Fall',n);
+    const base=blank();base.settings.program=val('su-prog');base.settings.school=val('su-school');base.settings.totalCredits=parseInt(val('su-cr'))||130;
+    base.terms=names.map((nm,i)=>({id:'t'+uid(),name:nm,status:i<dn?'done':i===dn?'current':'planned'}));
+    S=base;persist();render();
+  },
+  loadsample(){S=seed();persist();render()},
+  addgroup(e,d){mut(()=>{getC(d.id).assess.push({id:uid(),n:'New group',type:'Assignment',w:0,cnt:1,drop:0,items:[]})})},
+  delgroup(e,d){mut(()=>{const c=getC(d.id);c.assess=c.assess.filter(g=>g.id!==d.gid)})},
+  additem(e,d){mut(()=>{const g=getC(d.id).assess.find(x=>x.id===d.gid);g.items.push({id:uid(),n:g.n+' '+(g.items.length+1),s:null,m:100,due:'',st:'',late:false})})},
+  delitem(e,d){mut(()=>{const g=getC(d.id).assess.find(x=>x.id===d.gid);g.items=g.items.filter(i=>i.id!==d.iid)})},
+  delcourse(e,d){mut(()=>{S.courses=S.courses.filter(c=>c.id!==d.id);U.course=null})},
+  wireset(){U.whatif={};render()},
+  addterm(){mut(()=>S.terms.push({id:'t'+uid(),name:'New term',status:'planned'}))},
+  delterm(e,d){mut(()=>{S.courses.forEach(c=>{if(c.term===d.id)c.term=null});S.terms=S.terms.filter(t=>t.id!==d.id)})},
+  termUp(e,d){mut(()=>{const i=termIdx(d.id);if(i>0){const t=S.terms.splice(i,1)[0];S.terms.splice(i-1,0,t)}})},
+  addcat(){mut(()=>S.settings.cats.push({k:nextCatKey(),n:'New category',req:0}))},
+  delcat(e,d){mut(()=>{S.settings.cats=S.settings.cats.filter(k=>k.k!==d.id)})},
+  addgrade(){mut(()=>S.settings.scale.push({l:'?',p:0,min:0}))},
+  delgrade(e,d){mut(()=>S.settings.scale.splice(+d.i,1))},
+  resetscale(){mut(()=>{S.settings.scale=DEF_SCALE.map(x=>Object.assign({},x))})},
+  askreset(){U.confirmReset=true;render()},noreset(){U.confirmReset=false;render()},
+  resetall(){U.confirmReset=false;S=blank();U.course=null;persist();location.hash='overview';render()},
+  manual(){
+    const code=val('ma-code'),title=val('ma-title');if(!code||!title)return toast('Add a code and a title');
+    const c={id:uid(),code,title,credits:num(val('ma-cr'))||3,term:val('ma-term')||null,cat:val('ma-cat'),prereqs:splitList(val('ma-pre')),grade:null,assess:[],notes:'',instructor:''};
+    mut(()=>S.courses.push(c));U.course=c.id;U.tab='assess';render();
+  },
+  async export(){
+    try{await saveFile('course-atlas-backup.json',JSON.stringify(S,null,2));toast('Backup saved')}catch(e){if(!e||e.code!=='declined')toast('The backup could not be saved')}
+  },
+  sylClearImg(){U.syl.files=[];render()},
+  sylDiscard(){U.syl.out=null;render()},
+  sylDel(e,d){U.syl.out.assessments.splice(+d.i,1);render()},
+  sylRow(){U.syl.out.assessments.push({name:'',type:'Assignment',weight:0,count:1,drop:0});render()},
+  sylAdd(){
+    const o=U.syl.out;if(!o.code||!o.title)return toast('The course needs a code and a title');
+    const c={id:uid(),code:o.code,title:o.title,credits:o.credits||3,term:o.term||null,cat:o.cat||S.settings.cats[0].k,prereqs:o.prereqs,grade:null,instructor:o.instructor||'',notes:o.notes||'',assess:o.assessments.filter(a=>a.name||a.weight).map(a=>{const n=Math.max(1,+a.count||1);return{id:uid(),n:a.name||'Group',type:a.type,w:+a.weight||0,cnt:n,drop:+a.drop||0,items:Array.from({length:n},(_,i)=>({id:uid(),n:n>1?(a.name||'Item')+' '+(i+1):(a.name||'Item'),s:null,m:100,due:'',st:'',late:false}))}})};
+    S.courses.push(c);U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
+  },
+  async sylRead(){
+    const y=U.syl;y.text=($('#syl-text')||{}).value||y.text;y.term=val('syl-term');
+    if(!y.text.trim()&&!y.files.length){y.err='Paste the syllabus text or attach a file first.';return render()}
+    y.err='';y.loading=true;y.out=null;render();
+    const prompt=`You are reading a university course syllabus and turning it into data. Reply with only one JSON object, no other text, shaped exactly like:
+{"code":"EE 301","title":"Electronics","credits":3,"instructor":"","prereqs":["EE 202"],"assessments":[{"name":"Quizzes","type":"Quiz","weight":20,"count":4,"drop":0}],"notes":""}
+Rules:
+- "type" must be one of: ${ATYPES.join(', ')}.
+- Each assessment is one group of similar items, for example all quizzes. "weight" is the TOTAL percentage of the course grade for the whole group, not per item.
+- "count" is how many items are in the group (for example 4 quizzes). Use 1 for a single exam or project. If the syllabus says the lowest scores are dropped, or only the best N count (often written n-2), put the number dropped in "drop".
+- "prereqs" lists course codes only. Use an empty array when none are stated.
+- "credits" is a number. If the syllabus gives contact hours but no credits, use 3.
+- "notes" is one short sentence on grading policies that change the maths (drop lowest, best of, late penalties, attendance rules). Empty string if none.
+- Never invent a value the syllabus does not support. Use an empty string or 0.
+${y.files.length?'The attached images are pages of the syllabus.\n':''}
+SYLLABUS TEXT:
+${y.text.slice(0,120000)||'(see the attached images)'}`;
+    try{
+      const o=await callAI(prompt,y.files);
+      if(!o||typeof o!=='object'||Array.isArray(o))throw {code:'invalid_json'};
+      const cur=S.settings.cats;
+      y.out={code:String(o.code||'').trim(),title:String(o.title||'').trim(),credits:num(o.credits)||3,instructor:String(o.instructor||''),notes:String(o.notes||''),
+        prereqs:Array.isArray(o.prereqs)?o.prereqs.map(String):splitList(o.prereqs),cat:cur[0]?cur[0].k:'',term:y.term||'',
+        assessments:(Array.isArray(o.assessments)?o.assessments:[]).map(a=>({name:String(a.name||''),type:ATYPES.includes(a.type)?a.type:'Other',weight:num(a.weight)||0,count:Math.max(1,Math.round(num(a.count)||1)),drop:Math.max(0,Math.round(num(a.drop)||0))}))};
+      if(!y.out.assessments.length)y.err='No grading breakdown was found. You can add rows by hand below.';
+    }catch(e){
+      const c=e&&e.code;y.err=c==='no_ai'?'No syllabus reader is set up. Add a Gemini key in Settings, or add the course by hand.':c==='bad_key'?'Gemini did not accept the key. Check it in Settings.':c==='network'?'Could not reach Gemini. This works from the downloaded file, not inside Claude’s page.':c==='not_granted'?'Claude is not allowed on this page, so the syllabus could not be read. You can still add the course by hand.':c==='rate_limited'?'Too many requests just now. Try again in a minute.':c==='invalid_json'?'The reply could not be turned into a course. Try again, or paste only the grading and schedule sections.':c==='image_rejected'?'One of the images could not be used. Try a clearer photo.':'The syllabus could not be read'+(c?' ('+(typeof c==='string'?c:'error')+(e&&e.status?' '+e.status:'')+')':e&&e.message?' ('+e.message+')':'')+'. If you are inside Claude’s page this is usually because outside requests are blocked there. Try the downloaded copy of Atlas, or add the course by hand.';
+    }
+    y.loading=false;render();
+  }
+};
+function parseCoursesField(c,f,v){
+  if(f==='credits'){c.credits=num(v)||0}
+  else if(f==='term'){c.term=v||null}
+  else if(f==='prereqs'){c.prereqs=splitList(v)}
+  else if(f==='coreqs'){c.coreqs=splitList(v)}
+  else if(f==='grade'){c.grade=v||null}
+  else if(f==='code'){const old=c.code;c.code=v.trim()||old;S.courses.forEach(o=>{o.prereqs=(o.prereqs||[]).map(p=>NC(p)===NC(old)?c.code:p)});S.minors.forEach(mn=>(mn.slots||[]).forEach(sl=>{sl.opts=(sl.opts||[]).map(p=>NC(p)===NC(old)?c.code:p)}))}
+  else c[f]=v;
+}
+const CHG={
+  gr(e,d,v){const g=getC(d.id).assess.find(x=>x.id===d.gid);g[d.f]=['w','cnt','drop'].includes(d.f)?(num(v)||0):v},
+  it(e,d,v){const g=getC(d.id).assess.find(x=>x.id===d.gid),it=g.items.find(x=>x.id===d.iid);if(d.f==='s')it.s=num(v);else if(d.f==='m')it.m=num(v);else it[d.f]=v},
+  cf(e,d,v){const c=getC(d.id);parseCoursesField(c,d.f,v)},
+  set(e,d,v){S.settings[d.f]=['totalCredits','maxLoad'].includes(d.f)?(parseInt(v)||0):d.f==='targetGpa'?(num(v)||0):d.f==='retakeReplaces'?(v!=='no'):d.f==='capOwn'?(v==='yes'):v},
+  tf(e,d,v){termOf(d.id)[d.f]=d.f==='cr'?v==='1':v},
+  kf(e,d,v){const k=S.settings.cats.find(x=>x.k===d.id);k[d.f]=d.f==='req'?(num(v)||0):v},
+  sf(e,d,v){const g=S.settings.scale[+d.i];g[d.f]=d.f==='l'?v.trim():(num(v)||0)},
+  syl(e,d,v){const o=U.syl.out;o[d.f]=d.f==='credits'?(num(v)||0):d.f==='prereqs'?splitList(v):v},
+  sylA(e,d,v){const a=U.syl.out.assessments[+d.i];a[d.f]=['weight','count','drop'].includes(d.f)?(num(v)||0):v},
+  wi(e,d,v){if(v)U.whatif[d.id]=v;else delete U.whatif[d.id]},
+  wiall(e,d,v){if(v){curCourses().concat(planCourses()).filter(c=>!U.wiTerm||U.wiTerm==='all'||c.term===U.wiTerm).forEach(c=>U.whatif[c.id]=v)}},
+};
+async function onFiles(e){
+  const files=Array.from(e.target.files||[]),y=U.syl;let msg=[];
+  for(const f of files){
+    try{
+      if(/^image\//.test(f.type)){if(y.files.length<(U.imgMax||0))y.files.push(f);else msg.push('Too many images; kept the first '+U.imgMax)}
+      else if(/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name)){try{y.text+=(y.text?'\n\n':'')+await pdfText(f)}catch(pe){if(AI.key&&!U.hasSample){y.files.push(f.type?f:new File([f],f.name,{type:'application/pdf'}));msg.push(f.name+' will be sent to Gemini as a PDF.')}else throw pe}}
+      else y.text+=(y.text?'\n\n':'')+await f.text();
+    }catch(err){msg.push('Could not read '+f.name+(err&&err.message?' ('+err.message+')':'')+(/pdf/i.test(f.name)?'. Copy the text out of the PDF and paste it instead.':''))}
+  }
+  y.msg=msg.join(' ');render();
+}
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>no(new Error('load'));document.head.appendChild(s)})}
+async function pdfText(file){
+  const B='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  if(!window.pdfjsLib)await loadScript(B+'pdf.min.js');
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc=B+'pdf.worker.min.js';
+  const doc=await Promise.race([window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise,new Promise((_,r)=>setTimeout(()=>r(new Error('slow')),25000))]);
+  let out='';for(let i=1;i<=Math.min(doc.numPages,25);i++){const p=await doc.getPage(i);const t=await p.getTextContent();out+=t.items.map(x=>x.str).join(' ')+'\n'}
+  if(out.replace(/\s/g,'').length<80)throw new Error('empty');return out;
+}
+async function onImport(e){
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  try{const o=JSON.parse(await f.text());if(!o||!Array.isArray(o.terms)||!Array.isArray(o.courses)||!o.settings)throw 0;
+    const b=blank();S=Object.assign(b,o,{settings:Object.assign(b.settings,o.settings)});S.sample=!!o.sample;persist();render();toast('Backup restored')}
+  catch(err){toast('That file is not an Atlas backup')}
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  if(e.target.closest('select,input,textarea'))return;
+  const el=e.target.closest('[data-a]');if(!el)return;
+  const f=ACT[el.dataset.a]||ACT2[el.dataset.a];if(!f)return;
+  if(el.dataset.a==='closebg'&&e.target!==el)return;
+  if(el.tagName==='A'&&el.getAttribute('href')==='#')e.preventDefault();
+  f(e,el.dataset);
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&U.course){U.course=null;render()}
+  if((e.key==='Enter'||e.key===' ')&&e.target.closest&&e.target.closest('g.nd')){e.preventDefault();ACT.sel(e,e.target.closest('g.nd').dataset)}
+});
+document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.c==='syltext')U.syl.text=e.target.value});
+document.addEventListener('change',e=>{
+  const t=e.target,k=t.dataset&&t.dataset.c;if(!k)return;
+  if(k==='syltext'){U.syl.text=t.value;return}
+  if(k==='sylf'){onFiles(e);return}
+  if(k==='impf'){onImport(e);return}
+  if(k==='enrf'){onOffers(e);return}
+  if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=U.hasSample?U.imgMax:(AI.key?8:0);render();return}
+  const f=CHG[k]||CHG2[k];if(!f)return;
+  try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
+  if(k==='syl'||k==='sylA'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'){render();return}
+  persist();render();
+});
+let dragId=null;
+document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('[data-drag]');if(!c)return;dragId=c.dataset.drag;try{e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'}catch(x){}});
+document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');if(!t||!dragId)return;e.preventDefault();document.querySelectorAll('.term.over').forEach(x=>{if(x!==t)x.classList.remove('over')});t.classList.add('over')});
+document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'));if(!t||!dragId)return;e.preventDefault();const c=getC(dragId);dragId=null;if(c){c.term=t.dataset.drop||null;persist();render()}});
+document.addEventListener('dragend',()=>{dragId=null;document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'))});
+window.addEventListener('hashchange',routeFromHash);
+
+/* ---------- saving ---------- */
+const LS='course-atlas.v1';
+let dbDoc=null,timer=null,saving=false,pendingSave=false;
+function setSync(t){U.sync=t;const f=$('.sidefoot');if(f)f.textContent=t}
+persist=function(){
+  U.touched=true;
+  try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+  if(HOST){setSync('Saving…');clearTimeout(timer);timer=setTimeout(()=>HOST.save(JSON.stringify(S)).then(()=>setSync('Saved on this computer'),()=>setSync('Could not save to the data file')),400);return}
+  if(!dbDoc){setSync('Saved in this browser');return}
+  setSync('Saving…');clearTimeout(timer);timer=setTimeout(flush,700);
+};
+async function flush(){
+  if(!dbDoc)return;
+  if(saving){pendingSave=true;return}
+  saving=true;
+  try{await dbDoc.set({state:JSON.stringify(S),at:Date.now()});setSync('Saved to your account')}
+  catch(e){setSync('Saved in this browser only')}
+  saving=false;if(pendingSave){pendingSave=false;flush()}
+}
+function migrateCourse(c){c.assess=(c.assess||[]).map(a=>a.items?a:{id:a.id||uid(),n:a.n,type:a.type||'Other',w:+a.w||0,cnt:1,drop:0,items:[{id:uid(),n:a.n,s:a.s==null?null:+a.s,m:100,due:a.due||'',st:'',late:false}]});if(!c.coreqs)c.coreqs=[]}
+function migrateMinor(m){
+  if(Array.isArray(m.slots)){m.slots.forEach(s=>{if(!s.ids){s.ids=s.courseId?[s.courseId]:[];delete s.courseId}});return m}
+  return{id:m.id||uid(),name:m.name,unit:'',credits:+m.credits||0,minGrade:'',note:'',slots:(m.codes||[]).map(c=>({id:uid(),label:'',opts:[c],cr:3,pick:0,ids:[]}))};
+}
+function upgrade(o){
+  const b=blank(),st=Object.assign(b,o,{settings:Object.assign(b.settings,o.settings||{})});
+  if(!o.v||o.v<3){
+    /* older saved plans are rebuilt from the current starting plan, keeping any final grades and settings you had entered */
+    const old={};(o.courses||[]).forEach(c=>{const t=(o.terms||[]).find(x=>x.id===c.term);if(c.grade)old[NC(c.code)+'|'+(t?t.name:'')]=c.grade});
+    const ns=seed();ns.courses.forEach(c=>{const t=ns.terms.find(x=>x.id===c.term),g=old[NC(c.code)+'|'+(t?t.name:'')];if(g&&!c.grade)c.grade=g});
+    if(o.settings&&o.settings.targetGpa)ns.settings.targetGpa=o.settings.targetGpa;
+    return ns;
+  }
+  st.courses.forEach(migrateCourse);
+  st.minors=(st.minors||[]).map(migrateMinor);
+  if(st.minors.length)ensureMinorCat(st.settings);
+  if(!st.settings.unit&&/habib/i.test(st.settings.school||''))st.settings.unit='DSSE';
+  st.v=4;return st;
+}
+function adopt(o){S=upgrade(o);S.sample=false}
+async function boot(){
+  let local=null;try{const r=localStorage.getItem(LS);if(r)local=JSON.parse(r)}catch(e){}
+  if(HOST){try{HC=await HOST.config()}catch(e){}try{const r=await HOST.load();if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.terms)&&!o.sample)local=o}}catch(e){}}
+  try{const a=localStorage.getItem(LSAI);if(a)AI=Object.assign(AI,JSON.parse(a))}catch(e){}
+  if(local&&Array.isArray(local.terms)&&!local.sample){const was=local.v;adopt(local);if(!was||was<3)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}setSync(HOST?'Saved on this computer':'Saved in this browser');if(HOST)HOST.save(JSON.stringify(S))}
+  else{S=seed();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}setSync(HOST?'Saved on this computer':'Saved in this browser');if(HOST)HOST.save(JSON.stringify(S))}
+  routeFromHash();
+  try{const sp=await cap('sample');U.hasSample=!!sp;if(sp&&sp.limits){const l=await sp.limits().catch(()=>null);U.imgMax=l&&l.images?l.images.maxCount:0}else U.imgMax=AI.key?8:0}catch(e){}
+  render();
+  try{
+    const [db,user]=await Promise.all([cap('db'),cap('user')]);
+    const id=user?await user.id():null;
+    if(!db||!id)return;
+    const ref=db.doc('data/users/'+id+'/planner');
+    const snap=await Promise.race([ref.get(),new Promise((_,r)=>setTimeout(()=>r(new Error('slow')),10000))]);
+    dbDoc=ref;
+    let o=null;if(snap.exists&&snap.data().state){try{o=JSON.parse(snap.data().state)}catch(e){}}
+    if(o&&!o.sample&&Array.isArray(o.terms)){if(!U.touched){adopt(o);setSync('Saved to your account');render();if(!o.v||o.v<3)flush()}else flush()}
+    else flush();
+  }catch(e){setSync('Saved in this browser')}
+}
+boot();
+})();
+</script>
+
+</body></html>

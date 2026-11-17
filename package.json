@@ -1,0 +1,30 @@
+{
+  "name": "atlas",
+  "productName": "Atlas",
+  "version": "1.1.0",
+  "description": "Degree planner: grades, GPA, roadmap, minors and enrollment in one place.",
+  "main": "main.js",
+  "scripts": {
+    "build:page": "node build-page.js",
+    "start": "node build-page.js && electron .",
+    "dist": "node build-page.js && electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "app.atlas.planner",
+    "productName": "Atlas",
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**",
+      "connectors/**",
+      "package.json"
+    ],
+    "win": {
+      "target": "portable"
+    }
+  }
+}

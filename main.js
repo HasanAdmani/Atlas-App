@@ -1,0 +1,165 @@
+// Atlas desktop app: main process.
+// Keeps your plan in a file, opens portal windows where you sign in yourself, and reads pages with that session.
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+const DEFAULTS = { canvasUrl: 'https://hulms.instructure.com', pscsUrl: '', syllabusUrl: '' };
+const SOURCES = { canvas: 'canvasUrl', pscs: 'pscsUrl', syllabus: 'syllabusUrl' };
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+let win = null;
+const portals = {};
+
+const dataDir = () => app.getPath('userData');
+const dataFile = () => path.join(dataDir(), 'atlas-data.json');
+const cfgFile = () => path.join(dataDir(), 'config.json');
+
+function readJson(file, fallback) {
+  try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { return fallback; }
+}
+function writeAtomic(file, text) {
+  const tmp = file + '.tmp';
+  fs.writeFileSync(tmp, text);
+  fs.renameSync(tmp, file);
+}
+function config() {
+  return Object.assign({}, DEFAULTS, readJson(cfgFile(), {}), { dataPath: dataFile() });
+}
+
+/* ---------- plan file, with a backup copy kept at most once an hour ---------- */
+function backup() {
+  const file = dataFile();
+  if (!fs.existsSync(file)) return;
+  const dir = path.join(dataDir(), 'backups');
+  fs.mkdirSync(dir, { recursive: true });
+  const files = fs.readdirSync(dir).filter((x) => x.endsWith('.json')).sort();
+  const last = files[files.length - 1];
+  const lastTime = last ? fs.statSync(path.join(dir, last)).mtimeMs : 0;
+  if (Date.now() - lastTime < 3600e3) return;
+  const d = new Date(), p = (n) => String(n).padStart(2, '0');
+  const name = `atlas-${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}.json`;
+  fs.copyFileSync(file, path.join(dir, name));
+  files.slice(0, Math.max(0, files.length + 1 - 15)).forEach((x) => fs.unlinkSync(path.join(dir, x)));
+}
+function saveStore(text) {
+  if (typeof text !== 'string' || text.length > 20e6) throw new Error('Nothing to save');
+  JSON.parse(text); // refuse anything that is not valid JSON
+  backup();
+  writeAtomic(dataFile(), text);
+}
+ipcMain.handle('store:load', () => (fs.existsSync(dataFile()) ? fs.readFileSync(dataFile(), 'utf8') : null));
+ipcMain.handle('store:save', (e, text) => { saveStore(text); return true; });
+ipcMain.on('store:saveSync', (e, text) => { try { saveStore(text); e.returnValue = true; } catch (x) { e.returnValue = false; } });
+
+/* ---------- settings ---------- */
+ipcMain.handle('cfg:get', () => config());
+ipcMain.handle('cfg:set', (e, patch) => {
+  const cur = readJson(cfgFile(), {});
+  Object.keys(SOURCES).forEach((s) => {
+    const k = SOURCES[s], v = patch && typeof patch[k] === 'string' ? patch[k].trim() : null;
+    if (v === null) return;
+    if (v && !/^https:\/\/[^\s]+$/i.test(v)) throw new Error('The address must start with https://');
+    cur[k] = v;
+  });
+  writeAtomic(cfgFile(), JSON.stringify(cur, null, 1));
+  return config();
+});
+
+/* ---------- saving files the page makes (transcript, backup) ---------- */
+ipcMain.handle('file:save', async (e, name, data) => {
+  const r = await dialog.showSaveDialog(win, { defaultPath: path.basename(String(name || 'atlas.txt')) });
+  if (r.canceled || !r.filePath) return { canceled: true };
+  fs.writeFileSync(r.filePath, typeof data === 'string' ? data : Buffer.from(data));
+  return { canceled: false };
+});
+ipcMain.handle('folder:open', () => shell.openPath(dataDir()));
+
+/* ---------- portal windows ---------- */
+function portalUrl(source) {
+  const key = SOURCES[source];
+  if (!key) throw new Error('Unknown portal');
+  const url = config()[key];
+  if (!/^https:\/\//i.test(url || '')) throw new Error('Add the address in Settings first');
+  return url;
+}
+function portalWindow(source, show) {
+  let w = portals[source];
+  if (w && !w.isDestroyed()) { if (show) { w.show(); w.focus(); } return w; }
+  w = new BrowserWindow({
+    width: 1100, height: 820, show: !!show, title: 'Atlas: ' + source,
+    webPreferences: { partition: 'persist:' + source, contextIsolation: true, nodeIntegration: false, sandbox: true },
+  });
+  w.setMenuBarVisibility(false);
+  portals[source] = w;
+  w.on('closed', () => { delete portals[source]; });
+  return w;
+}
+ipcMain.handle('portal:open', async (e, source) => {
+  const url = portalUrl(source), w = portalWindow(source, true);
+  if (!w.webContents.getURL()) await w.loadURL(url).catch(() => {});
+  return true;
+});
+ipcMain.handle('portal:report', async (e, source) => {
+  const w = portals[source];
+  if (!w || w.isDestroyed()) throw new Error('Open that portal first, go to the page you want described, then try again');
+  const script = fs.readFileSync(path.join(__dirname, 'connectors', 'report.js'), 'utf8');
+  const text = await w.webContents.executeJavaScript(script);
+  const r = await dialog.showSaveDialog(win, { defaultPath: `atlas-${source}-page-report.json` });
+  if (r.canceled || !r.filePath) return { saved: false };
+  fs.writeFileSync(r.filePath, text);
+  return { saved: true };
+});
+
+/* ---------- Canvas: wait for your sign-in, then read your courses ---------- */
+ipcMain.handle('canvas:export', async () => {
+  const url = portalUrl('canvas'), host = new URL(url).hostname;
+  const w = portalWindow('canvas', false);
+  await w.loadURL(url).catch(() => {});
+  const started = Date.now();
+  let shown = false;
+  while (Date.now() - started < 5 * 60e3) {
+    if (w.isDestroyed()) throw new Error('The Canvas window was closed');
+    let onCanvas = false;
+    try { onCanvas = new URL(w.webContents.getURL()).hostname === host; } catch (x) { /* still loading */ }
+    let signedIn = false;
+    if (onCanvas) {
+      signedIn = await w.webContents.executeJavaScript(
+        "fetch('/api/v1/users/self',{credentials:'same-origin',headers:{Accept:'application/json'}}).then(r=>r.ok).catch(()=>false)"
+      ).catch(() => false);
+    }
+    if (signedIn) {
+      const script = fs.readFileSync(path.join(__dirname, 'connectors', 'canvas.js'), 'utf8');
+      const json = await w.webContents.executeJavaScript(script);
+      w.close();
+      return json;
+    }
+    if (!shown && Date.now() - started > 2500) { w.show(); shown = true; }
+    await sleep(1500);
+  }
+  if (!w.isDestroyed()) w.close();
+  throw new Error('Timed out waiting for you to sign in');
+});
+
+/* ---------- main window ---------- */
+function createWindow() {
+  win = new BrowserWindow({
+    width: 1360, height: 900, minWidth: 900, minHeight: 600, title: 'Atlas',
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true },
+  });
+  win.loadFile(path.join(__dirname, 'app', 'index.html'));
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https:\/\//i.test(url)) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  win.webContents.on('will-navigate', (e, url) => { if (!url.startsWith('file://')) e.preventDefault(); });
+  win.on('closed', () => { win = null; Object.values(portals).forEach((w) => { if (!w.isDestroyed()) w.close(); }); });
+}
+
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.focus(); } });
+  app.whenReady().then(createWindow);
+  app.on('window-all-closed', () => app.quit());
+}
