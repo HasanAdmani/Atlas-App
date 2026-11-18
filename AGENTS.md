@@ -1,18 +1,18 @@
-# AGENTS.md — Atlas Desktop App Developer & Agent Guide
+# AGENTS.md — Atlas Developer & Agent Guide
 
-This document provides essential architectural context, conventions, execution instructions, and hard constraints for AI agents and human developers working in this repository.
+This document provides essential architectural context, conventions, execution instructions, and hard constraints for AI agents and human developers working in this repository. For current server status and history, also see [PROJECT_STATE.md](PROJECT_STATE.md), [CHANGELOG.md](CHANGELOG.md), and [deploy.env](deploy.env).
 
 ---
 
 ## 1. Project Overview & Architecture
 
-**Atlas** is an offline-first degree planner desktop application designed primarily for Habib University students (with adaptable curriculum schemas). It consolidates grades, GPA calculations, target projections, curriculum roadmaps, minor degree tracking, weekly timetables, and enrollment planning into a single local-first application.
+**Atlas** is a local-first degree planner designed primarily for Habib University students (with adaptable curriculum schemas), running as both an **Electron desktop application** (`main.js`) and a **Node.js + PWA web app** (`server.js`, deployed on Starserver at `/atlas/`). It consolidates grades, GPA calculations, target projections, curriculum roadmaps, minor degree tracking, weekly timetables, and enrollment planning.
 
 ### Key Architectural Characteristics
-- **Local-First & Privacy-Focused**: User data is strictly saved on the local filesystem (`userData/atlas-data.json`). No student data is transmitted to external servers.
-- **Portal Session Scraping**: Connects to university systems (Canvas LMS, PSCS, Simple Syllabus) using isolated Electron browser sessions where users authenticate directly; Atlas reads page data or APIs via session cookies without ever handling or storing passwords.
+- **Local-First & Multi-Device Sync**: In Electron, data is saved locally in `app.getPath('userData')/atlas-data.json`. In Web/PWA mode (`server.js`), data is stored privately on your own server in `userData/atlas-data.json` and synced across phone and desktop via `/api/store` with offline `localStorage` fallback. No student data is sent to third-party servers.
+- **Portal Session Scraping**: In Electron desktop mode, connects to university systems (Canvas LMS, PSCS, Simple Syllabus) using isolated browser sessions where users authenticate directly; Atlas reads page data or APIs via session cookies without ever handling or storing passwords. (In Web/PWA mode, Canvas sync uses the read-only bookmarklet paste workflow.)
 - **Zero-Dependency Renderer**: The client-side UI uses pure Vanilla JavaScript, CSS custom properties, and standard DOM APIs without React, Vue, Svelte, Tailwind, or bundling overhead.
-- **File Concatenation Build Pipeline**: Source files in `src/` are concatenated by `build-page.js` in a strict order into `app/index.html`.
+- **File Concatenation Build Pipeline**: Source files in `src/` are concatenated by `build-page.js` in a strict order into `app/index.html`, along with generated PWA assets (`manifest.webmanifest`, `sw.js`, `icon.svg`).
 
 ---
 
@@ -21,6 +21,7 @@ This document provides essential architectural context, conventions, execution i
 | Layer | Technology | Details |
 |---|---|---|
 | **Desktop Runtime** | Electron `^33.2.0` | Main process, preload bridge, isolated portal windows |
+| **Web / PWA Server** | Node.js `http` (`server.js`) | Zero-dependency HTTP/sync server, PWA manifest & network-first `sw.js` |
 | **Packaging / Dist** | electron-builder `25.1.8` | Windows portable executable target (`win: { target: "portable" }`) |
 | **Frontend Language** | Vanilla ES6+ JavaScript | Strict mode, IIFE scoped, no transpiler |
 | **Templating / UI** | Custom template literals | Functional HTML generation with sanitized interpolated strings |
@@ -34,8 +35,11 @@ This document provides essential architectural context, conventions, execution i
 
 ```
 Atlas-App/
-├── .gitignore                      # Ignores node_modules/ and dist/
+├── .gitignore                      # Ignores node_modules/, dist/, userData/, and personal backups
+├── .gitattributes                  # Enforces LF line endings for deploy.env and scripts
 ├── AGENTS.md                       # This guide
+├── PROJECT_STATE.md                # Living state & Starserver deployment overview
+├── CHANGELOG.md                    # Change log with rollback steps
 ├── README.md                       # User-facing onboarding documentation
 ├── package.json                    # Project configuration, scripts, dependencies
 ├── package-lock.json               # Locked dependency tree
@@ -55,7 +59,7 @@ Atlas-App/
 │   ├── p6.js                       # Canvas sync connector client UI & bookmarklet script
 │   ├── p7.js                       # Habib University Minor degree catalog & slot requirements
 │   ├── p8.js                       # Term goals, standing projections, weekly schedule grid
-│   ├── p9.js                       # Desktop bridge integration with window.atlasHost
+│   ├── p9.js                       # Dual host bridge: Electron (window.atlasHost) & Web/PWA (/api/store)
 │   └── p5b.js                    # Router, render loop, actions, persistence, migrations, closes })();</script>
 │
 ├── app/                            # RUNTIME / OUTPUT DIRECTORY (DO NOT EDIT DIRECTLY)
@@ -139,13 +143,11 @@ Files in `src/` are concatenated by `build-page.js` into one continuous file in 
 - **Action Handling**: Handled via data attributes (`data-a="actionName"` and `data-d="jsonPayload"`) or direct event listeners routed through the `ACT` dictionary in `p5b.js`.
 
 ### 3. Data Persistence & Backup Lifecycle
-- In Electron, the main process manages persistence in `app.getPath('userData')`:
-  - `atlas-data.json`: Primary data file.
-  - `config.json`: Host configuration (portal URLs, data file path).
-  - `backups/atlas-YYYYMMDD-HHMM.json`: Automated hourly backups.
-- **Hourly Backup Rotation**: `main.js` automatically creates a backup if more than 1 hour has elapsed since the last backup, retaining the 15 most recent backups.
+- **Electron (`main.js`)**: Manages persistence in `app.getPath('userData')` (`atlas-data.json`, `config.json`, `backups/atlas-YYYYMMDD-HHMM.json`).
+- **Node.js Web / PWA Server (`server.js`)**: Manages persistence in `<repo>/userData/` (`atlas-data.json` and `backups/atlas-YYYYMMDD-HHMM.json`), seeding from `course-atlas-backup.json` on first start if present.
+- **Hourly Backup Rotation**: Both `main.js` and `server.js` automatically create a backup if more than 1 hour has elapsed since the last backup, retaining the 15 most recent backups.
 - **Atomic File Writes**: `writeAtomic()` writes data to a temporary file (`.tmp`) before renaming it, guaranteeing that crashes or power cuts never corrupt existing JSON.
-- **Debounced Renderer Autosave**: Mutations call `save()`, which triggers debounced `flush()` (700ms) to sync data with `window.atlasHost.save()` and `localStorage`.
+- **Renderer Sync (`p9.js` & `p5b.js`)**: `HOST` resolves to `DESKTOP_HOST` (`window.atlasHost`) in Electron or `WEB_HOST` (`/api/store`) when served over HTTP/HTTPS. Mutations call `persist()`, which saves to `localStorage` immediately and debounces `HOST.save(...)` (400ms), while `visibilitychange` refreshes newer server state when switching devices and `beforeunload` flushes via `saveSync` / `sendBeacon`.
 
 ### 4. IPC & Preload Security
 - `preload.js` bridges renderer and main process via `contextBridge.exposeInMainWorld('atlasHost', { ... })`.

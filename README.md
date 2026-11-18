@@ -1,10 +1,10 @@
 # Atlas 🧭
 
-> **Offline-first desktop degree planner, GPA forecaster, and enrollment manager for university students.**
+> **Local-first desktop & installable PWA degree planner, GPA forecaster, and enrollment manager for university students.**
 
-Atlas consolidates academic history, GPA forecasting, target projections, curriculum roadmaps, minor degree tracking, weekly timetables, and enrollment planning into a single, lightning-fast desktop application.
+Atlas consolidates academic history, GPA forecasting, target projections, curriculum roadmaps, minor degree tracking, weekly timetables, and enrollment planning into a single fast application—available both as a **desktop app (Electron)** and an **installable Node.js PWA** for phone and desktop browsers.
 
-Built with privacy at its core: user data is stored strictly on your local machine (`userData/atlas-data.json`). No student credentials, grades, or transcripts are ever transmitted to external servers.
+Built with privacy at its core: user data is stored strictly on your local machine or private server (`userData/atlas-data.json`). No student credentials, grades, or transcripts are ever transmitted to external third-party servers.
 
 ---
 
@@ -27,6 +27,7 @@ Built with privacy at its core: user data is stored strictly on your local machi
 | Layer | Technology | Details |
 |---|---|---|
 | **Desktop Runtime** | Electron `^33.2.0` | Main process, preload bridge, isolated portal sessions |
+| **Web / PWA Server** | Node.js `http` (`server.js`) | Zero-dependency HTTP/sync server, PWA manifest & service worker (`app/sw.js`) |
 | **Packaging** | electron-builder `25.1.8` | Standalone Windows portable executable |
 | **Frontend UI** | Vanilla ES6+ JavaScript | Strict mode, IIFE scoped, custom template literals |
 | **Styling** | Vanilla CSS3 | Responsive flex/grid, CSS custom properties, light & dark themes |
@@ -46,13 +47,15 @@ Atlas-App/
 │   ├── p6.js         # Canvas sync client UI & transcript export
 │   ├── p7.js         # Minor degree catalog & requirements
 │   ├── p8.js         # Term goals & weekly schedule grid
-│   ├── p9.js         # Desktop bridge integration
+│   ├── p9.js         # Dual host bridge: Electron (window.atlasHost) & Web/PWA (/api/store)
 │   └── p5b.js        # Router, state actions, persistence & IIFE closure
-├── app/              # Runtime bundle directory (app/index.html compiled from src/)
+├── app/              # Runtime bundle & PWA assets (index.html, manifest.webmanifest, sw.js, icon.svg)
 ├── connectors/       # Scripts injected into portal sessions (Canvas, PSCS)
+├── server.js         # Zero-dependency Node.js web & multi-device sync server
+├── deploy.env        # Starserver deployment manifest (port 3000, route /atlas)
 ├── main.js           # Electron main process & IPC handlers
 ├── preload.js        # Context-isolated secure preload bridge
-└── build-page.js     # Concatenation pipeline assembling src/ into app/
+└── build-page.js     # Concatenation pipeline assembling src/ into app/ & PWA files
 ```
 
 ---
@@ -77,10 +80,16 @@ Atlas-App/
    ```
 
 3. **Start the application**:
-   ```bash
-   npm start
-   ```
-   *(This automatically builds `app/index.html` from `src/` and launches Electron).*
+   - **Desktop App (Electron)**:
+     ```bash
+     npm start
+     ```
+     *(Builds `app/index.html` from `src/` and launches Electron).*
+   - **Web / PWA Server (Phone & Browser Access)**:
+     ```bash
+     npm run serve
+     ```
+     *(Starts `server.js` at `http://127.0.0.1:3000`, also deployed behind Caddy at `/atlas/` on Starserver).*
 
 ---
 
