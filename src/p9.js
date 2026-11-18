@@ -26,14 +26,24 @@ const WEB_HOST=IS_WEB?{
     HC.backups=j.backups||[];HC.updatedAt=j.updatedAt||0;
     return j.data||null;
   },
-  async save(text){
-    const j=await webFetchJson(WEB_BASE+'/api/store',{method:'POST',headers:{'Content-Type':'application/json'},body:text});
+  async save(text,force){
+    const url=WEB_BASE+'/api/store?base='+encodeURIComponent(HC.updatedAt||0)+(force?'&force=1':'');
+    const r=await fetch(url,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:text});
+    const j=await r.json().catch(()=>null);
+    if(r.status===409&&j&&j.conflict){
+      U.conflict={data:j.data,updatedAt:j.updatedAt};
+      if(j.backups)HC.backups=j.backups;
+      setSync('Conflict — newer save on server');
+      render();
+      return false;
+    }
+    if(!r.ok||!j||j.ok===false)throw new Error((j&&j.error)||('HTTP '+r.status));
     HC.updatedAt=j.updatedAt||Date.now();
     if(j.backups)HC.backups=j.backups;
     return true;
   },
   saveSync(text){
-    try{return !!(navigator.sendBeacon&&navigator.sendBeacon(WEB_BASE+'/api/store',new Blob([text],{type:'application/json'})))}catch(e){return false}
+    try{return !!(navigator.sendBeacon&&navigator.sendBeacon(WEB_BASE+'/api/store?base='+encodeURIComponent(HC.updatedAt||0),new Blob([text],{type:'application/json'})))}catch(e){return false}
   },
   async restoreBackup(name){
     const j=await webFetchJson(WEB_BASE+'/api/backups/restore',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
@@ -112,6 +122,26 @@ if(DESKTOP_HOST){
         const o=JSON.parse(raw);
         if(o&&Array.isArray(o.terms)){adopt(o);try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}setSync('Synced with server');render();toast('Restored '+sel)}
       }catch(e){toast('Could not restore backup')}
+    },
+    conflictTheirs(){
+      if(!U.conflict)return;
+      try{
+        const o=JSON.parse(U.conflict.data);
+        if(o&&Array.isArray(o.terms)){
+          HC.updatedAt=U.conflict.updatedAt||Date.now();
+          U.conflict=null;
+          adopt(o);
+          try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+          setSync('Synced with server');render();toast('Loaded newer plan from server');
+        }
+      }catch(e){toast('Could not load server plan')}
+    },
+    async conflictMine(){
+      if(!U.conflict)return;
+      try{
+        const ok=await WEB_HOST.save(JSON.stringify(S),true);
+        if(ok){U.conflict=null;setSync('Synced with server');render();toast('Kept your changes and synced')}
+      }catch(e){toast('Could not save to server')}
     },
   });
   document.addEventListener('visibilitychange',async()=>{

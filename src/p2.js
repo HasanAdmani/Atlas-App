@@ -15,15 +15,42 @@ const num=v=>{const n=parseFloat(v);return isNaN(n)?null:n};
 
 const DEF_SCALE=[['A',4,93],['A-',3.67,90],['B+',3.33,87],['B',3,83],['B-',2.67,80],['C+',2.33,77],['C',2,73],['C-',1.67,70],['D+',1.33,67],['D',1,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
 const ATYPES=['Quiz','Assignment','Lab','Project','Midterm','Final','Participation','Other'];
+const CAT_COLORS=['#2945B8','#16794F','#B86B11','#7C3AED','#C02669','#0284C7','#4F46E5','#64748B'];
+const DEF_PORTALS=[
+  {id:'canvas',name:'Canvas LMS',short:'C',url:'https://hulms.instructure.com',on:true,kind:'canvas',color:'#E13F2B'},
+  {id:'pscs',name:'PSCS Portal',short:'P',url:'https://pscs.habib.edu.pk/psc/CSPROD/EMPLOYEE/SA/c/NUI_FRAMEWORK.PT_LANDINGPAGE.GBL',on:true,kind:'pscs',color:'#1E5A99'},
+  {id:'syllabus',name:'Simple Syllabus',short:'S',url:'https://habib.simplesyllabus.com',on:true,kind:'syllabus',color:'#16794F'},
+  {id:'mail',name:'Student Mail',short:'M',url:'https://outlook.office.com',on:false,kind:'link',color:'#0078D4'}
+];
+function defUi(){
+  return{
+    dash:{
+      desktop:[
+        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
+        {w:'inprog',size:'m',on:true},{w:'duenext',size:'m',on:true},{w:'week',size:'m',on:true},{w:'trend',size:'m',on:true},
+        {w:'attention',size:'m',on:true},{w:'reqs',size:'m',on:true},{w:'portals',size:'s',on:false},{w:'note',size:'s',on:false}
+      ],
+      mobile:[
+        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
+        {w:'duenext',size:'m',on:true},{w:'inprog',size:'m',on:true},{w:'week',size:'m',on:true},{w:'attention',size:'m',on:true}
+      ],
+      note:''
+    },
+    plan:{layout:'years',density:'auto',minDensity:'compact',colorBy:'status',collapseDone:false,trayOpen:false},
+    modules:{minors:true,enroll:true,roadmap:true,whatif:true,portals:true,canvas:true},
+    accent:'blue',
+    density:'comfortable'
+  };
+}
 
-function blank(){return{v:4,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30},{k:'major',n:'Major',req:60},{k:'gened',n:'General education',req:15},{k:'free',n:'Free electives',req:15}]},terms:[],courses:[],minors:[]}}
+function blank(){return{v:5,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30,color:CAT_COLORS[0]},{k:'major',n:'Major',req:60,color:CAT_COLORS[1]},{k:'gened',n:'General education',req:15,color:CAT_COLORS[2]},{k:'free',n:'Free electives',req:15,color:CAT_COLORS[3]}],portals:DEF_PORTALS.map(x=>Object.assign({},x))},terms:[],courses:[],minors:[],ui:defUi(),links:{canvas:{at:0,map:{}},pscs:{at:0}}}}
 
 /* Starting plan: EE Class of 2029 dossier grid, edited for the retake and moved courses. Scores come from Canvas. */
 const HABIB_SCALE=[['A+',4,95],['A',4,90],['A-',3.67,85],['B+',3.33,80],['B',3,75],['B-',2.67,70],['C+',2.33,67],['C',2,63],['C-',1.67,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
 function seed(){
   const s=blank();
   Object.assign(s.settings,{name:'Muhammad Hasan Admani',program:'B.S. Electrical Engineering, Class of 2029',school:'Habib University',unit:'DSSE',totalCredits:134,maxLoad:20,targetGpa:3.3,scale:HABIB_SCALE.map(x=>Object.assign({},x)),
-    cats:[{k:'core',n:'Habib Liberal Core',req:32},{k:'math',n:'Math and computing',req:27},{k:'ee',n:'Electrical engineering core',req:45},{k:'design',n:'Design and professional',req:12},{k:'elec',n:'Electives',req:18}]});
+    cats:[{k:'core',n:'Habib Liberal Core',req:32,color:CAT_COLORS[0]},{k:'math',n:'Math and computing',req:27,color:CAT_COLORS[1]},{k:'ee',n:'Electrical engineering core',req:45,color:CAT_COLORS[2]},{k:'design',n:'Design and professional',req:12,color:CAT_COLORS[3]},{k:'elec',n:'Electives',req:18,color:CAT_COLORS[4]}]});
   const nm=['Fall 2025','Spring 2026','Fall 2026','Spring 2027','Fall 2027','Spring 2028','Fall 2028','Spring 2029'];
   s.terms=nm.map((n,i)=>({id:'t'+(i+1),name:n,status:i<2?'done':i==2?'current':'planned',cr:i===0}));
   /* item: name, score, out of, due, status, late */
@@ -134,9 +161,12 @@ function seed(){
 }
 
 let S=blank();
-const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:''};
+const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:'',toastUndo:false,canUndo:false,conflict:null};
+const UNDO=[];
+function pushUndo(label){try{const snap=JSON.stringify(S);if(UNDO.length&&UNDO[UNDO.length-1].state===snap)return;UNDO.push({label:label||'Change',state:snap});if(UNDO.length>30)UNDO.shift();U.canUndo=UNDO.length>0}catch(e){}}
 let persist=function(){};
-function mut(fn){fn();persist();render()}
+function mut(fn,label){pushUndo(label);fn();persist();if(label)toast(label,true);else render()}
+const catColor=k=>{const i=S.settings.cats.findIndex(c=>c.k===k),x=S.settings.cats[i];return(x&&x.color)||CAT_COLORS[(i>=0?i:0)%CAT_COLORS.length]};
 
 /* ---------- calculations ---------- */
 const termOf=id=>S.terms.find(t=>t.id===id);

@@ -1,5 +1,4 @@
 <title>Atlas</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
 <style>
 /* Atlas Design System — Editorial Academic Studio */
@@ -320,7 +319,9 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 .gl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 12px;align-items:center}
 .kv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
 .kv:last-child{border:0}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:13.5px;font-weight:500;box-shadow:var(--sh-md);z-index:40}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:13.5px;font-weight:500;box-shadow:var(--sh-md);z-index:40;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px)}
+.toast-btn{border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);background:color-mix(in srgb,var(--bg) 14%,transparent);color:var(--bg);border-radius:99px;padding:3px 10px;font:600 12px/1.2 var(--f-mono);cursor:pointer}
+.toast-btn:hover{background:color-mix(in srgb,var(--bg) 25%,transparent)}
 .pre{white-space:pre-wrap;font:400 13px/1.5 var(--f-mono);background:var(--sunk);border-radius:8px;padding:12px;max-height:260px;overflow:auto}
 
 @media (max-width:860px){

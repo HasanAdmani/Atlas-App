@@ -1,7 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>if(location.pathname==="/atlas")location.replace("/atlas/"+location.search+location.hash);</script><meta name="theme-color" content="#2945B8"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Atlas"><link rel="icon" type="image/svg+xml" href="icon.svg"><link rel="apple-touch-icon" href="icon.svg"><link rel="manifest" href="manifest.webmanifest"><style>:root{color-scheme:light dark}body{margin:0;font:14px system-ui}</style></head><body>
 <title>Atlas</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
 <style>
 /* Atlas Design System — Editorial Academic Studio */
@@ -322,7 +321,9 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 .gl{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 12px;align-items:center}
 .kv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
 .kv:last-child{border:0}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:13.5px;font-weight:500;box-shadow:var(--sh-md);z-index:40}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:13.5px;font-weight:500;box-shadow:var(--sh-md);z-index:40;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px)}
+.toast-btn{border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);background:color-mix(in srgb,var(--bg) 14%,transparent);color:var(--bg);border-radius:99px;padding:3px 10px;font:600 12px/1.2 var(--f-mono);cursor:pointer}
+.toast-btn:hover{background:color-mix(in srgb,var(--bg) 25%,transparent)}
 .pre{white-space:pre-wrap;font:400 13px/1.5 var(--f-mono);background:var(--sunk);border-radius:8px;padding:12px;max-height:260px;overflow:auto}
 
 @media (max-width:860px){
@@ -374,15 +375,42 @@ const num=v=>{const n=parseFloat(v);return isNaN(n)?null:n};
 
 const DEF_SCALE=[['A',4,93],['A-',3.67,90],['B+',3.33,87],['B',3,83],['B-',2.67,80],['C+',2.33,77],['C',2,73],['C-',1.67,70],['D+',1.33,67],['D',1,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
 const ATYPES=['Quiz','Assignment','Lab','Project','Midterm','Final','Participation','Other'];
+const CAT_COLORS=['#2945B8','#16794F','#B86B11','#7C3AED','#C02669','#0284C7','#4F46E5','#64748B'];
+const DEF_PORTALS=[
+  {id:'canvas',name:'Canvas LMS',short:'C',url:'https://hulms.instructure.com',on:true,kind:'canvas',color:'#E13F2B'},
+  {id:'pscs',name:'PSCS Portal',short:'P',url:'https://pscs.habib.edu.pk/psc/CSPROD/EMPLOYEE/SA/c/NUI_FRAMEWORK.PT_LANDINGPAGE.GBL',on:true,kind:'pscs',color:'#1E5A99'},
+  {id:'syllabus',name:'Simple Syllabus',short:'S',url:'https://habib.simplesyllabus.com',on:true,kind:'syllabus',color:'#16794F'},
+  {id:'mail',name:'Student Mail',short:'M',url:'https://outlook.office.com',on:false,kind:'link',color:'#0078D4'}
+];
+function defUi(){
+  return{
+    dash:{
+      desktop:[
+        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
+        {w:'inprog',size:'m',on:true},{w:'duenext',size:'m',on:true},{w:'week',size:'m',on:true},{w:'trend',size:'m',on:true},
+        {w:'attention',size:'m',on:true},{w:'reqs',size:'m',on:true},{w:'portals',size:'s',on:false},{w:'note',size:'s',on:false}
+      ],
+      mobile:[
+        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
+        {w:'duenext',size:'m',on:true},{w:'inprog',size:'m',on:true},{w:'week',size:'m',on:true},{w:'attention',size:'m',on:true}
+      ],
+      note:''
+    },
+    plan:{layout:'years',density:'auto',minDensity:'compact',colorBy:'status',collapseDone:false,trayOpen:false},
+    modules:{minors:true,enroll:true,roadmap:true,whatif:true,portals:true,canvas:true},
+    accent:'blue',
+    density:'comfortable'
+  };
+}
 
-function blank(){return{v:4,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30},{k:'major',n:'Major',req:60},{k:'gened',n:'General education',req:15},{k:'free',n:'Free electives',req:15}]},terms:[],courses:[],minors:[]}}
+function blank(){return{v:5,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30,color:CAT_COLORS[0]},{k:'major',n:'Major',req:60,color:CAT_COLORS[1]},{k:'gened',n:'General education',req:15,color:CAT_COLORS[2]},{k:'free',n:'Free electives',req:15,color:CAT_COLORS[3]}],portals:DEF_PORTALS.map(x=>Object.assign({},x))},terms:[],courses:[],minors:[],ui:defUi(),links:{canvas:{at:0,map:{}},pscs:{at:0}}}}
 
 /* Starting plan: EE Class of 2029 dossier grid, edited for the retake and moved courses. Scores come from Canvas. */
 const HABIB_SCALE=[['A+',4,95],['A',4,90],['A-',3.67,85],['B+',3.33,80],['B',3,75],['B-',2.67,70],['C+',2.33,67],['C',2,63],['C-',1.67,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
 function seed(){
   const s=blank();
   Object.assign(s.settings,{name:'Muhammad Hasan Admani',program:'B.S. Electrical Engineering, Class of 2029',school:'Habib University',unit:'DSSE',totalCredits:134,maxLoad:20,targetGpa:3.3,scale:HABIB_SCALE.map(x=>Object.assign({},x)),
-    cats:[{k:'core',n:'Habib Liberal Core',req:32},{k:'math',n:'Math and computing',req:27},{k:'ee',n:'Electrical engineering core',req:45},{k:'design',n:'Design and professional',req:12},{k:'elec',n:'Electives',req:18}]});
+    cats:[{k:'core',n:'Habib Liberal Core',req:32,color:CAT_COLORS[0]},{k:'math',n:'Math and computing',req:27,color:CAT_COLORS[1]},{k:'ee',n:'Electrical engineering core',req:45,color:CAT_COLORS[2]},{k:'design',n:'Design and professional',req:12,color:CAT_COLORS[3]},{k:'elec',n:'Electives',req:18,color:CAT_COLORS[4]}]});
   const nm=['Fall 2025','Spring 2026','Fall 2026','Spring 2027','Fall 2027','Spring 2028','Fall 2028','Spring 2029'];
   s.terms=nm.map((n,i)=>({id:'t'+(i+1),name:n,status:i<2?'done':i==2?'current':'planned',cr:i===0}));
   /* item: name, score, out of, due, status, late */
@@ -493,9 +521,12 @@ function seed(){
 }
 
 let S=blank();
-const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:''};
+const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:'',toastUndo:false,canUndo:false,conflict:null};
+const UNDO=[];
+function pushUndo(label){try{const snap=JSON.stringify(S);if(UNDO.length&&UNDO[UNDO.length-1].state===snap)return;UNDO.push({label:label||'Change',state:snap});if(UNDO.length>30)UNDO.shift();U.canUndo=UNDO.length>0}catch(e){}}
 let persist=function(){};
-function mut(fn){fn();persist();render()}
+function mut(fn,label){pushUndo(label);fn();persist();if(label)toast(label,true);else render()}
+const catColor=k=>{const i=S.settings.cats.findIndex(c=>c.k===k),x=S.settings.cats[i];return(x&&x.color)||CAT_COLORS[(i>=0?i:0)%CAT_COLORS.length]};
 
 /* ---------- calculations ---------- */
 const termOf=id=>S.terms.find(t=>t.id===id);
@@ -950,13 +981,13 @@ function sylPreview(){
 }
 function vAdd(){
   if(!S.terms.length)return head('Add a course','From a syllabus, or by hand.')+setupPanel();
-  const y=U.syl,can=U.hasSample||!!AI.key;
+  const y=U.syl,can=!!AI.key;
   const imp=can?`<div class="card"><h2>From a syllabus</h2><p class="small muted" style="margin:-4px 0 14px">Paste the text, or drop in a text file, a PDF${U.imgMax?' or photos of the pages':''}. It reads the grading breakdown, dates, credits and prerequisites and builds the course for you to check.</p>
   <textarea id="syl-text" rows="7" data-c="syltext" placeholder="Paste the syllabus here…">${esc(y.text)}</textarea>
   <label class="dropzone" style="margin-top:12px"><input type="file" id="syl-file" data-c="sylf" multiple accept="${U.imgMax?'image/*,':''}.pdf,.txt,.md,text/plain,application/pdf" hidden><span class="dz-title">${y.files.length?`${y.files.length} image${y.files.length>1?'s':''} attached`:'Choose syllabus files'}</span><span class="dz-sub">Supports .pdf, .txt, .md${U.imgMax?' or page photos':''}</span></label>
   ${y.files.length||y.msg?`<div class="row" style="margin-top:10px">${y.files.length?`<button class="btn ghost sm" data-a="sylClearImg">Remove attached images</button>`:''}<span class="small muted" id="syl-msg">${esc(y.msg||'')}</span></div>`:''}
   <div class="row" style="margin-top:14px"><label class="f" style="min-width:170px"><span>Term</span>${termSel('syl-term',y.term||(S.terms.find(t=>t.status==='current')||{}).id,'Not scheduled')}</label><button class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read syllabus'}</button></div>
-  ${y.err?`<p class="small" style="color:var(--bad);margin-top:10px">${esc(y.err)}</p>`:''}</div>${sylPreview()}`:`<div class="card"><h2>From a syllabus</h2><p class="small muted" style="margin-bottom:14px">Reading a syllabus needs Claude (when this page is open inside Claude) or a free Gemini key (when you run the downloaded file). You can also add the course by hand below.</p><button class="btn" data-a="go" data-v="settings">Set up syllabus reading</button></div>`;
+  ${y.err?`<p class="small" style="color:var(--bad);margin-top:10px">${esc(y.err)}</p>`:''}</div>${sylPreview()}`:`<div class="card"><h2>From a syllabus</h2><p class="small muted" style="margin-bottom:14px">Reading a syllabus uses a free Gemini API key stored locally in your browser. You can also add the course by hand below.</p><button class="btn" data-a="go" data-v="settings">Set up syllabus reading</button></div>`;
   return head('Add a course','Build a course from its syllabus, or fill it in yourself.')+imp+
   `<div class="card" style="margin-top:20px"><h2>By hand</h2><div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Counts toward</span>${catSel('ma-cat')}</label><label class="f"><span>Term</span>${termSel('ma-term','','Not scheduled')}</label></div><label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics"></label><label class="f" style="margin-top:12px"><span>Prerequisites</span><input id="ma-pre" placeholder="EE 202, MTH 202"></label><div style="margin-top:16px"><button class="btn primary" data-a="manual">Add course</button></div></div>`;
 }
@@ -986,7 +1017,7 @@ function vSettings(){
   <div class="grid g2 sec"><div class="card scroll"><h2>Terms</h2><table class="t"><tbody>${S.terms.map((t,i)=>`<tr><td><input data-c="tf" data-f="name" data-id="${t.id}" value="${esc(t.name)}" style="min-width:118px"></td><td><select class="sel-pill ${t.status==='done'?'good':t.status==='current'?'acc':''}" data-c="tf" data-f="status" data-id="${t.id}">${['done','current','planned'].map(x=>`<option value="${x}" ${t.status===x?'selected':''}>${x==='done'?'Finished':x==='current'?'Current':'Planned'}</option>`).join('')}</select></td><td><select class="sel-pill" data-c="tf" data-f="cr" data-id="${t.id}" aria-label="Grading"><option value="">Graded</option><option value="1" ${t.cr?'selected':''}>CR / NC</option></select></td><td><button class="btn ghost sm" data-a="termUp" data-id="${t.id}" aria-label="Move earlier" ${i?'':'disabled'}>↑</button></td><td><button class="btn ghost danger sm" data-a="delterm" data-id="${t.id}" aria-label="Delete term">✕</button></td></tr>`).join('')}</tbody></table><div style="margin-top:14px"><button class="btn" data-a="addterm">+ Add a term</button></div></div>
   <div class="card scroll"><h2>Requirement categories</h2><table class="t"><thead><tr><th>Name</th><th class="r">Credits</th><th></th></tr></thead><tbody>${s.cats.map(k=>`<tr><td><input data-c="kf" data-f="n" data-id="${esc(k.k)}" value="${esc(k.n)}"></td><td class="r"><input class="w" type="number" data-c="kf" data-f="req" data-id="${esc(k.k)}" value="${k.req}"></td><td><button class="btn ghost danger sm" data-a="delcat" data-id="${esc(k.k)}" aria-label="Delete category">✕</button></td></tr>`).join('')}</tbody></table><div style="margin-top:14px"><button class="btn" data-a="addcat">+ Add a category</button></div></div></div>
   <details class="card scroll sec"><summary>Grade scale</summary><p class="small muted" style="margin:0 0 12px">Letter, grade points, and the lowest percentage that earns it. Used for GPA and for turning marks into a letter.</p><table class="t" style="max-width:520px"><thead><tr><th>Letter</th><th class="r">Points</th><th class="r">From %</th><th></th></tr></thead><tbody>${s.scale.map((g,i)=>`<tr><td><input data-c="sf" data-f="l" data-i="${i}" value="${esc(g.l)}" style="width:74px"></td><td class="r"><input class="w" type="number" step="0.01" data-c="sf" data-f="p" data-i="${i}" value="${g.p}"></td><td class="r"><input class="w" type="number" step="any" data-c="sf" data-f="min" data-i="${i}" value="${g.min}"></td><td><button class="btn ghost danger sm" data-a="delgrade" data-i="${i}" aria-label="Delete grade">✕</button></td></tr>`).join('')}</tbody></table><div class="row" style="margin-top:14px"><button class="btn" data-a="addgrade">+ Add a grade</button><button class="btn ghost" data-a="resetscale">Restore the common 4.0 scale</button></div></details>
-  <div class="card sec"><h2>Syllabus reading</h2><p class="small muted" style="margin:-4px 0 14px">${U.hasSample?'Claude is reading syllabi for you on this page. Nothing to set up.':'Add a free Gemini key to read syllabi from the downloaded file. The key stays in this browser and is never saved with your plan. It does not work inside Claude’s page, which blocks outside connections.'}</p>${U.hasSample?'':`<div class="fgrid"><label class="f"><span>Gemini API key</span><input type="password" data-c="ai" data-f="key" value="${esc(AI.key)}" autocomplete="off" placeholder="Paste your key"></label><label class="f"><span>Model</span><input data-c="ai" data-f="model" value="${esc(AI.model)}"></label></div>`}</div>
+  <div class="card sec"><h2>Syllabus reading</h2><p class="small muted" style="margin:-4px 0 14px">Add a free Gemini API key to read syllabi automatically. The key stays in this browser and is never saved with your plan.</p><div class="fgrid"><label class="f"><span>Gemini API key</span><input type="password" data-c="ai" data-f="key" value="${esc(AI.key)}" autocomplete="off" placeholder="Paste your key"></label><label class="f"><span>Model</span><input data-c="ai" data-f="model" value="${esc(AI.model)}"></label></div></div>
   <div class="card sec"><h2>Your data</h2><p class="small muted" style="margin:-4px 0 14px">${U.sync||''}</p><div class="row"><button class="btn" data-a="export">Download a backup</button><label class="btn" style="cursor:pointer">Restore from a backup<input type="file" accept=".json,application/json" data-c="impf" hidden></label>${U.confirmReset?`<span class="small">Erase every term, course and grade?</span><button class="btn danger" data-a="resetall">Yes, erase all</button><button class="btn ghost" data-a="noreset">Keep</button>`:`<button class="btn danger" data-a="askreset">Erase everything</button>`}</div></div>`;
 }
 /* ---------- Canvas sync ---------- */
@@ -1680,14 +1711,24 @@ const WEB_HOST=IS_WEB?{
     HC.backups=j.backups||[];HC.updatedAt=j.updatedAt||0;
     return j.data||null;
   },
-  async save(text){
-    const j=await webFetchJson(WEB_BASE+'/api/store',{method:'POST',headers:{'Content-Type':'application/json'},body:text});
+  async save(text,force){
+    const url=WEB_BASE+'/api/store?base='+encodeURIComponent(HC.updatedAt||0)+(force?'&force=1':'');
+    const r=await fetch(url,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:text});
+    const j=await r.json().catch(()=>null);
+    if(r.status===409&&j&&j.conflict){
+      U.conflict={data:j.data,updatedAt:j.updatedAt};
+      if(j.backups)HC.backups=j.backups;
+      setSync('Conflict — newer save on server');
+      render();
+      return false;
+    }
+    if(!r.ok||!j||j.ok===false)throw new Error((j&&j.error)||('HTTP '+r.status));
     HC.updatedAt=j.updatedAt||Date.now();
     if(j.backups)HC.backups=j.backups;
     return true;
   },
   saveSync(text){
-    try{return !!(navigator.sendBeacon&&navigator.sendBeacon(WEB_BASE+'/api/store',new Blob([text],{type:'application/json'})))}catch(e){return false}
+    try{return !!(navigator.sendBeacon&&navigator.sendBeacon(WEB_BASE+'/api/store?base='+encodeURIComponent(HC.updatedAt||0),new Blob([text],{type:'application/json'})))}catch(e){return false}
   },
   async restoreBackup(name){
     const j=await webFetchJson(WEB_BASE+'/api/backups/restore',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
@@ -1767,6 +1808,26 @@ if(DESKTOP_HOST){
         if(o&&Array.isArray(o.terms)){adopt(o);try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}setSync('Synced with server');render();toast('Restored '+sel)}
       }catch(e){toast('Could not restore backup')}
     },
+    conflictTheirs(){
+      if(!U.conflict)return;
+      try{
+        const o=JSON.parse(U.conflict.data);
+        if(o&&Array.isArray(o.terms)){
+          HC.updatedAt=U.conflict.updatedAt||Date.now();
+          U.conflict=null;
+          adopt(o);
+          try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+          setSync('Synced with server');render();toast('Loaded newer plan from server');
+        }
+      }catch(e){toast('Could not load server plan')}
+    },
+    async conflictMine(){
+      if(!U.conflict)return;
+      try{
+        const ok=await WEB_HOST.save(JSON.stringify(S),true);
+        if(ok){U.conflict=null;setSync('Synced with server');render();toast('Kept your changes and synced')}
+      }catch(e){toast('Could not save to server')}
+    },
   });
   document.addEventListener('visibilitychange',async()=>{
     if(document.visibilityState!=='visible'||U.hostBusy||timer)return;
@@ -1814,27 +1875,24 @@ function render(){
     <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a><a class="side-btn" href="#canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a></div>
     <div class="side-foot">${themeSeg}<div class="sidefoot"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
   </div></aside>`;
-  app.innerHTML=`<div class="shell">${side}<main class="main">${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status">${esc(U.toast)}</div>`:''}`;
+  const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
+  app.innerHTML=`<div class="shell">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
 }
-function toast(t){U.toast=t;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';render()},2200)}
+function toast(t,withUndo){U.toast=t;U.toastUndo=!!withUndo;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';U.toastUndo=false;render()},withUndo?4000:2200)}
 function routeFromHash(){const h=(location.hash||'').replace('#','');
   if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
   U.course=null;render();window.scrollTo(0,0)}
 
-/* ---------- helpers that work inside Claude and in a downloaded copy ---------- */
-const cap=n=>{try{return window.claude&&window.claude.use?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(null)}catch(e){return Promise.resolve(null)}};
+/* ---------- file export & Gemini syllabus reader ---------- */
 const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
 async function saveFile(name,data){
   if(window.atlasHost&&window.atlasHost.saveFile){const r=await window.atlasHost.saveFile(name,data);if(r&&r.canceled)throw{code:'declined'};return}
-  const dl=await cap('downloads');
-  if(dl){await dl.save({filename:name,data});return}
   const type=/\.pdf$/.test(name)?'application/pdf':/\.csv$/.test(name)?'text/csv':'application/json';
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
 }
 const b64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(f)});
 async function callAI(prompt,images){
-  if(U.hasSample){const sp=await cap('sample');return await sp.json(prompt,images.length?{images}:{})}
   if(AI.key){
     const parts=[{text:prompt}];
     for(const f of images)parts.push({inline_data:{mime_type:f.type||'image/jpeg',data:await b64(f)}});
@@ -1878,8 +1936,14 @@ const ACT={
   wireset(){U.whatif={};render()},
   theme(e,d){applyTheme(d.v);try{if(d.v)localStorage.setItem(LSTHEME,d.v);else localStorage.removeItem(LSTHEME)}catch(x){}render()},
   cycletheme(){const nxt=U.theme===''?'light':U.theme==='light'?'dark':'';ACT.theme(null,{v:nxt})},
-  pickgoal(e,d){const c=getC(d.id);if(c){c.goal=d.v||null;persist();render()}},
-  pickgrade(e,d){const c=getC(d.id);if(c){c.grade=d.v||null;persist();render()}},
+  undo(){
+    const last=UNDO.pop();if(!last)return;
+    U.canUndo=UNDO.length>0;
+    try{S=JSON.parse(last.state);persist();toast('Undone: '+last.label)}
+    catch(e){toast('Could not undo')}
+  },
+  pickgoal(e,d){const c=getC(d.id);if(c){pushUndo('Goal for '+c.code);c.goal=d.v||null;persist();toast('Goal for '+c.code,true)}},
+  pickgrade(e,d){const c=getC(d.id);if(c){pushUndo('Grade for '+c.code);c.grade=d.v||null;persist();toast('Grade for '+c.code,true)}},
   wiset(e,d){if(U.whatif[d.id]===d.v)delete U.whatif[d.id];else if(d.v)U.whatif[d.id]=d.v;else delete U.whatif[d.id];render()},
   wisetall(e,d){if(d.v){curCourses().concat(planCourses()).filter(c=>!U.wiTerm||U.wiTerm==='all'||c.term===U.wiTerm).forEach(c=>U.whatif[c.id]=d.v);render()}},
   setopt(e,d){if(d.f==='capOwn')S.settings.capOwn=(d.v==='yes');else if(d.f==='retakeReplaces')S.settings.retakeReplaces=(d.v!=='no');persist();render()},
@@ -1936,7 +2000,7 @@ ${y.text.slice(0,120000)||'(see the attached images)'}`;
         assessments:(Array.isArray(o.assessments)?o.assessments:[]).map(a=>({name:String(a.name||''),type:ATYPES.includes(a.type)?a.type:'Other',weight:num(a.weight)||0,count:Math.max(1,Math.round(num(a.count)||1)),drop:Math.max(0,Math.round(num(a.drop)||0))}))};
       if(!y.out.assessments.length)y.err='No grading breakdown was found. You can add rows by hand below.';
     }catch(e){
-      const c=e&&e.code;y.err=c==='no_ai'?'No syllabus reader is set up. Add a Gemini key in Settings, or add the course by hand.':c==='bad_key'?'Gemini did not accept the key. Check it in Settings.':c==='network'?'Could not reach Gemini. This works from the downloaded file, not inside Claude’s page.':c==='not_granted'?'Claude is not allowed on this page, so the syllabus could not be read. You can still add the course by hand.':c==='rate_limited'?'Too many requests just now. Try again in a minute.':c==='invalid_json'?'The reply could not be turned into a course. Try again, or paste only the grading and schedule sections.':c==='image_rejected'?'One of the images could not be used. Try a clearer photo.':'The syllabus could not be read'+(c?' ('+(typeof c==='string'?c:'error')+(e&&e.status?' '+e.status:'')+')':e&&e.message?' ('+e.message+')':'')+'. If you are inside Claude’s page this is usually because outside requests are blocked there. Try the downloaded copy of Atlas, or add the course by hand.';
+      const c=e&&e.code;y.err=c==='no_ai'?'No syllabus reader is set up. Add a Gemini key in Settings, or add the course by hand.':c==='bad_key'?'Gemini did not accept the key. Check it in Settings.':c==='network'?'Could not reach Gemini. Check your connection and try again.':c==='rate_limited'?'Too many requests just now. Try again in a minute.':c==='invalid_json'?'The reply could not be turned into a course. Try again, or paste only the grading and schedule sections.':c==='image_rejected'?'One of the images could not be used. Try a clearer photo.':'The syllabus could not be read'+(c?' ('+(typeof c==='string'?c:'error')+(e&&e.status?' '+e.status:'')+')':e&&e.message?' ('+e.message+')':'')+'. You can try again or add the course by hand.';
     }
     y.loading=false;render();
   }
@@ -1953,7 +2017,7 @@ function parseCoursesField(c,f,v){
 const CHG={
   gr(e,d,v){const g=getC(d.id).assess.find(x=>x.id===d.gid);g[d.f]=['w','cnt','drop'].includes(d.f)?(num(v)||0):v},
   it(e,d,v){const g=getC(d.id).assess.find(x=>x.id===d.gid),it=g.items.find(x=>x.id===d.iid);if(d.f==='s')it.s=num(v);else if(d.f==='m')it.m=num(v);else it[d.f]=v},
-  cf(e,d,v){const c=getC(d.id);parseCoursesField(c,d.f,v)},
+  cf(e,d,v){const c=getC(d.id);if(c){pushUndo('Edited '+c.code);parseCoursesField(c,d.f,v)}},
   set(e,d,v){S.settings[d.f]=['totalCredits','maxLoad'].includes(d.f)?(parseInt(v)||0):d.f==='targetGpa'?(num(v)||0):d.f==='retakeReplaces'?(v!=='no'):d.f==='capOwn'?(v==='yes'):v},
   tf(e,d,v){termOf(d.id)[d.f]=d.f==='cr'?v==='1':v},
   kf(e,d,v){const k=S.settings.cats.find(x=>x.k===d.id);k[d.f]=d.f==='req'?(num(v)||0):v},
@@ -1968,7 +2032,7 @@ async function onFiles(e){
   for(const f of files){
     try{
       if(/^image\//.test(f.type)){if(y.files.length<(U.imgMax||0))y.files.push(f);else msg.push('Too many images; kept the first '+U.imgMax)}
-      else if(/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name)){try{y.text+=(y.text?'\n\n':'')+await pdfText(f)}catch(pe){if(AI.key&&!U.hasSample){y.files.push(f.type?f:new File([f],f.name,{type:'application/pdf'}));msg.push(f.name+' will be sent to Gemini as a PDF.')}else throw pe}}
+      else if(/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name)){try{y.text+=(y.text?'\n\n':'')+await pdfText(f)}catch(pe){if(AI.key){y.files.push(f.type?f:new File([f],f.name,{type:'application/pdf'}));msg.push(f.name+' will be sent to Gemini as a PDF.')}else throw pe}}
       else y.text+=(y.text?'\n\n':'')+await f.text();
     }catch(err){msg.push('Could not read '+f.name+(err&&err.message?' ('+err.message+')':'')+(/pdf/i.test(f.name)?'. Copy the text out of the PDF and paste it instead.':''))}
   }
@@ -2001,6 +2065,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&U.course){U.course=null;render()}
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.shiftKey&&!e.target.closest('input,textarea,select')){e.preventDefault();ACT.undo()}
   if((e.key==='Enter'||e.key===' ')&&e.target.closest&&e.target.closest('g.nd')){e.preventDefault();ACT.sel(e,e.target.closest('g.nd').dataset)}
 });
 document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.c==='syltext')U.syl.text=e.target.value});
@@ -2010,7 +2075,7 @@ document.addEventListener('change',e=>{
   if(k==='sylf'){onFiles(e);return}
   if(k==='impf'){onImport(e);return}
   if(k==='enrf'){onOffers(e);return}
-  if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=U.hasSample?U.imgMax:(AI.key?8:0);render();return}
+  if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=AI.key?8:0;render();return}
   const f=CHG[k]||CHG2[k];if(!f)return;
   try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
   if(k==='syl'||k==='sylA'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'){render();return}
@@ -2019,16 +2084,16 @@ document.addEventListener('change',e=>{
 let dragId=null;
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('[data-drag]');if(!c)return;dragId=c.dataset.drag;try{e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'}catch(x){}});
 document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');if(!t||!dragId)return;e.preventDefault();document.querySelectorAll('.term.over').forEach(x=>{if(x!==t)x.classList.remove('over')});t.classList.add('over')});
-document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'));if(!t||!dragId)return;e.preventDefault();const c=getC(dragId);dragId=null;if(c){c.term=t.dataset.drop||null;persist();render()}});
+document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'));if(!t||!dragId)return;e.preventDefault();const c=getC(dragId);dragId=null;if(c){pushUndo('Moved '+c.code);c.term=t.dataset.drop||null;persist();toast('Moved '+c.code,true)}});
 document.addEventListener('dragend',()=>{dragId=null;document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'))});
 window.addEventListener('hashchange',routeFromHash);
 
 /* ---------- saving ---------- */
 const LS='course-atlas.v1';
-let dbDoc=null,timer=null,saving=false,pendingSave=false;
+let timer=null;
 function setSync(t){
   U.sync=t;
-  const cls=/offline|could not/i.test(t||'')?'warn':'';
+  const cls=/offline|could not|conflict/i.test(t||'')?'warn':'';
   const f=$('.sidefoot');
   if(f)f.innerHTML='<span class="sync-dot '+cls+'"></span><span>'+esc(t)+'</span>';
   const md=$('.mob-util .sync-dot');
@@ -2041,20 +2106,11 @@ persist=function(){
     setSync('Saving…');clearTimeout(timer);
     const okMsg=DESKTOP_HOST?'Saved on this computer':'Synced with server';
     const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
-    timer=setTimeout(()=>{timer=null;HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg))},400);
+    timer=setTimeout(()=>{timer=null;HOST.save(JSON.stringify(S)).then(ok=>{if(ok!==false)setSync(okMsg)},()=>setSync(offMsg))},400);
     return;
   }
-  if(!dbDoc){setSync('Saved in this browser');return}
-  setSync('Saving…');clearTimeout(timer);timer=setTimeout(flush,700);
+  setSync('Saved in this browser');
 };
-async function flush(){
-  if(!dbDoc)return;
-  if(saving){pendingSave=true;return}
-  saving=true;
-  try{await dbDoc.set({state:JSON.stringify(S),at:Date.now()});setSync('Saved to your account')}
-  catch(e){setSync('Saved in this browser only')}
-  saving=false;if(pendingSave){pendingSave=false;flush()}
-}
 function migrateCourse(c){c.assess=(c.assess||[]).map(a=>a.items?a:{id:a.id||uid(),n:a.n,type:a.type||'Other',w:+a.w||0,cnt:1,drop:0,items:[{id:uid(),n:a.n,s:a.s==null?null:+a.s,m:100,due:a.due||'',st:'',late:false}]});if(!c.coreqs)c.coreqs=[]}
 function migrateMinor(m){
   if(Array.isArray(m.slots)){m.slots.forEach(s=>{if(!s.ids){s.ids=s.courseId?[s.courseId]:[];delete s.courseId}});return m}
@@ -2073,7 +2129,35 @@ function upgrade(o){
   st.minors=(st.minors||[]).map(migrateMinor);
   if(st.minors.length)ensureMinorCat(st.settings);
   if(!st.settings.unit&&/habib/i.test(st.settings.school||''))st.settings.unit='DSSE';
-  st.v=4;return st;
+  (st.settings.cats||[]).forEach((c,i)=>{if(!c.color)c.color=CAT_COLORS[i%CAT_COLORS.length]});
+  if(!Array.isArray(st.settings.portals)||!st.settings.portals.length){
+    st.settings.portals=DEF_PORTALS.map(x=>Object.assign({},x));
+  }
+  if(typeof HC!=='undefined'&&HC){
+    const mergeUrl=(id,val)=>{if(!val)return;const p=st.settings.portals.find(x=>x.id===id);if(p)p.url=val};
+    mergeUrl('canvas',HC.canvasUrl);mergeUrl('pscs',HC.pscsUrl);mergeUrl('syllabus',HC.syllabusUrl);
+  }
+  const du=defUi(),ou=o.ui||{};
+  const mergeWidgets=(defList,curList)=>{
+    if(!Array.isArray(curList)||!curList.length)return defList;
+    const out=curList.filter(x=>x&&x.w).map(x=>({w:x.w,size:x.size||'m',on:x.on!==false}));
+    defList.forEach(d=>{if(!out.some(x=>x.w===d.w))out.push(Object.assign({},d))});
+    return out;
+  };
+  st.ui={
+    dash:{
+      desktop:mergeWidgets(du.dash.desktop,ou.dash&&ou.dash.desktop),
+      mobile:mergeWidgets(du.dash.mobile,ou.dash&&ou.dash.mobile),
+      note:String((ou.dash&&ou.dash.note)||'')
+    },
+    plan:Object.assign({},du.plan,ou.plan||{}),
+    modules:Object.assign({},du.modules,ou.modules||{}),
+    accent:ou.accent||'blue',
+    density:ou.density||'comfortable'
+  };
+  const ol=o.links||{};
+  st.links={canvas:Object.assign({at:0,map:{}},ol.canvas||{}),pscs:Object.assign({at:0},ol.pscs||{})};
+  st.v=5;return st;
 }
 function adopt(o){S=upgrade(o);S.sample=false}
 async function boot(){
@@ -2082,34 +2166,23 @@ async function boot(){
   let serverHad=false;
   if(HOST){try{HC=await HOST.config()}catch(e){}try{const r=await HOST.load();if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.terms)&&!o.sample){local=o;serverHad=true}}}catch(e){}}
   try{const a=localStorage.getItem(LSAI);if(a)AI=Object.assign(AI,JSON.parse(a))}catch(e){}
+  U.imgMax=AI.key?8:0;
   const okMsg=DESKTOP_HOST?'Saved on this computer':(HOST?'Synced with server':'Saved in this browser');
   const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
   if(local&&Array.isArray(local.terms)&&!local.sample){
     const was=local.v;adopt(local);
-    if(!was||was<3)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    if(!was||was<5)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
     if(HOST){
-      if(DESKTOP_HOST||!serverHad||!was||was<3)HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg));
+      if(DESKTOP_HOST||!serverHad||!was||was<3)HOST.save(JSON.stringify(S)).then(()=>{setSync(okMsg)},()=>setSync(offMsg));
       else setSync(okMsg);
     }else setSync(okMsg);
   }else{
     S=seed();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
-    if(HOST)HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg));
+    if(HOST)HOST.save(JSON.stringify(S)).then(()=>{setSync(okMsg)},()=>setSync(offMsg));
     else setSync(okMsg);
   }
   routeFromHash();
-  try{const sp=await cap('sample');U.hasSample=!!sp;if(sp&&sp.limits){const l=await sp.limits().catch(()=>null);U.imgMax=l&&l.images?l.images.maxCount:0}else U.imgMax=AI.key?8:0}catch(e){}
   render();
-  try{
-    const [db,user]=await Promise.all([cap('db'),cap('user')]);
-    const id=user?await user.id():null;
-    if(!db||!id)return;
-    const ref=db.doc('data/users/'+id+'/planner');
-    const snap=await Promise.race([ref.get(),new Promise((_,r)=>setTimeout(()=>r(new Error('slow')),10000))]);
-    dbDoc=ref;
-    let o=null;if(snap.exists&&snap.data().state){try{o=JSON.parse(snap.data().state)}catch(e){}}
-    if(o&&!o.sample&&Array.isArray(o.terms)){if(!U.touched){adopt(o);setSync('Saved to your account');render();if(!o.v||o.v<3)flush()}else flush()}
-    else flush();
-  }catch(e){setSync('Saved in this browser')}
 }
 boot();
 })();

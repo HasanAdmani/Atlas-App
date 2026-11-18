@@ -27,27 +27,24 @@ function render(){
     <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a><a class="side-btn" href="#canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a></div>
     <div class="side-foot">${themeSeg}<div class="sidefoot"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
   </div></aside>`;
-  app.innerHTML=`<div class="shell">${side}<main class="main">${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status">${esc(U.toast)}</div>`:''}`;
+  const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
+  app.innerHTML=`<div class="shell">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
 }
-function toast(t){U.toast=t;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';render()},2200)}
+function toast(t,withUndo){U.toast=t;U.toastUndo=!!withUndo;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';U.toastUndo=false;render()},withUndo?4000:2200)}
 function routeFromHash(){const h=(location.hash||'').replace('#','');
   if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
   U.course=null;render();window.scrollTo(0,0)}
 
-/* ---------- helpers that work inside Claude and in a downloaded copy ---------- */
-const cap=n=>{try{return window.claude&&window.claude.use?Promise.resolve(window.claude.use(n)).catch(()=>null):Promise.resolve(null)}catch(e){return Promise.resolve(null)}};
+/* ---------- file export & Gemini syllabus reader ---------- */
 const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
 async function saveFile(name,data){
   if(window.atlasHost&&window.atlasHost.saveFile){const r=await window.atlasHost.saveFile(name,data);if(r&&r.canceled)throw{code:'declined'};return}
-  const dl=await cap('downloads');
-  if(dl){await dl.save({filename:name,data});return}
   const type=/\.pdf$/.test(name)?'application/pdf':/\.csv$/.test(name)?'text/csv':'application/json';
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);
 }
 const b64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(f)});
 async function callAI(prompt,images){
-  if(U.hasSample){const sp=await cap('sample');return await sp.json(prompt,images.length?{images}:{})}
   if(AI.key){
     const parts=[{text:prompt}];
     for(const f of images)parts.push({inline_data:{mime_type:f.type||'image/jpeg',data:await b64(f)}});
@@ -91,8 +88,14 @@ const ACT={
   wireset(){U.whatif={};render()},
   theme(e,d){applyTheme(d.v);try{if(d.v)localStorage.setItem(LSTHEME,d.v);else localStorage.removeItem(LSTHEME)}catch(x){}render()},
   cycletheme(){const nxt=U.theme===''?'light':U.theme==='light'?'dark':'';ACT.theme(null,{v:nxt})},
-  pickgoal(e,d){const c=getC(d.id);if(c){c.goal=d.v||null;persist();render()}},
-  pickgrade(e,d){const c=getC(d.id);if(c){c.grade=d.v||null;persist();render()}},
+  undo(){
+    const last=UNDO.pop();if(!last)return;
+    U.canUndo=UNDO.length>0;
+    try{S=JSON.parse(last.state);persist();toast('Undone: '+last.label)}
+    catch(e){toast('Could not undo')}
+  },
+  pickgoal(e,d){const c=getC(d.id);if(c){pushUndo('Goal for '+c.code);c.goal=d.v||null;persist();toast('Goal for '+c.code,true)}},
+  pickgrade(e,d){const c=getC(d.id);if(c){pushUndo('Grade for '+c.code);c.grade=d.v||null;persist();toast('Grade for '+c.code,true)}},
   wiset(e,d){if(U.whatif[d.id]===d.v)delete U.whatif[d.id];else if(d.v)U.whatif[d.id]=d.v;else delete U.whatif[d.id];render()},
   wisetall(e,d){if(d.v){curCourses().concat(planCourses()).filter(c=>!U.wiTerm||U.wiTerm==='all'||c.term===U.wiTerm).forEach(c=>U.whatif[c.id]=d.v);render()}},
   setopt(e,d){if(d.f==='capOwn')S.settings.capOwn=(d.v==='yes');else if(d.f==='retakeReplaces')S.settings.retakeReplaces=(d.v!=='no');persist();render()},
@@ -149,7 +152,7 @@ ${y.text.slice(0,120000)||'(see the attached images)'}`;
         assessments:(Array.isArray(o.assessments)?o.assessments:[]).map(a=>({name:String(a.name||''),type:ATYPES.includes(a.type)?a.type:'Other',weight:num(a.weight)||0,count:Math.max(1,Math.round(num(a.count)||1)),drop:Math.max(0,Math.round(num(a.drop)||0))}))};
       if(!y.out.assessments.length)y.err='No grading breakdown was found. You can add rows by hand below.';
     }catch(e){
-      const c=e&&e.code;y.err=c==='no_ai'?'No syllabus reader is set up. Add a Gemini key in Settings, or add the course by hand.':c==='bad_key'?'Gemini did not accept the key. Check it in Settings.':c==='network'?'Could not reach Gemini. This works from the downloaded file, not inside Claude’s page.':c==='not_granted'?'Claude is not allowed on this page, so the syllabus could not be read. You can still add the course by hand.':c==='rate_limited'?'Too many requests just now. Try again in a minute.':c==='invalid_json'?'The reply could not be turned into a course. Try again, or paste only the grading and schedule sections.':c==='image_rejected'?'One of the images could not be used. Try a clearer photo.':'The syllabus could not be read'+(c?' ('+(typeof c==='string'?c:'error')+(e&&e.status?' '+e.status:'')+')':e&&e.message?' ('+e.message+')':'')+'. If you are inside Claude’s page this is usually because outside requests are blocked there. Try the downloaded copy of Atlas, or add the course by hand.';
+      const c=e&&e.code;y.err=c==='no_ai'?'No syllabus reader is set up. Add a Gemini key in Settings, or add the course by hand.':c==='bad_key'?'Gemini did not accept the key. Check it in Settings.':c==='network'?'Could not reach Gemini. Check your connection and try again.':c==='rate_limited'?'Too many requests just now. Try again in a minute.':c==='invalid_json'?'The reply could not be turned into a course. Try again, or paste only the grading and schedule sections.':c==='image_rejected'?'One of the images could not be used. Try a clearer photo.':'The syllabus could not be read'+(c?' ('+(typeof c==='string'?c:'error')+(e&&e.status?' '+e.status:'')+')':e&&e.message?' ('+e.message+')':'')+'. You can try again or add the course by hand.';
     }
     y.loading=false;render();
   }
@@ -166,7 +169,7 @@ function parseCoursesField(c,f,v){
 const CHG={
   gr(e,d,v){const g=getC(d.id).assess.find(x=>x.id===d.gid);g[d.f]=['w','cnt','drop'].includes(d.f)?(num(v)||0):v},
   it(e,d,v){const g=getC(d.id).assess.find(x=>x.id===d.gid),it=g.items.find(x=>x.id===d.iid);if(d.f==='s')it.s=num(v);else if(d.f==='m')it.m=num(v);else it[d.f]=v},
-  cf(e,d,v){const c=getC(d.id);parseCoursesField(c,d.f,v)},
+  cf(e,d,v){const c=getC(d.id);if(c){pushUndo('Edited '+c.code);parseCoursesField(c,d.f,v)}},
   set(e,d,v){S.settings[d.f]=['totalCredits','maxLoad'].includes(d.f)?(parseInt(v)||0):d.f==='targetGpa'?(num(v)||0):d.f==='retakeReplaces'?(v!=='no'):d.f==='capOwn'?(v==='yes'):v},
   tf(e,d,v){termOf(d.id)[d.f]=d.f==='cr'?v==='1':v},
   kf(e,d,v){const k=S.settings.cats.find(x=>x.k===d.id);k[d.f]=d.f==='req'?(num(v)||0):v},
@@ -181,7 +184,7 @@ async function onFiles(e){
   for(const f of files){
     try{
       if(/^image\//.test(f.type)){if(y.files.length<(U.imgMax||0))y.files.push(f);else msg.push('Too many images; kept the first '+U.imgMax)}
-      else if(/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name)){try{y.text+=(y.text?'\n\n':'')+await pdfText(f)}catch(pe){if(AI.key&&!U.hasSample){y.files.push(f.type?f:new File([f],f.name,{type:'application/pdf'}));msg.push(f.name+' will be sent to Gemini as a PDF.')}else throw pe}}
+      else if(/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name)){try{y.text+=(y.text?'\n\n':'')+await pdfText(f)}catch(pe){if(AI.key){y.files.push(f.type?f:new File([f],f.name,{type:'application/pdf'}));msg.push(f.name+' will be sent to Gemini as a PDF.')}else throw pe}}
       else y.text+=(y.text?'\n\n':'')+await f.text();
     }catch(err){msg.push('Could not read '+f.name+(err&&err.message?' ('+err.message+')':'')+(/pdf/i.test(f.name)?'. Copy the text out of the PDF and paste it instead.':''))}
   }
@@ -214,6 +217,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&U.course){U.course=null;render()}
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.shiftKey&&!e.target.closest('input,textarea,select')){e.preventDefault();ACT.undo()}
   if((e.key==='Enter'||e.key===' ')&&e.target.closest&&e.target.closest('g.nd')){e.preventDefault();ACT.sel(e,e.target.closest('g.nd').dataset)}
 });
 document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.c==='syltext')U.syl.text=e.target.value});
@@ -223,7 +227,7 @@ document.addEventListener('change',e=>{
   if(k==='sylf'){onFiles(e);return}
   if(k==='impf'){onImport(e);return}
   if(k==='enrf'){onOffers(e);return}
-  if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=U.hasSample?U.imgMax:(AI.key?8:0);render();return}
+  if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=AI.key?8:0;render();return}
   const f=CHG[k]||CHG2[k];if(!f)return;
   try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
   if(k==='syl'||k==='sylA'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'){render();return}
@@ -232,16 +236,16 @@ document.addEventListener('change',e=>{
 let dragId=null;
 document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('[data-drag]');if(!c)return;dragId=c.dataset.drag;try{e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'}catch(x){}});
 document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');if(!t||!dragId)return;e.preventDefault();document.querySelectorAll('.term.over').forEach(x=>{if(x!==t)x.classList.remove('over')});t.classList.add('over')});
-document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'));if(!t||!dragId)return;e.preventDefault();const c=getC(dragId);dragId=null;if(c){c.term=t.dataset.drop||null;persist();render()}});
+document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'));if(!t||!dragId)return;e.preventDefault();const c=getC(dragId);dragId=null;if(c){pushUndo('Moved '+c.code);c.term=t.dataset.drop||null;persist();toast('Moved '+c.code,true)}});
 document.addEventListener('dragend',()=>{dragId=null;document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'))});
 window.addEventListener('hashchange',routeFromHash);
 
 /* ---------- saving ---------- */
 const LS='course-atlas.v1';
-let dbDoc=null,timer=null,saving=false,pendingSave=false;
+let timer=null;
 function setSync(t){
   U.sync=t;
-  const cls=/offline|could not/i.test(t||'')?'warn':'';
+  const cls=/offline|could not|conflict/i.test(t||'')?'warn':'';
   const f=$('.sidefoot');
   if(f)f.innerHTML='<span class="sync-dot '+cls+'"></span><span>'+esc(t)+'</span>';
   const md=$('.mob-util .sync-dot');
@@ -254,20 +258,11 @@ persist=function(){
     setSync('Saving…');clearTimeout(timer);
     const okMsg=DESKTOP_HOST?'Saved on this computer':'Synced with server';
     const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
-    timer=setTimeout(()=>{timer=null;HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg))},400);
+    timer=setTimeout(()=>{timer=null;HOST.save(JSON.stringify(S)).then(ok=>{if(ok!==false)setSync(okMsg)},()=>setSync(offMsg))},400);
     return;
   }
-  if(!dbDoc){setSync('Saved in this browser');return}
-  setSync('Saving…');clearTimeout(timer);timer=setTimeout(flush,700);
+  setSync('Saved in this browser');
 };
-async function flush(){
-  if(!dbDoc)return;
-  if(saving){pendingSave=true;return}
-  saving=true;
-  try{await dbDoc.set({state:JSON.stringify(S),at:Date.now()});setSync('Saved to your account')}
-  catch(e){setSync('Saved in this browser only')}
-  saving=false;if(pendingSave){pendingSave=false;flush()}
-}
 function migrateCourse(c){c.assess=(c.assess||[]).map(a=>a.items?a:{id:a.id||uid(),n:a.n,type:a.type||'Other',w:+a.w||0,cnt:1,drop:0,items:[{id:uid(),n:a.n,s:a.s==null?null:+a.s,m:100,due:a.due||'',st:'',late:false}]});if(!c.coreqs)c.coreqs=[]}
 function migrateMinor(m){
   if(Array.isArray(m.slots)){m.slots.forEach(s=>{if(!s.ids){s.ids=s.courseId?[s.courseId]:[];delete s.courseId}});return m}
@@ -286,7 +281,35 @@ function upgrade(o){
   st.minors=(st.minors||[]).map(migrateMinor);
   if(st.minors.length)ensureMinorCat(st.settings);
   if(!st.settings.unit&&/habib/i.test(st.settings.school||''))st.settings.unit='DSSE';
-  st.v=4;return st;
+  (st.settings.cats||[]).forEach((c,i)=>{if(!c.color)c.color=CAT_COLORS[i%CAT_COLORS.length]});
+  if(!Array.isArray(st.settings.portals)||!st.settings.portals.length){
+    st.settings.portals=DEF_PORTALS.map(x=>Object.assign({},x));
+  }
+  if(typeof HC!=='undefined'&&HC){
+    const mergeUrl=(id,val)=>{if(!val)return;const p=st.settings.portals.find(x=>x.id===id);if(p)p.url=val};
+    mergeUrl('canvas',HC.canvasUrl);mergeUrl('pscs',HC.pscsUrl);mergeUrl('syllabus',HC.syllabusUrl);
+  }
+  const du=defUi(),ou=o.ui||{};
+  const mergeWidgets=(defList,curList)=>{
+    if(!Array.isArray(curList)||!curList.length)return defList;
+    const out=curList.filter(x=>x&&x.w).map(x=>({w:x.w,size:x.size||'m',on:x.on!==false}));
+    defList.forEach(d=>{if(!out.some(x=>x.w===d.w))out.push(Object.assign({},d))});
+    return out;
+  };
+  st.ui={
+    dash:{
+      desktop:mergeWidgets(du.dash.desktop,ou.dash&&ou.dash.desktop),
+      mobile:mergeWidgets(du.dash.mobile,ou.dash&&ou.dash.mobile),
+      note:String((ou.dash&&ou.dash.note)||'')
+    },
+    plan:Object.assign({},du.plan,ou.plan||{}),
+    modules:Object.assign({},du.modules,ou.modules||{}),
+    accent:ou.accent||'blue',
+    density:ou.density||'comfortable'
+  };
+  const ol=o.links||{};
+  st.links={canvas:Object.assign({at:0,map:{}},ol.canvas||{}),pscs:Object.assign({at:0},ol.pscs||{})};
+  st.v=5;return st;
 }
 function adopt(o){S=upgrade(o);S.sample=false}
 async function boot(){
@@ -295,34 +318,23 @@ async function boot(){
   let serverHad=false;
   if(HOST){try{HC=await HOST.config()}catch(e){}try{const r=await HOST.load();if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.terms)&&!o.sample){local=o;serverHad=true}}}catch(e){}}
   try{const a=localStorage.getItem(LSAI);if(a)AI=Object.assign(AI,JSON.parse(a))}catch(e){}
+  U.imgMax=AI.key?8:0;
   const okMsg=DESKTOP_HOST?'Saved on this computer':(HOST?'Synced with server':'Saved in this browser');
   const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
   if(local&&Array.isArray(local.terms)&&!local.sample){
     const was=local.v;adopt(local);
-    if(!was||was<3)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    if(!was||was<5)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
     if(HOST){
-      if(DESKTOP_HOST||!serverHad||!was||was<3)HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg));
+      if(DESKTOP_HOST||!serverHad||!was||was<3)HOST.save(JSON.stringify(S)).then(()=>{setSync(okMsg)},()=>setSync(offMsg));
       else setSync(okMsg);
     }else setSync(okMsg);
   }else{
     S=seed();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
-    if(HOST)HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg));
+    if(HOST)HOST.save(JSON.stringify(S)).then(()=>{setSync(okMsg)},()=>setSync(offMsg));
     else setSync(okMsg);
   }
   routeFromHash();
-  try{const sp=await cap('sample');U.hasSample=!!sp;if(sp&&sp.limits){const l=await sp.limits().catch(()=>null);U.imgMax=l&&l.images?l.images.maxCount:0}else U.imgMax=AI.key?8:0}catch(e){}
   render();
-  try{
-    const [db,user]=await Promise.all([cap('db'),cap('user')]);
-    const id=user?await user.id():null;
-    if(!db||!id)return;
-    const ref=db.doc('data/users/'+id+'/planner');
-    const snap=await Promise.race([ref.get(),new Promise((_,r)=>setTimeout(()=>r(new Error('slow')),10000))]);
-    dbDoc=ref;
-    let o=null;if(snap.exists&&snap.data().state){try{o=JSON.parse(snap.data().state)}catch(e){}}
-    if(o&&!o.sample&&Array.isArray(o.terms)){if(!U.touched){adopt(o);setSync('Saved to your account');render();if(!o.v||o.v<3)flush()}else flush()}
-    else flush();
-  }catch(e){setSync('Saved in this browser')}
 }
 boot();
 })();

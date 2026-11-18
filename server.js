@@ -115,7 +115,7 @@ function readBody(req) {
   });
 }
 
-function handleApi(req, res, reqPath) {
+function handleApi(req, res, reqPath, query) {
   if (req.method === 'GET' && reqPath === '/api/health') {
     return sendJson(res, 200, { ok: true, service: 'atlas', updatedAt: getUpdatedAt() });
   }
@@ -145,6 +145,19 @@ function handleApi(req, res, reqPath) {
         }
         if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.terms) || !Array.isArray(parsed.courses)) {
           return sendJson(res, 400, { ok: false, error: 'Payload must contain terms and courses arrays' });
+        }
+        const base = query ? parseFloat(query.get('base') || '0') : 0;
+        const force = query && query.get('force') === '1';
+        const curUpdated = getUpdatedAt();
+        if (!force && base > 0 && curUpdated > base + 50 && fs.existsSync(DATA_FILE)) {
+          return sendJson(res, 409, {
+            ok: false,
+            conflict: true,
+            error: 'Plan was updated on another device',
+            data: fs.readFileSync(DATA_FILE, 'utf8'),
+            updatedAt: curUpdated,
+            backups: listBackups(),
+          });
         }
         backup();
         writeAtomic(DATA_FILE, text);
@@ -227,10 +240,11 @@ function serveStatic(req, res, reqPath) {
 seedFromWorkspace();
 
 const server = http.createServer((req, res) => {
-  const rawPath = (req.url || '/').split('?')[0];
+  const u = new URL(req.url || '/', 'http://localhost');
+  const rawPath = u.pathname;
   const reqPath = rawPath.replace(/^\/atlas(?=\/|$)/, '') || '/';
   if (reqPath.startsWith('/api/')) {
-    return handleApi(req, res, reqPath);
+    return handleApi(req, res, reqPath, u.searchParams);
   }
   return serveStatic(req, res, reqPath);
 });
