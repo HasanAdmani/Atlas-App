@@ -1,12 +1,33 @@
 
 /* ---------- shell and render ---------- */
+const ICONS={
+  overview:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>',
+  courses:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
+  plan:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+  gpa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
+  settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  sync:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>'
+};
 const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
 const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,settings:vSettings};
+const LSTHEME='course-atlas.theme';
+function applyTheme(t){U.theme=t||'';if(U.theme)document.documentElement.dataset.theme=U.theme;else delete document.documentElement.dataset.theme}
 function render(){
   const app=$('#app');if(!app)return;
-  const sy=window.scrollY,dr=$('.drawer'),dy=dr?dr.scrollTop:0,ae=document.activeElement;
+  const sy=window.scrollY,dr=$('.drawer'),dy=dr?dr.scrollTop:0;
   let view='';try{view=(VIEWS[U.route]||vOverview)()}catch(e){view='<div class="empty">Something in your data could not be shown. Download a backup from Settings and restore it, or erase and start again.<br><small>'+esc(e&&e.message)+'</small></div>';console.error(e)}
-  app.innerHTML=`<div class="shell"><aside class="side"><div class="brand"><i>Atlas</i><small>${esc(S.settings.school||'Degree planner')}</small></div><nav class="nav" aria-label="Sections">${ROUTES.map(r=>`<a href="${r[2]}" ${U.route===r[0]||(r[0]==='courses'&&(U.route==='add'||U.route==='canvas'))?'aria-current="page"':''}>${r[1]}</a>`).join('')}</nav><div class="sidefoot">${esc(U.sync||'')}</div></aside><main class="main">${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status">${esc(U.toast)}</div>`:''}`;
+  const th=U.theme||'';
+  const mobTheme=th==='dark'?'Dark':th==='light'?'Light':'Auto';
+  const dotCls=/offline|could not/i.test(U.sync||'')?'warn':'';
+  const themeSeg=`<div class="theme-seg" role="group" aria-label="Theme">${[['','Auto'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`;
+  const side=`<aside class="side"><div class="side-card">
+    <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><div class="mob-util"><a class="btn sm" href="#add">+ Add</a><button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
+    <nav class="nav" aria-label="Sections">${ROUTES.map(r=>`<a href="${r[2]}" ${U.route===r[0]||(r[0]==='courses'&&(U.route==='add'||U.route==='canvas'))?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')}</nav>
+    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a><a class="side-btn" href="#canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a></div>
+    <div class="side-foot">${themeSeg}<div class="sidefoot"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
+  </div></aside>`;
+  app.innerHTML=`<div class="shell">${side}<main class="main">${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status">${esc(U.toast)}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
 }
 function toast(t){U.toast=t;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';render()},2200)}
@@ -68,6 +89,13 @@ const ACT={
   delitem(e,d){mut(()=>{const g=getC(d.id).assess.find(x=>x.id===d.gid);g.items=g.items.filter(i=>i.id!==d.iid)})},
   delcourse(e,d){mut(()=>{S.courses=S.courses.filter(c=>c.id!==d.id);U.course=null})},
   wireset(){U.whatif={};render()},
+  theme(e,d){applyTheme(d.v);try{if(d.v)localStorage.setItem(LSTHEME,d.v);else localStorage.removeItem(LSTHEME)}catch(x){}render()},
+  cycletheme(){const nxt=U.theme===''?'light':U.theme==='light'?'dark':'';ACT.theme(null,{v:nxt})},
+  pickgoal(e,d){const c=getC(d.id);if(c){c.goal=d.v||null;persist();render()}},
+  pickgrade(e,d){const c=getC(d.id);if(c){c.grade=d.v||null;persist();render()}},
+  wiset(e,d){if(U.whatif[d.id]===d.v)delete U.whatif[d.id];else if(d.v)U.whatif[d.id]=d.v;else delete U.whatif[d.id];render()},
+  wisetall(e,d){if(d.v){curCourses().concat(planCourses()).filter(c=>!U.wiTerm||U.wiTerm==='all'||c.term===U.wiTerm).forEach(c=>U.whatif[c.id]=d.v);render()}},
+  setopt(e,d){if(d.f==='capOwn')S.settings.capOwn=(d.v==='yes');else if(d.f==='retakeReplaces')S.settings.retakeReplaces=(d.v!=='no');persist();render()},
   addterm(){mut(()=>S.terms.push({id:'t'+uid(),name:'New term',status:'planned'}))},
   delterm(e,d){mut(()=>{S.courses.forEach(c=>{if(c.term===d.id)c.term=null});S.terms=S.terms.filter(t=>t.id!==d.id)})},
   termUp(e,d){mut(()=>{const i=termIdx(d.id);if(i>0){const t=S.terms.splice(i,1)[0];S.terms.splice(i-1,0,t)}})},
@@ -211,11 +239,24 @@ window.addEventListener('hashchange',routeFromHash);
 /* ---------- saving ---------- */
 const LS='course-atlas.v1';
 let dbDoc=null,timer=null,saving=false,pendingSave=false;
-function setSync(t){U.sync=t;const f=$('.sidefoot');if(f)f.textContent=t}
+function setSync(t){
+  U.sync=t;
+  const cls=/offline|could not/i.test(t||'')?'warn':'';
+  const f=$('.sidefoot');
+  if(f)f.innerHTML='<span class="sync-dot '+cls+'"></span><span>'+esc(t)+'</span>';
+  const md=$('.mob-util .sync-dot');
+  if(md){md.className='sync-dot'+(cls?' '+cls:'');md.title=t||''}
+}
 persist=function(){
   U.touched=true;
   try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
-  if(HOST){setSync('Saving…');clearTimeout(timer);timer=setTimeout(()=>HOST.save(JSON.stringify(S)).then(()=>setSync('Saved on this computer'),()=>setSync('Could not save to the data file')),400);return}
+  if(HOST){
+    setSync('Saving…');clearTimeout(timer);
+    const okMsg=DESKTOP_HOST?'Saved on this computer':'Synced with server';
+    const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
+    timer=setTimeout(()=>{timer=null;HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg))},400);
+    return;
+  }
   if(!dbDoc){setSync('Saved in this browser');return}
   setSync('Saving…');clearTimeout(timer);timer=setTimeout(flush,700);
 };
@@ -249,11 +290,25 @@ function upgrade(o){
 }
 function adopt(o){S=upgrade(o);S.sample=false}
 async function boot(){
+  try{applyTheme(localStorage.getItem(LSTHEME)||'')}catch(e){}
   let local=null;try{const r=localStorage.getItem(LS);if(r)local=JSON.parse(r)}catch(e){}
-  if(HOST){try{HC=await HOST.config()}catch(e){}try{const r=await HOST.load();if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.terms)&&!o.sample)local=o}}catch(e){}}
+  let serverHad=false;
+  if(HOST){try{HC=await HOST.config()}catch(e){}try{const r=await HOST.load();if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.terms)&&!o.sample){local=o;serverHad=true}}}catch(e){}}
   try{const a=localStorage.getItem(LSAI);if(a)AI=Object.assign(AI,JSON.parse(a))}catch(e){}
-  if(local&&Array.isArray(local.terms)&&!local.sample){const was=local.v;adopt(local);if(!was||was<3)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}setSync(HOST?'Saved on this computer':'Saved in this browser');if(HOST)HOST.save(JSON.stringify(S))}
-  else{S=seed();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}setSync(HOST?'Saved on this computer':'Saved in this browser');if(HOST)HOST.save(JSON.stringify(S))}
+  const okMsg=DESKTOP_HOST?'Saved on this computer':(HOST?'Synced with server':'Saved in this browser');
+  const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
+  if(local&&Array.isArray(local.terms)&&!local.sample){
+    const was=local.v;adopt(local);
+    if(!was||was<3)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    if(HOST){
+      if(DESKTOP_HOST||!serverHad||!was||was<3)HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg));
+      else setSync(okMsg);
+    }else setSync(okMsg);
+  }else{
+    S=seed();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    if(HOST)HOST.save(JSON.stringify(S)).then(()=>setSync(okMsg),()=>setSync(offMsg));
+    else setSync(okMsg);
+  }
   routeFromHash();
   try{const sp=await cap('sample');U.hasSample=!!sp;if(sp&&sp.limits){const l=await sp.limits().catch(()=>null);U.imgMax=l&&l.images?l.images.maxCount:0}else U.imgMax=AI.key?8:0}catch(e){}
   render();

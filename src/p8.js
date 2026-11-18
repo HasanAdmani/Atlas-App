@@ -26,17 +26,18 @@ function termPlan(){
 }
 function termPlanSection(){
   const p=termPlan();if(!p)return'';
-  const opts=sel=>('<option value="">–</option>'+S.settings.scale.map(x=>`<option ${sel===x.l?'selected':''}>${esc(x.l)}</option>`).join(''));
+  const scPass=S.settings.scale.filter(x=>x.p>0);
   const head1=p.state==='secured'?`Your target of ${fmt(p.tg)} is already safe this term, even if the unmarked work goes badly.`:
     p.state==='out'?`Reaching ${fmt(p.tg)} overall would take an average of ${fmt(p.need)} this term, and even your best case is ${fmt(p.best)}. Aim for the grades below and your overall target moves out to later terms.`:
-    `To be on track for ${fmt(p.tg)} overall you need about <b>${fmt(p.need)}</b> across this term. The grades under "Aim for" are the lightest way to get there, given how much of each course is left to mark.`;
+    `To be on track for ${fmt(p.tg)} overall you need about <b>${fmt(p.need)}</b> across this term. The grades under “Aim for” are the lightest way to get there, given how much of each course is left to mark.`;
   const rowsH=p.rows.map(r=>{
     const lim=r.has?`can still reach <b>${esc(r.ceL)}</b>`:'no grading breakdown yet';
     const nd=r.need==null?'':r.need<=0?'<span style="color:var(--good)">already secured</span>':r.need>100?'<span style="color:var(--bad)">out of reach</span>':`needs <b>${fmt(r.need,0)}%</b> on the remaining ${fmt(r.st.rem,0)}%`;
-    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="align-items:flex-start;gap:12px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 200px"><span class="code">${esc(r.c.code)} · ${r.c.credits} cr${r.st.pct!=null?` · now ${fmt(r.st.pct,0)}% ${esc(r.st.letter||'')}`:''}</span><h3>${esc(r.c.title)}</h3><div class="small muted">${lim}</div></div>
-    <div class="row" style="gap:14px;flex-wrap:wrap;justify-content:flex-end"><div><div class="lbl">Aim for</div><div class="mono" style="padding:6px 0">${esc(r.aim)}</div></div><label><div class="lbl">Goal</div><select data-c="goal" data-id="${r.c.id}" aria-label="Goal grade for ${esc(r.c.code)}">${opts(r.goal)}</select></label></div></div>${nd?`<div class="small" style="margin-top:4px">${r.goal?`For your goal of ${esc(r.goal)}, `:`For ${esc(r.aim)}, `}${nd}</div>`:''}</div>`}).join('');
-  return`<div class="sec"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 4px">${head1}</p>${rowsH}
-  <div class="row between" style="padding-top:14px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals, or the aim where you have none</span><span class="mono">term ${fmt(p.proj)} · overall ${fmt(p.after)}</span></div></div></div>`;
+    const goalPills=`<div class="opt-pills compact"><button type="button" class="opt-pill ${!r.goal?'on subtle':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="">Auto</button>${scPass.map(x=>`<button type="button" class="opt-pill ${r.goal===x.l?'on':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}</div>`;
+    return`<div style="padding:14px 0;border-bottom:1px solid var(--line)"><div class="row between" style="align-items:flex-start;gap:12px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 220px"><span class="code">${esc(r.c.code)} · ${r.c.credits} cr${r.st.pct!=null?` · now ${fmt(r.st.pct,0)}% ${esc(r.st.letter||'')}`:''}</span><h3>${esc(r.c.title)}</h3><div class="small muted">${lim}</div></div>
+    <div class="row" style="gap:16px;flex-wrap:wrap;align-items:flex-start"><div><div class="lbl" style="margin-bottom:5px">Aim for</div>${lpill(r.aim)}</div><div><div class="lbl" style="margin-bottom:5px">Your goal</div>${goalPills}</div></div></div>${nd?`<div class="small" style="margin-top:6px">${r.goal?`For your goal of <b>${esc(r.goal)}</b>, `:`For <b>${esc(r.aim)}</b>, `}${nd}</div>`:''}</div>`}).join('');
+  return`<div class="sec"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 6px">${head1}</p>${rowsH}
+  <div class="row between" style="padding-top:14px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals, or the aim where you have none</span><div class="row" style="gap:6px"><span class="pill">Term ${fmt(p.proj)}</span><span class="pill acc">Overall ${fmt(p.after)}</span></div></div></div></div>`;
 }
 
 /* ---------- what if, one term at a time ---------- */
@@ -46,15 +47,23 @@ function whatIf(cum){
   let sel=U.wiTerm;if(sel!=='all'&&!terms.some(t=>t.id===sel))sel=(terms.find(t=>t.status==='current')||terms[0]).id;
   const shown=sel==='all'?terms:terms.filter(t=>t.id===sel),lab=S.courses.filter(c=>terms.some(t=>t.id===c.term));
   const pr=gpaOf(doneCourses().concat(lab),true,over);
+  const quickGrades=S.settings.scale.filter(x=>x.p>=2.67).slice(0,5);
+  const allQuick=S.settings.scale.filter(x=>x.p>=2).slice(0,6);
   const opts=v=>['<option value="">–</option>'].concat(S.settings.scale.map(x=>`<option ${v===x.l?'selected':''}>${esc(x.l)}</option>`)).join('');
-  const row=c=>{const run=c.grade||standing(c).letter;return`<div class="li"><div style="min-width:0"><span class="code">${esc(c.code)} · ${c.credits} cr${status(c)==='current'&&run?' · now '+esc(run):''}</span><h3>${esc(c.title)}</h3></div><select data-c="wi" data-id="${c.id}" aria-label="Grade for ${esc(c.code)}">${opts(over[c.id])}</select></div>`};
+  const row=c=>{
+    const run=c.grade||standing(c).letter,cur=over[c.id]||'';
+    const qp=quickGrades.map(x=>`<button type="button" class="opt-pill ${cur===x.l?'on '+gradeCls(x.l):''}" data-a="wiset" data-id="${c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('');
+    return`<div class="li" style="flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr${status(c)==='current'&&run?' · now '+esc(run):''}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end"><div class="opt-pills compact">${qp}</div><select class="sel-pill ${cur?gradeCls(cur):''}" data-c="wi" data-id="${c.id}" aria-label="Grade for ${esc(c.code)}">${opts(cur)}</select></div></div>`;
+  };
   const strip=`<div class="tabs">${terms.map(t=>`<a href="#" data-a="witerm" data-v="${t.id}" ${sel===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="witerm" data-v="all" ${sel==='all'?'aria-current="page"':''}>All terms</a></div>`;
   const block=t=>{const cs=S.courses.filter(c=>c.term===t.id),tg=gpaOf(cs,t.status==='current',over);
-    return`<div><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">${esc(t.name)}</h3><span class="mono small muted">term GPA ${tg.gpa==null?'–':fmt(tg.gpa)}</span></div><div class="card" style="padding:4px 16px">${cs.map(row).join('')}</div></div>`};
+    return`<div><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">${esc(t.name)}</h3><span class="pill ${tg.gpa!=null?'acc':''}">term GPA ${tg.gpa==null?'–':fmt(tg.gpa)}</span></div><div class="card" style="padding:4px 16px">${cs.map(row).join('')}</div></div>`};
   const single=shown.length===1?gpaOf(S.courses.filter(c=>c.term===shown[0].id),shown[0].status==='current',over):null;
-  return`<div class="sec"><div class="row between" style="margin-bottom:12px"><h2 style="margin:0">What if</h2><div class="row"><select data-c="wiall" aria-label="Set the whole term to"><option value="">Set ${sel==='all'?'everything':'this term'} to…</option>${S.settings.scale.map(x=>`<option>${esc(x.l)}</option>`).join('')}</select><button class="btn" data-a="wireset">Reset</button></div></div>${strip}
-  <div class="grid g2" style="align-items:start;margin-top:16px"><div style="display:flex;flex-direction:column;gap:16px">${shown.map(block).join('')}</div>
-  <div class="card"><div class="lbl">Projected cumulative</div><div class="num" style="margin:10px 0 6px">${fmt(pr.gpa)}</div><div class="small muted">${pr.cr} credits counted${cum.gpa!=null&&pr.gpa!=null?` · ${pr.gpa-cum.gpa>=0?'+':''}${fmt(pr.gpa-cum.gpa)} from today`:''}.${single?` This term alone: ${single.gpa==null?'–':fmt(single.gpa)}.`:''} Pick a grade for each course, or set a whole term at once. Courses with nothing chosen use their running grade, or are left out.</div></div></div></div>`;
+  const delta=(cum.gpa!=null&&pr.gpa!=null)?pr.gpa-cum.gpa:null;
+  const setAllBar=`<div class="opt-pills compact"><span class="lbl" style="margin-right:2px">Set all:</span>${allQuick.map(x=>`<button type="button" class="opt-pill" data-a="wisetall" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}<select class="sel-pill" data-c="wiall" aria-label="Set the whole term to"><option value="">Other</option>${S.settings.scale.map(x=>`<option>${esc(x.l)}</option>`).join('')}</select><button class="btn sm" data-a="wireset">Reset</button></div>`;
+  return`<div class="sec"><div class="row between" style="margin-bottom:14px"><h2 style="margin:0">What if</h2>${setAllBar}</div>${strip}
+  <div class="grid g2" style="align-items:start;margin-top:4px"><div style="display:flex;flex-direction:column;gap:16px">${shown.map(block).join('')}</div>
+  <div class="card kpi-card ${delta==null?'kpi-acc':delta>=0?'kpi-good':'kpi-warn'}" style="position:sticky;top:20px"><div class="row between"><div class="lbl">Projected cumulative</div>${delta!=null?`<span class="pill ${delta>=0?'good':'bad'}">${delta>=0?'+':''}${fmt(delta)} from today</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(pr.gpa)}</div><div class="small muted">${pr.cr} credits counted.${single?` This term alone: <b class="mono">${single.gpa==null?'–':fmt(single.gpa)}</b>.`:''} Pick a grade for any course or set the whole term at once. Unset courses use their running grade.</div></div></div></div>`;
 }
 Object.assign(ACT2,{witerm(e,d){U.wiTerm=d.v;render()}});
 Object.assign(CHG2,{goal(e,d,v){const c=getC(d.id);if(c)c.goal=v||null}});
@@ -108,11 +117,12 @@ function parseOffers(rows){
   const list=Object.values(map);if(!list.length)throw new Error('empty');
   return{term,at:todayStr(),sections:list,picks:{}};
 }
+const parseCsvRows=text=>String(text||'').split(/\r?\n/).filter(Boolean).map(l=>l.match(/(\"([^\"]|\"\")*\"|[^,]*)(,|$)/g).map(x=>x.replace(/,$/,'').replace(/^\"|\"$/g,'').replace(/\"\"/g,'"')));
 async function onOffers(e){
   const f=(e.target.files||[])[0];if(!f)return;U.enrMsg='';
   try{
     let rows;
-    if(/\.csv$/i.test(f.name)){rows=String(await f.text()).split(/\r?\n/).filter(Boolean).map(l=>l.match(/(\"([^\"]|\"\")*\"|[^,]*)(,|$)/g).map(x=>x.replace(/,$/,'').replace(/^\"|\"$/g,'').replace(/\"\"/g,'"')))}
+    if(/\.csv$/i.test(f.name)){rows=parseCsvRows(await f.text())}
     else{if(!window.XLSX)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
       const wb=window.XLSX.read(await f.arrayBuffer(),{type:'array'});rows=window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
     const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);
@@ -310,20 +320,23 @@ function autoScheduleSection(){
   if(courseList.length<2)return''; /* need at least 2 courses to auto-schedule */
 
   const prefs=U.enrPrefs||{};
-  const prefsUI=`<div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:8px">Preferences</h3>
-  <div class="fgrid"><label class="f"><span>Preferred times</span><select data-c="enrpref" data-f="time"><option value="" ${!prefs.time?'selected':''}>No preference</option><option value="morning" ${prefs.time==='morning'?'selected':''}>Morning (before 2pm)</option><option value="afternoon" ${prefs.time==='afternoon'?'selected':''}>Afternoon (12–5pm)</option><option value="evening" ${prefs.time==='evening'?'selected':''}>Evening (after 4pm)</option></select></label>
-  <label class="f"><span>Preferred instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
-  <label class="f"><span>Avoid instructor</span><input data-c="enrpref" data-f="avoidInstructor" value="${esc(prefs.avoidInstructor||'')}" placeholder="Partial name"></label></div></div>`;
+  const timeSeg=[['','Any time'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].map(([k,l])=>`<button type="button" class="${(prefs.time||'')===k?'on':''}" data-a="enrtime" data-v="${k}">${l}</button>`).join('');
+  const prefsUI=`<div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:12px">Preferences</h3>
+  <div class="fgrid" style="align-items:end">
+    <div class="f"><span class="lbl" style="display:block;margin-bottom:5px">Preferred times</span><div class="seg">${timeSeg}</div></div>
+    <label class="f"><span>Preferred instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
+    <label class="f"><span>Avoid instructor</span><input data-c="enrpref" data-f="avoidInstructor" value="${esc(prefs.avoidInstructor||'')}" placeholder="Partial name"></label>
+  </div></div>`;
 
   if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${courseList.length} courses with sections. Atlas will generate all valid combinations and rank them by your preferences and seat reservations.</p></div>`;
 
   const scheds=findSchedules();
-  if(!scheds.length)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<div class="card"><div class="empty">No clash-free combination found. Try reducing courses or adding sections with different times.</div></div><button class="btn" data-a="autosched">Try again</button></div>`;
+  if(!scheds.length)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<div class="card"><div class="empty">No clash-free combination found. Try reducing courses or adding sections with different times.</div></div><button class="btn" data-a="autosched" style="margin-top:12px">Try again</button></div>`;
 
   const rows=scheds.map((sch,idx)=>{
     const bad=clashes(sch.items);
-    return`<div class="card" style="margin-bottom:14px"><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">Option ${idx+1} <span class="pill acc">score ${sch.score}</span></h3><button class="btn primary" data-a="applysched" data-v="${idx}">Use this</button></div>
-    <div class="small" style="margin-bottom:8px">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
+    return`<div class="card kpi-card kpi-acc" style="margin-bottom:14px"><div class="row between" style="margin-bottom:10px"><h3 style="margin:0">Option ${idx+1} <span class="pill acc">score ${sch.score}</span></h3><button class="btn primary sm" data-a="applysched" data-v="${idx}">Use this</button></div>
+    <div class="small" style="margin-bottom:10px;line-height:1.6">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
     ${weekGrid(sch.items,bad)}</div>`;
   }).join('');
 
@@ -333,7 +346,10 @@ function autoScheduleSection(){
 /* ---------- main enrollment view ---------- */
 function vEnroll(){
   const E=S.enroll,t=enrollTerm();
-  const up=`<div class="card"><h3 style="margin-bottom:6px">${E?'Update the offerings':'Import the course offerings'}</h3><p class="small muted" style="margin:0 0 12px">When the registrar publishes the schedule of classes for a term, drop the spreadsheet here (.xlsx or .csv). Atlas finds your planned courses in it, lets you pick sections, and warns you about clashes.${E?` Currently loaded: ${esc(E.term||'a schedule')}, ${E.sections.length} sections.`:''}</p><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes"><div class="small" style="color:var(--bad);margin-top:8px">${esc(U.enrMsg||'')}</div></div>`;
+  const srvBtn=typeof location!=='undefined'&&/^https?:$/i.test(location.protocol)?`<div class="row" style="margin-top:12px"><button class="btn soft sm" data-a="loadsrvsched">Load Spring 2027 schedule from server</button></div>`:'';
+  const up=`<div class="card"><h3 style="margin-bottom:6px">${E?'Update the offerings':'Import the course offerings'}</h3><p class="small muted" style="margin:0 0 14px">When the registrar publishes the schedule of classes for a term, drop the spreadsheet here (.xlsx or .csv). Atlas finds your planned courses in it, lets you pick sections, and warns you about clashes.</p>
+  <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">${E?`Loaded: ${esc(E.term||'Schedule')} (${E.sections.length} sections)`:'Choose schedule spreadsheet'}</span><span class="dz-sub">${E?'Click to replace with a newer .xlsx or .csv file':'Supports .xlsx, .xls, and .csv exports from PSCS'}</span></label>${srvBtn}
+  ${U.enrMsg?`<div class="small" style="color:var(--bad);margin-top:10px">${esc(U.enrMsg)}</div>`:''}</div>`;
   if(!E)return up;
   const cs=t?S.courses.filter(c=>c.term===t.id):[];
   const pk=picked(),bad=clashes(pk);
@@ -341,22 +357,23 @@ function vEnroll(){
     const ss=offered(c),cur=(E.picks||{})[c.id]||'';
     const selSec=ss.find(s=>s.k===cur);
     const rb=selSec?resBadge(selSec):'';
-    const ctl=!ss.length?`<span class="pill warn">not offered in this file</span>`:`<select data-c="enrpick" data-id="${c.id}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${ss.length})</option>${ss.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
+    const ctl=!ss.length?`<span class="pill warn">not offered in this file</span>`:`<select class="sel-pill ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${ss.length})</option>${ss.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
+    const chips=ss.length?`<div class="sec-chips">${ss.map(s=>{const on=cur===s.k;return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-v="${esc(s.k)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(s.ins||'TBA')} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`:'';
     const mine=pk.find(x=>x.c.id===c.id);
     const resH=selSec?resDetail(selSec):'';
-    return`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${ctl}</div></div>${rb?`<div style="margin-top:4px">${rb}</div>`:''}${resH}${mine&&mine.s.meets.length?`<div class="small muted" style="margin-top:4px">${esc(groupMeets(mine.s.meets))} · ${esc(mine.s.meets[0].r)}</div>`:''}</div>`}).join('');
-  const clashH=bad.length?`<div class="card" style="border-color:var(--bad);margin-bottom:16px"><b style="color:var(--bad)">Clashes</b><div class="small" style="margin-top:6px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} and ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap on ${DAYL[x.d]} around ${hm(x.at)}`).join('<br>')}</div></div>`:'';
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${ctl}</div></div>${chips}${rb&&!ss.length?`<div style="margin-top:4px">${rb}</div>`:''}${resH}${mine&&mine.s.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(mine.s.meets))} · ${esc(mine.s.meets[0].r)}</div>`:''}</div>`}).join('');
+  const clashH=bad.length?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft);margin-bottom:16px"><b style="color:var(--bad)">Schedule Clashes</b><div class="small" style="margin-top:6px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} and ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap on ${DAYL[x.d]} around ${hm(x.at)}`).join('<br>')}</div></div>`:'';
   const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
   const open=[];S.minors.forEach(mn=>minorStat(mn).open.forEach(r=>{const opts=(r.sl.opts||[]);const hits=opts.map(o=>({o,n:E.sections.filter(s=>aliases(o).some(a=>aliases(s.code).indexOf(a)>=0)).length}));open.push({mn,r,hits})}));
   const minorH=open.filter(x=>x.hits.length).length?`<div class="sec"><h2>Minor courses on offer</h2><div class="card" style="padding:4px 16px">${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">✓ means a section is in the file you loaded.</div></div></div>`:'';
-  return up+`<div class="sec"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Choose sections for ${esc(t?t.name:'')}</h2><select data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>${clashH}
-  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:8px 0">The file is for ${esc(E.term||'one term')}. Pick the term your courses sit in, then choose sections.</div></div><div class="card">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
+  return up+`<div class="sec"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Choose sections for ${esc(t?t.name:'')}</h2><select class="sel-pill" data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>${clashH}
+  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:10px 0">The file is for ${esc(E.term||'one term')}. Pick the term your courses sit in, then choose sections.</div></div><div class="card" style="position:sticky;top:20px">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
   <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(s.ins||'TBA')} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
 }
 
 function resDetail(section){
   const ri=resInfo(section);if(!ri)return'';
-  return`<div class="small" style="margin-top:4px;padding:4px 8px;background:var(--surface);border-radius:6px">${ri.res.map(x=>`<span style="margin-right:10px">${esc(x.who)}: <b>${x.seats}</b></span>`).join('')}<span class="muted">cap: ${ri.cap}</span></div>`;
+  return`<div class="small" style="margin-top:6px;padding:6px 10px;background:var(--surface-2);border:1px solid var(--line);border-radius:7px">${ri.res.map(x=>`<span style="margin-right:10px">${esc(x.who)}: <b>${x.seats}</b></span>`).join('')}<span class="muted">cap: ${ri.cap}</span></div>`;
 }
 
 Object.assign(ACT2,{
@@ -364,6 +381,9 @@ Object.assign(ACT2,{
     if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Class numbers copied'),()=>toast('Could not copy'));else toast('Select and copy: '+txt)},
   autosched(){U.showAutoSched=true;render()},
   applysched(e,d){applySchedule(+d.v);U.showAutoSched=false},
+  enrtime(e,d){U.enrPrefs=U.enrPrefs||{};U.enrPrefs.time=d.v;render()},
+  picksec(e,d){S.enroll.picks=S.enroll.picks||{};if(S.enroll.picks[d.id]===d.v)delete S.enroll.picks[d.id];else S.enroll.picks[d.id]=d.v;persist();render()},
+  async loadsrvsched(){U.enrMsg='';try{const b=(typeof WEB_BASE==='string'?WEB_BASE:'');const r=await fetch(b+'/api/offerings/default');if(!r.ok)throw new Error('HTTP '+r.status);const rows=parseCsvRows(await r.text());const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);o.picks={};Object.keys(keep).forEach(id=>{if(o.sections.some(s=>s.k===keep[id]))o.picks[id]=keep[id]});S.enroll=o;persist();toast('Loaded '+(o.term||'schedule')+' ('+o.sections.length+' sections)')}catch(err){U.enrMsg='Could not load server schedule ('+(err&&err.message||'error')+')'}render()},
 });
 Object.assign(CHG2,{
   enrpick(e,d,v){S.enroll.picks=S.enroll.picks||{};if(v)S.enroll.picks[d.id]=v;else delete S.enroll.picks[d.id]},

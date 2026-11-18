@@ -6,6 +6,7 @@
   "main": "main.js",
   "scripts": {
     "build:page": "node build-page.js",
+    "serve": "node build-page.js && node server.js",
     "start": "node build-page.js && electron .",
     "dist": "node build-page.js && electron-builder --win portable"
   },

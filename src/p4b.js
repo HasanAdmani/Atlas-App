@@ -26,22 +26,24 @@ function vGpa(){
   const curCr=curCourses().filter(c=>!(termOf(c.term)||{}).cr).reduce((a,c)=>a+c.credits,0);
   const thisNeed=curCr>0&&cum.cr>0?(tg*(cum.cr+curCr)-cum.pts)/curCr:null;
   const thisBest=curCr>0&&cum.cr>0?(cum.pts+maxP*curCr)/(cum.cr+curCr):null;
-  const opts=sel=>['<option value="">–</option>'].concat(S.settings.scale.map(x=>`<option ${sel===x.l?'selected':''}>${x.l}</option>`)).join('');
   const far=o.need!=null&&o.need>maxP+1e-6,farT=thisNeed!=null&&thisNeed>maxP+1e-6;
   const rtNote=o.retakes.length?` It counts your retake${o.retakes.length>1?'s':''} of ${o.retakes.map(r=>esc((getC(r.retakeOf)||{}).code||r.code)).join(', ')}, which replace${o.retakes.length>1?'':'s'} the old grade.`:'';
-  const card2=o.need==null?`<div class="num" style="margin:10px 0 6px">–</div><div class="small muted">Every degree credit is graded.</div>`:
-    far?`<div class="num" style="margin:10px 0 6px;color:var(--bad);font-size:34px;line-height:1.35">Out of reach</div><div class="small muted">It would take an average of ${fmt(o.need)}, and the top grade is ${fmt(maxP,1)}. The best you can finish at is <b>${fmt(o.best)}</b> with straight ${fmt(maxP,1)}s from here.${rtNote}</div>`:
-    `<div class="num" style="margin:10px 0 6px">${o.need<=0?'0.00':fmt(o.need)}</div><div class="small muted">${o.need<=0?'Already secured.':`average over the remaining ${o.R} credits. The best you can finish at is ${fmt(o.best)}.`}${rtNote}</div>`;
-  const card3=thisNeed==null?`<div class="num" style="margin:10px 0 6px">–</div><div class="small muted">No graded credits yet.</div>`:
-    farT?`<div class="num" style="margin:10px 0 6px;color:var(--bad);font-size:34px;line-height:1.35">Not this term</div><div class="small muted">Even straight ${fmt(maxP,1)}s only lift you to <b>${fmt(thisBest)}</b> this term. ${fmt(tg)} is a goal for later terms.</div>`:
-    `<div class="num" style="margin:10px 0 6px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">to sit at ${fmt(tg)} when this term posts. Straight ${fmt(maxP,1)}s would give ${fmt(thisBest)}.</div>`;
+  const card2=o.need==null?`<div class="num" style="margin:12px 0 8px">–</div><div class="small muted">Every degree credit is graded.</div>`:
+    far?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Out of reach</div><div class="small muted">Would take an average of ${fmt(o.need)} (max ${fmt(maxP,1)}). Best finish: <b>${fmt(o.best)}</b> with straight ${fmt(maxP,1)}s.${rtNote}</div>`:
+    `<div class="num" style="margin:12px 0 8px">${o.need<=0?'0.00':fmt(o.need)}</div><div class="small muted">${o.need<=0?'Already secured.':`Average over remaining ${o.R} credits · max finish <b class="mono">${fmt(o.best)}</b>.`}${rtNote}</div>`;
+  const card3=thisNeed==null?`<div class="num" style="margin:12px 0 8px">–</div><div class="small muted">No graded credits yet.</div>`:
+    farT?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Not this term</div><div class="small muted">Straight ${fmt(maxP,1)}s lift you to <b>${fmt(thisBest)}</b> this term. ${fmt(tg)} is a goal for later terms.</div>`:
+    `<div class="num" style="margin:12px 0 8px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">To sit at ${fmt(tg)} when this term posts · max <b class="mono">${fmt(thisBest)}</b>.</div>`;
+  const d=cum.gpa==null?null:cum.gpa-tg;
   return head('GPA lab','See where your GPA stands, what the rest of the degree has to average to reach your target, and what a few grades would do.')+
-  `<div class="grid g3"><div class="card"><div class="lbl">Cumulative now</div><div class="num" style="margin:10px 0 6px">${fmt(cum.gpa)}</div><div class="small muted">${cum.cr} graded credits</div></div>
-  <div class="card"><div class="lbl">Needed for ${fmt(tg)} at graduation</div>${card2}</div>
-  <div class="card"><div class="lbl">Needed this term</div>${card3}</div></div>
-  <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 16px">${ladder.map(l=>`<div class="kv"><span>${fmt(l.x,1)} on the remaining ${o.R} credits</span><span class="mono" style="color:var(--${l.f>=tg?'good':'bad'})">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:8px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
-  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 16px">${o.cands.map(x=>`<div class="kv"><span>${esc(x.c.code)} · ${esc(x.c.grade)} · ${x.c.credits} cr</span><span class="mono" style="color:var(--good)">+${fmt(x.gain)}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">How much higher you could finish if you retook it and earned ${fmt(maxP,1)}.</div></div>`:''}</div>
-  <div><h2>By term</h2><div class="card scroll" style="padding:4px 16px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td>${esc(r.name)}${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono">${fmt(r.cum)}</td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
+  `<div class="grid g3">
+    <div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}"><div class="row between"><div class="lbl">Cumulative now</div>${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)} vs target</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(cum.gpa)}</div><div class="small muted">${cum.cr} graded credits</div></div>
+    <div class="card kpi-card ${far?'kpi-warn':'kpi-acc'}"><div class="lbl">Needed for ${fmt(tg)} at graduation</div>${card2}</div>
+    <div class="card kpi-card ${farT?'kpi-warn':'kpi-good'}"><div class="lbl">Needed this term</div>${card3}</div>
+  </div>
+  <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
+  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="pill good">+${fmt(x.gain)}</span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
+  <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
 `+termPlanSection()+whatIf(cum)+transcriptSection();
 }
 
@@ -49,12 +51,24 @@ function vGpa(){
 function vReq(){
   const cp=catProgress().filter(x=>!(x.k.k==='minor'&&!S.courses.some(c=>c.cat==='minor')));
   const placed=placedCredits(),tot=S.settings.totalCredits,diff=tot-placed;
-  const chips=k=>S.courses.filter(c=>c.cat===k).map(c=>`<button class="pill ${status(c)==='done'?'good':status(c)==='current'?'acc':''}" data-a="open" data-id="${c.id}" style="border:0;cursor:pointer">${esc(c.code)}</button>`).join(' ');
+  const chips=k=>S.courses.filter(c=>c.cat===k).map(c=>`<button class="pill ${status(c)==='done'?'good':status(c)==='current'?'acc':''}" data-a="open" data-id="${c.id}" style="cursor:pointer">${esc(c.code)}</button>`).join(' ');
   const state=x=>x.k.req<=0?`<span class="mono small muted">${x.e+x.cu+x.pl} cr</span>`:`<span class="mono small muted">${x.e} earned · ${x.cu} now · ${x.pl} planned · ${x.over>0?`<b style="color:var(--warn)">${x.over} over</b>`:x.left>0?`<b style="color:var(--warn)">${x.left} not yet in a term</b>`:'<b style="color:var(--good)">fully planned</b>'}</span>`;
   const free=S.courses.filter(c=>isFree(c)&&isPh(c));
+  const pct=Math.min(100,placed/tot*100);
   return head('Requirements','Credits by category, and how a minor would fit around them.')+
-  `<div class="grid g2"><div class="card" style="display:flex;flex-direction:column;gap:18px">${cp.map(x=>`<div><div class="row between"><h3>${esc(x.k.n)}</h3>${state(x)}</div>${x.k.req>0?`<div class="bar" style="margin:8px 0 10px"><i class="d" style="width:${Math.min(100,x.e/x.k.req*100)}%"></i><i style="width:${Math.min(100,x.cu/x.k.req*100)}%"></i><i class="p" style="width:${Math.min(100,x.pl/x.k.req*100)}%"></i></div>`:'<div style="height:8px"></div>'}<div class="row" style="gap:6px">${chips(x.k.k)||'<span class="small muted">No courses yet</span>'}</div></div>`).join('')}<p class="small muted" style="margin:0">“Not yet in a term” means the category still needs that many credits and no course for them is in any term. “Over” means you have planned more than it asks for.</p></div>
-  <div class="card"><div class="lbl">Credits planned</div><div class="num" style="margin:10px 0 6px">${placed}<span class="muted" style="font-size:22px"> / ${tot}</span></div><div class="small muted">${diff>0?`${diff} credits of the degree are not in any term yet.`:diff===0?'Every credit of your degree has a place in a term, so the plan is full. A minor course either takes the place of a free elective, or goes on top and adds to your total.':`Your plan holds ${-diff} credits beyond the ${tot} your degree needs. That is normal with a minor. It only matters if a term goes over its credit limit.`}${free.length?` Free elective slots left: ${free.length}.`:''}</div></div></div>`+minorsSection();
+  `<div class="grid g2">
+    <div class="card" style="display:flex;flex-direction:column;gap:18px">
+      <div class="legend" style="padding-bottom:10px;border-bottom:1px solid var(--line)"><span><i style="background:var(--good);border-color:var(--good)"></i>Earned</span><span><i style="background:var(--accent);border-color:var(--accent)"></i>In progress</span><span><i style="background:var(--accent-soft);border-color:var(--accent-border)"></i>Planned</span></div>
+      ${cp.map(x=>`<div><div class="row between"><h3>${esc(x.k.n)}</h3>${state(x)}</div>${x.k.req>0?`<div class="bar" style="margin:8px 0 10px"><i class="d" style="width:${Math.min(100,x.e/x.k.req*100)}%"></i><i style="width:${Math.min(100,x.cu/x.k.req*100)}%"></i><i class="p" style="width:${Math.min(100,x.pl/x.k.req*100)}%"></i></div>`:'<div style="height:8px"></div>'}<div class="row" style="gap:6px">${chips(x.k.k)||'<span class="small muted">No courses yet</span>'}</div></div>`).join('')}
+      <p class="small muted" style="margin:0;padding-top:8px;border-top:1px solid var(--line)">“Not yet in a term” means the category still needs credits with no course scheduled. “Over” means you planned beyond its target.</p>
+    </div>
+    <div class="card kpi-card ${diff===0?'kpi-good':'kpi-acc'}">
+      <div><div class="row between"><div class="lbl">Credits planned</div><span class="pill ${diff===0?'good':diff<0?'warn':'acc'}">${Math.round(pct)}% of ${tot}</span></div>
+      <div class="num" style="margin:12px 0 8px">${placed}<span class="muted" style="font-size:24px"> / ${tot}</span></div>
+      <div class="bar" style="margin:12px 0 14px"><i class="d" style="width:${pct}%"></i></div>
+      <div class="small muted">${diff>0?`${diff} credits of the degree are not in any term yet.`:diff===0?'Every credit of your degree has a place in a term, so the plan is full. A minor course either takes the place of a free elective, or goes on top and adds to your total.':`Your plan holds ${-diff} credits beyond the ${tot} your degree needs. That is normal with a minor. It only matters if a term goes over its credit limit.`}${free.length?` Free elective slots left: <b>${free.length}</b>.`:''}</div></div>
+    </div>
+  </div>`+minorsSection();
 }
 
 function vPlan(){
