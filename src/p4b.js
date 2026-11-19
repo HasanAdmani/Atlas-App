@@ -44,7 +44,7 @@ function vGpa(){
   <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
   ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="pill good">+${fmt(x.gain)}</span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
   <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
-`+termPlanSection()+whatIf(cum)+transcriptSection();
+`+termPlanSection()+((S.ui&&S.ui.modules&&S.ui.modules.whatif!==false)?whatIf(cum):'')+transcriptSection();
 }
 
 /* ---------- requirements and minors ---------- */
@@ -68,11 +68,25 @@ function vReq(){
       <div class="bar" style="margin:12px 0 14px"><i class="d" style="width:${pct}%"></i></div>
       <div class="small muted">${diff>0?`${diff} credits of the degree are not in any term yet.`:diff===0?'Every credit of your degree has a place in a term, so the plan is full. A minor course either takes the place of a free elective, or goes on top and adds to your total.':`Your plan holds ${-diff} credits beyond the ${tot} your degree needs. That is normal with a minor. It only matters if a term goes over its credit limit.`}${free.length?` Free elective slots left: <b>${free.length}</b>.`:''}</div></div>
     </div>
-  </div>`+minorsSection();
+  </div>`+((S.ui&&S.ui.modules&&S.ui.modules.minors!==false)?minorsSection():'');
 }
 
 function vPlan(){
-  const t=U.planTab||'grid',tabs=[['grid','Four years'],['roadmap','Roadmap'],['req','Requirements'],['enroll','Enrollment']];
+  const mods=(S.ui&&S.ui.modules)||{};
+  const tabs=[
+    ['grid','Four years'],
+    mods.roadmap!==false?['roadmap','Roadmap']:null,
+    ['req','Requirements'],
+    mods.enroll!==false?['enroll','Enrollment']:null
+  ].filter(Boolean);
+  let t=U.planTab||'grid';
+  if(!tabs.some(x=>x[0]===t))t='grid';
   let v='';INNER=true;try{v=({grid:vGrid,roadmap:vRoadmap,req:vReq,enroll:vEnroll})[t]()}finally{INNER=false}
-  return head('Plan','Where every course sits, how they connect, and what the degree still needs.')+`<div class="tabs">${tabs.map(x=>`<a href="#${x[0]}" ${t===x[0]?'aria-current="page"':''}>${x[1]}</a>`).join('')}</div>`+v;
+  const subMap={
+    grid:'Drag courses between terms or use ⇄ to place them. A dashed outline means a prerequisite is not finished before that course.',
+    roadmap:'Read left to right. Select a course to trace what it needs and what it unlocks.',
+    req:'Credits by category, and how a minor fits around your degree.',
+    enroll:'Choose sections from published offerings and check for time clashes.'
+  };
+  return head('Plan',subMap[t])+`<div class="plan-bar"><div class="tabs" style="margin-bottom:0">${tabs.map(x=>`<a href="#${x[0]}" ${t===x[0]?'aria-current="page"':''}>${x[1]}</a>`).join('')}</div></div>`+v;
 }

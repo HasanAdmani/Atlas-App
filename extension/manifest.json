@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Atlas Companion",
+  "version": "1.0.0",
+  "description": "Automatically syncs your Canvas courses, scores, and due dates to your private Atlas server, and sends PSCS or Simple Syllabus pages in one click.",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": [
+    "https://hulms.instructure.com/*",
+    "https://pscs.habib.edu.pk/*",
+    "https://*.simplesyllabus.com/*",
+    "https://starserver.tailbf777f.ts.net/*",
+    "http://127.0.0.1:3000/*",
+    "http://localhost:3000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://hulms.instructure.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Atlas Companion"
+  }
+}

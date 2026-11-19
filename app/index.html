@@ -50,7 +50,31 @@
   color-scheme:dark;
 }
 :root[data-theme="light"]{color-scheme:light}
+/* Accent Presets */
+:root[data-accent="emerald"]{--accent:#16794F;--accent-hover:#115C3C;--accent-ink:#FFFFFF;--accent-soft:#E4F5EC;--accent-border:#B2E2C9}
+:root[data-accent="amber"]{--accent:#B86B11;--accent-hover:#92530C;--accent-ink:#FFFFFF;--accent-soft:#FEF3E2;--accent-border:#F7D6A3}
+:root[data-accent="violet"]{--accent:#6D28D9;--accent-hover:#5B21B6;--accent-ink:#FFFFFF;--accent-soft:#F3E8FF;--accent-border:#D8B4FE}
+:root[data-accent="rose"]{--accent:#BE123C;--accent-hover:#9F1239;--accent-ink:#FFFFFF;--accent-soft:#FFE4E6;--accent-border:#FDA4AF}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"])[data-accent="emerald"]{--accent:#58C693;--accent-hover:#73D3A6;--accent-ink:#0B0E0D;--accent-soft:rgba(88,198,147,.15);--accent-border:rgba(88,198,147,.34)}
+  :root:not([data-theme="light"])[data-accent="amber"]{--accent:#E8B24F;--accent-hover:#F0C36F;--accent-ink:#0B0E0D;--accent-soft:rgba(232,178,79,.15);--accent-border:rgba(232,178,79,.34)}
+  :root:not([data-theme="light"])[data-accent="violet"]{--accent:#A78BFA;--accent-hover:#C4B5FD;--accent-ink:#0B0E0D;--accent-soft:rgba(167,139,250,.15);--accent-border:rgba(167,139,250,.34)}
+  :root:not([data-theme="light"])[data-accent="rose"]{--accent:#FB7185;--accent-hover:#FDA4AF;--accent-ink:#0B0E0D;--accent-soft:rgba(251,113,133,.15);--accent-border:rgba(251,113,133,.34)}
+}
+:root[data-theme="dark"][data-accent="emerald"]{--accent:#58C693;--accent-hover:#73D3A6;--accent-ink:#0B0E0D;--accent-soft:rgba(88,198,147,.15);--accent-border:rgba(88,198,147,.34)}
+:root[data-theme="dark"][data-accent="amber"]{--accent:#E8B24F;--accent-hover:#F0C36F;--accent-ink:#0B0E0D;--accent-soft:rgba(232,178,79,.15);--accent-border:rgba(232,178,79,.34)}
+:root[data-theme="dark"][data-accent="violet"]{--accent:#A78BFA;--accent-hover:#C4B5FD;--accent-ink:#0B0E0D;--accent-soft:rgba(167,139,250,.15);--accent-border:rgba(167,139,250,.34)}
+:root[data-theme="dark"][data-accent="rose"]{--accent:#FB7185;--accent-hover:#FDA4AF;--accent-ink:#0B0E0D;--accent-soft:rgba(251,113,133,.15);--accent-border:rgba(251,113,133,.34)}
+
+/* Density mode */
+:root[data-density="compact"] body{font-size:14px;line-height:1.48}
+:root[data-density="compact"] .card{padding:14px 16px}
+:root[data-density="compact"] .head{margin-bottom:16px;padding-bottom:12px}
+:root[data-density="compact"] .sec{margin-top:20px}
+:root[data-density="compact"] .li{padding:8px 6px}
+
 *{box-sizing:border-box}
+html,body{overflow-x:hidden;max-width:100%}
 body{
   margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.55 var(--f-body);
   padding-block:0;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));
@@ -75,30 +99,55 @@ details>summary::after{content:'+';font-size:15px;font-weight:500;color:var(--mu
 details[open]>summary::after{content:'−'}
 
 /* Shell & Navigation */
-.shell{display:grid;grid-template-columns:232px minmax(0,1fr);gap:36px;max-width:1460px;margin:0 auto;padding-block:24px 80px}
-.side{position:sticky;top:20px;align-self:start;display:flex;flex-direction:column;gap:14px}
-.side-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 14px;box-shadow:var(--sh-sm);display:flex;flex-direction:column;gap:18px}
-.brand{padding:0 6px}
-.brand-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);gap:28px;max-width:1540px;margin:0 auto;padding-block:20px 80px;transition:grid-template-columns .18s ease}
+.shell.rail-c{grid-template-columns:66px minmax(0,1fr);gap:20px}
+.side{position:sticky;top:20px;align-self:start;display:flex;flex-direction:column;gap:14px;min-width:0}
+.side-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 12px;box-shadow:var(--sh-sm);display:flex;flex-direction:column;gap:14px}
+.shell.rail-c .side-card{padding:14px 8px;align-items:center}
+.brand{padding:0 4px;width:100%}
+.brand-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.shell.rail-c .brand-top{flex-direction:column;gap:8px}
 .brand-row{display:flex;align-items:center;gap:10px}
 .mob-util{display:none;align-items:center;gap:6px}
+.rail-btn{width:28px;height:28px;padding:0;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;flex:none}
+.rail-btn:hover{background:var(--sunk);color:var(--ink)}
+.rail-btn svg{width:15px;height:15px}
 .brand-mark{width:28px;height:28px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:400 19px/1 var(--f-display);font-style:italic;box-shadow:var(--sh-xs);flex:none}
-.brand-name{font:400 28px/1 var(--f-display);letter-spacing:-.015em;color:var(--ink)}
-.brand small{display:block;margin-top:8px;font:500 10.5px/1.35 var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.nav{display:flex;flex-direction:column;gap:3px}
-.nav a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--muted);padding:8px 10px;border-radius:8px;font-weight:500;font-size:14px;transition:all .14s ease}
-.nav a svg{width:16px;height:16px;flex:none;opacity:.72;transition:opacity .14s ease}
-.nav a:hover{color:var(--ink);background:var(--surface-2)}
-.nav a:hover svg{opacity:1}
-.nav a[aria-current="page"]{color:var(--accent);background:var(--accent-soft);font-weight:600}
-.nav a[aria-current="page"] svg{opacity:1;stroke:var(--accent)}
-.side-quick{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:6px}
+.brand-name{font:400 26px/1 var(--f-display);letter-spacing:-.015em;color:var(--ink)}
+.brand small{display:block;margin-top:6px;font:500 10px/1.35 var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav{display:flex;flex-direction:column;gap:3px;width:100%}
+.nav a,.nav button.nav-more{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--muted);padding:8px 10px;border-radius:8px;font-weight:500;font-size:14px;transition:all .14s ease;border:0;background:transparent;cursor:pointer;text-align:left;width:100%}
+.nav button.nav-more{display:none}
+.nav a svg,.nav button.nav-more svg{width:16px;height:16px;flex:none;opacity:.72;transition:opacity .14s ease}
+.nav a:hover,.nav button.nav-more:hover{color:var(--ink);background:var(--surface-2)}
+.nav a:hover svg,.nav button.nav-more:hover svg{opacity:1}
+.nav a[aria-current="page"],.nav button.nav-more.on{color:var(--accent);background:var(--accent-soft);font-weight:600}
+.nav a[aria-current="page"] svg,.nav button.nav-more.on svg{opacity:1;stroke:var(--accent)}
+.shell.rail-c .nav a{justify-content:center;padding:9px 6px}
+.shell.rail-c .brand-name,.shell.rail-c .brand small,.shell.rail-c .nav a span,.shell.rail-c .side-lbl,.shell.rail-c .side-btn span,.shell.rail-c .dock-name,.shell.rail-c .dock-act,.shell.rail-c .theme-seg,.shell.rail-c .sidefoot span:not(.sync-dot){display:none}
+
+/* Portal Dock */
+.side-dock{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px;width:100%}
+.dock-row{display:flex;align-items:center;gap:4px;width:100%}
+.dock-btn{flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:5px 6px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--ink-2);font-size:13px;font-weight:500;cursor:pointer;text-align:left;transition:all .14s ease}
+.dock-btn:hover{background:var(--surface-2);border-color:var(--line);color:var(--ink)}
+.shell.rail-c .dock-row{justify-content:center}
+.shell.rail-c .dock-btn{flex:none;padding:4px}
+.p-tile{width:24px;height:24px;border-radius:7px;background:var(--pc,#2945B8);color:#fff;display:grid;place-items:center;font:600 10.5px/1 var(--f-mono);letter-spacing:.02em;flex:none;box-shadow:var(--sh-xs)}
+.dock-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock-act{width:24px;height:24px;padding:0;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;flex:none}
+.dock-act:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-border)}
+.dock-act svg{width:13px;height:13px}
+
+.side-quick{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px;width:100%}
 .side-lbl{font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 6px 3px}
 .side-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;transition:all .14s ease}
 .side-btn svg{width:14px;height:14px;flex:none;opacity:.75}
 .side-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
 .side-btn[aria-current="page"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:600}
-.side-foot{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:10px}
+.shell.rail-c .side-btn{justify-content:center;padding:8px 6px}
+.side-foot{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px;width:100%}
+.shell.rail-c .side-foot{align-items:center;padding-top:10px}
 .theme-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--sunk);padding:3px;border-radius:8px;border:1px solid var(--line)}
 .theme-seg button{border:0;background:transparent;color:var(--muted);padding:5px 4px;border-radius:6px;font:500 11px/1.2 var(--f-mono);cursor:pointer;transition:all .14s ease}
 .theme-seg button:hover{color:var(--ink)}
@@ -108,9 +157,14 @@ details[open]>summary::after{content:'−'}
 .sync-dot.warn{background:var(--warn);box-shadow:0 0 0 2px var(--warn-soft)}
 .sync-dot.bad{background:var(--bad);box-shadow:0 0 0 2px var(--bad-soft)}
 
-.main{min-width:0}
-.head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--line)}
-h1{font:400 clamp(34px,4.5vw,48px)/1.02 var(--f-display);letter-spacing:-.015em;margin:0;text-wrap:balance}
+.main{min-width:0;max-width:100%}
+.head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.head-left{min-width:0;flex:1 1 240px}
+.head-right{flex:none;align-items:center}
+.cmd-trig svg,.help-trig svg{width:14px;height:14px}
+.help-trig.on{background:var(--accent-soft);color:var(--accent)}
+.help-pop{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:9px;padding:10px 14px;margin:-6px 0 16px;font-size:13.5px;color:var(--ink-2);box-shadow:var(--sh-xs)}
+h1{font:400 clamp(28px,3.6vw,40px)/1.05 var(--f-display);letter-spacing:-.015em;margin:0;text-wrap:balance}
 h2{font:600 11.5px/1 var(--f-mono);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
 h3{font:600 15px/1.3 var(--f-body);margin:0;color:var(--ink)}
 .sub{color:var(--muted);margin:6px 0 0;max-width:64ch;font-size:14.5px}
@@ -142,6 +196,7 @@ h3{font:600 15px/1.3 var(--f-body);margin:0;color:var(--ink)}
   padding:7px 14px;border-radius:8px;cursor:pointer;font-weight:500;font-size:13.5px;line-height:1.25;
   box-shadow:var(--sh-xs);transition:all .14s ease;text-decoration:none;
 }
+.btn svg{width:15px;height:15px;flex:none}
 .btn:hover:not(:disabled){border-color:var(--muted);background:var(--surface-2);transform:translateY(-0.5px)}
 .btn:active:not(:disabled){transform:translateY(0)}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 1px 3px rgba(17,23,21,.15)}
@@ -272,21 +327,92 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 .ring{--p:0;width:104px;height:104px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--sunk) 0);display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 1px var(--line)}
 .ring>div{width:80px;height:80px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font:400 26px var(--f-display);box-shadow:var(--sh-xs)}
 
-/* Four-year grid */
+/* Four-year grid (Years + Timeline + Catalog Tray + Drag Validation) */
+.plan-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.grid-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:11px;box-shadow:var(--sh-xs)}
+.grid-bar-grp{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.cat-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 14px;margin-bottom:14px;background:var(--surface);border:1px dashed var(--line-strong);border-radius:10px;transition:border-color .15s,background-color .15s}
+.cat-bar.over,.cat-tray.over{border-color:var(--accent);background:var(--accent-soft)}
+.cat-tray{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:16px;box-shadow:var(--sh-sm)}
+.cat-tray-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.years-wrap{display:flex;flex-direction:column;gap:14px}
+.year-block{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:12px 14px;box-shadow:var(--sh-xs)}
+.year-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.year-collapsed{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px 14px;box-shadow:var(--sh-xs)}
+.year-terms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:12px}
+.term-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:7px}
+.term-cards .cc{margin-bottom:0}
+
+.termwrap.timeline{display:grid;gap:10px;overflow-x:auto;padding-bottom:10px;align-items:start}
+.termwrap.timeline .term{min-width:0;padding:10px;min-height:140px}
+.termwrap.timeline .term header b{font-size:17px}
+.termwrap.timeline.dens-compact .cc{padding:6px 8px;margin-bottom:6px}
+.termwrap.timeline.dens-compact .cc .t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px}
+.termwrap.timeline.dens-mini .cc{padding:5px 7px;margin-bottom:5px}
+.termwrap.timeline.dens-mini .cc .t2{display:none}
+
 .termwrap{display:flex;gap:14px;overflow-x:auto;padding-bottom:14px;align-items:flex-start}
-.term{flex:0 0 232px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:13px;min-height:160px;box-shadow:var(--sh-xs);transition:border-color .15s,background-color .15s}
+.term{background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:11px;min-height:110px;transition:border-color .15s,background-color .15s,box-shadow .15s}
 .term.over{border-color:var(--accent);background:var(--accent-soft)}
-.term header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-.term header b{font:400 20px var(--f-display)}
-.cc{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-bottom:8px;cursor:grab;position:relative;transition:transform .13s ease,box-shadow .13s ease,border-color .13s ease}
+.term.drop-ok,[data-drop].drop-ok{border-color:var(--good);box-shadow:inset 0 0 0 1px var(--good-border)}
+.term.drop-warn,[data-drop].drop-warn{border-color:var(--warn);box-shadow:inset 0 0 0 1px var(--warn-border)}
+.term.drop-bad,[data-drop].drop-bad{border-color:var(--bad);box-shadow:inset 0 0 0 1px var(--bad-border);opacity:.88}
+.term header{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-bottom:6px}
+.term header b{font:400 19px var(--f-display)}
+.cc{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 9px;margin-bottom:7px;cursor:grab;position:relative;transition:transform .13s ease,box-shadow .13s ease,border-color .13s ease;min-width:0}
 .cc:hover{transform:translateY(-1px);box-shadow:var(--sh-sm);border-color:var(--line-strong)}
 .cc.done{border-left:3.5px solid var(--good)}
 .cc.current{border-left:3.5px solid var(--accent)}
 .cc.planned{border-left:3.5px dashed var(--muted)}
-.cc .t1{display:flex;justify-content:space-between;gap:6px;align-items:center}
-.cc .t2{font-size:13px;line-height:1.35;margin-top:3px;font-weight:500}
+.cc.g-good{border-left:3.5px solid var(--good)}
+.cc.g-acc{border-left:3.5px solid var(--accent)}
+.cc.g-warn{border-left:3.5px solid var(--warn)}
+.cc.g-bad{border-left:3.5px solid var(--bad)}
+.cc .t1{display:flex;justify-content:space-between;gap:5px;align-items:center}
+.cc .t2{font-size:12.5px;line-height:1.3;margin-top:3px;font-weight:500}
 .cc.warn{outline:1.5px solid var(--warn)}
 .cc.sel{outline:2px solid var(--accent)}
+.cc.moving{outline:2px solid var(--accent);background:var(--accent-soft)}
+.cc-mv{border:0;background:transparent;color:var(--muted);padding:1px 4px;border-radius:5px;font:500 11px/1 var(--f-mono);cursor:pointer;opacity:.55;transition:opacity .12s,background-color .12s,color .12s}
+.cc:hover .cc-mv,.cc-mv:focus-visible{opacity:1}
+.cc-mv:hover{background:var(--sunk);color:var(--accent)}
+.dens-compact .cc .t2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dens-mini .cc .t2{display:none}
+.mv-here.mv-ok{border-color:var(--good);color:var(--good);background:var(--good-soft)}
+.mv-here.mv-warn{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.mv-here.mv-bad{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.move-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:35;background:var(--surface);border:1.5px solid var(--accent);border-radius:12px;padding:10px 14px;box-shadow:var(--sh-md);display:flex;align-items:center;gap:12px;flex-wrap:wrap;max-width:calc(100vw - 24px);font-size:13.5px}
+@media (max-width:860px){
+  .move-bar{bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  .cc-mv{opacity:1}
+  .tabs a{padding:5px 9px;font-size:12.5px}
+  .head-left .row{flex-wrap:nowrap}
+}
+@media (max-width:500px){
+  .tabs{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+  .tabs a{padding:6px 4px;font-size:11.5px;text-align:center}
+}
+
+/* Customizable Widget Dashboard */
+.dash-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:14px;align-items:stretch}
+.dash-w{display:flex;flex-direction:column;min-width:0;position:relative}
+.dash-w>.card{flex:1;min-width:0}
+.w-s{grid-column:span 3}.w-m{grid-column:span 6}.w-l{grid-column:span 12}
+@media (max-width:1180px){.w-s{grid-column:span 6}}
+@media (max-width:860px){.dash-grid{grid-template-columns:minmax(0,1fr);gap:12px}.w-s,.w-m,.w-l{grid-column:1/-1}}
+.w-off{opacity:.5;filter:grayscale(.35)}
+.dash-edit-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;margin-bottom:14px;background:var(--surface);border:1px solid var(--accent-border);border-radius:11px;box-shadow:var(--sh-xs)}
+.w-ctrl{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:5px 8px;margin-bottom:6px;background:var(--sunk);border:1px solid var(--line);border-radius:8px;font-size:11.5px;flex-wrap:wrap}
+.cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;vertical-align:middle}
+.accent-swatch{display:inline-flex;align-items:center;gap:6px}
+.accent-swatch i{display:inline-block;width:12px;height:12px;border-radius:50%}
+@media print{
+  .side,.head .btn,.head .cmd-trig,.head .help-trig,.tabs,.dash-edit-bar,.toast,.move-bar{display:none!important}
+  .shell{display:block!important;padding:0!important;max-width:100%!important}
+  body{background:#fff!important;color:#000!important;padding:0!important}
+  body.print-tr .main>*:not(details#tr-details){display:none!important}
+  details#tr-details{border:0!important;box-shadow:none!important;padding:0!important}
+}
 
 /* Roadmap */
 .map{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);box-shadow:var(--sh-sm)}
@@ -326,24 +452,50 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 .toast-btn:hover{background:color-mix(in srgb,var(--bg) 25%,transparent)}
 .pre{white-space:pre-wrap;font:400 13px/1.5 var(--f-mono);background:var(--sunk);border-radius:8px;padding:12px;max-height:260px;overflow:auto}
 
+/* Command Palette & Mobile More Sheet */
+.cmd-veil{justify-content:center;align-items:flex-start;padding:min(12vh,96px) 16px 24px}
+.cmd-box{width:min(580px,100%);background:var(--surface);border:1px solid var(--line-strong);border-radius:14px;box-shadow:var(--sh-md);overflow:hidden;display:flex;flex-direction:column;max-height:min(74vh,540px)}
+.cmd-in{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.cmd-in svg{width:16px;height:16px;color:var(--muted);flex:none}
+.cmd-in input{flex:1;border:0;background:transparent;padding:4px 0;font-size:15px;box-shadow:none}
+.cmd-in input:focus{box-shadow:none}
+.cmd-list{overflow-y:auto;padding:6px;display:flex;flex-direction:column;gap:2px}
+.cmd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;border:0;background:transparent;color:var(--ink);text-align:left;cursor:pointer;width:100%}
+.cmd-item:hover,.cmd-item.on{background:var(--accent-soft);color:var(--accent)}
+.cmd-item small{color:var(--muted);font-size:12px}
+.cmd-item.on small{color:var(--accent)}
+.more-veil{align-items:flex-end;justify-content:center}
+.more-sheet{width:100%;max-height:84vh;overflow-y:auto;background:var(--surface);border-top:1px solid var(--line);border-radius:18px 18px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom,0px));box-shadow:var(--sh-drawer);display:flex;flex-direction:column;gap:16px}
+.more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.more-tile{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);color:var(--ink);font-size:13.5px;font-weight:500;cursor:pointer;text-decoration:none;text-align:left;min-width:0}
+.more-tile span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 @media (max-width:860px){
-  .shell{grid-template-columns:minmax(0,1fr);gap:16px;padding-block:14px calc(88px + env(safe-area-inset-bottom,0px))}
+  body{padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+  .shell,.shell.rail-c{grid-template-columns:minmax(0,1fr);gap:12px;padding-block:12px calc(84px + env(safe-area-inset-bottom,0px))}
   .side{position:static;gap:0}
-  .side-card{padding:11px 14px;gap:0;border-radius:12px}
+  .side-card{padding:10px 12px;gap:0;border-radius:12px}
   .brand{padding:0}
-  .brand small,.side-quick,.side-foot{display:none}
+  .brand small,.side-dock,.side-quick,.side-foot,.rail-btn,.cmd-trig{display:none!important}
   .mob-util{display:flex}
+  .head{margin-bottom:14px;padding-bottom:10px}
+  h1{font-size:clamp(24px,6.2vw,32px);overflow-wrap:anywhere}
+  .num{font-size:clamp(32px,8.5vw,44px)}
+  .card{padding:14px;min-width:0;max-width:100%}
+  .kpi-card,.grid,.row{min-width:0;max-width:100%}
   .nav{
     position:fixed;left:0;right:0;bottom:0;z-index:15;
     background:color-mix(in srgb,var(--surface) 88%,transparent);
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border-top:1px solid var(--line);
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
-    display:grid;grid-template-columns:repeat(5,1fr);gap:2px;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;
     box-shadow:0 -2px 10px rgba(0,0,0,.06);
   }
-  .nav a{flex-direction:column;justify-content:center;gap:3px;font-size:11px;padding:6px 4px;text-align:center;border-radius:8px;white-space:nowrap}
-  .nav a svg{width:18px;height:18px}
+  .nav a,.nav button.nav-more{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;font-size:10.5px;padding:6px 2px;text-align:center;border-radius:8px;white-space:nowrap;min-width:0;overflow:hidden}
+  .nav a.nav-settings{display:none!important}
+  .nav a span,.nav button.nav-more span{display:block!important;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .nav a svg,.nav button.nav-more svg{width:18px;height:18px}
   .toast{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 }
 @media (prefers-reduced-motion:no-preference){.veil{animation:fi .15s ease}.drawer{animation:sl .2s ease}@keyframes fi{from{opacity:0}}@keyframes sl{from{transform:translateX(24px);opacity:.6}}}
@@ -631,7 +783,10 @@ const gradeCls=l=>{if(!l||l==='W'||l==='NC')return'';if(l==='CR')return'good';co
 const stPill=c=>{const s=status(c);return s==='done'?'<span class="pill good">done</span>':s==='current'?'<span class="pill acc">in progress</span>':s==='planned'?'<span class="pill">planned</span>':'<span class="pill">not scheduled</span>'};
 const catName=k=>{const x=S.settings.cats.find(c=>c.k===k);return x?x.n:k||'Uncategorised'};
 let INNER=false;
-const head=(t,sub,right)=>INNER?`<div class="row between" style="margin-bottom:18px;align-items:flex-start">${sub?`<p class="sub" style="margin:0">${sub}</p>`:'<span></span>'}${right?`<div class="row">${right}</div>`:''}</div>`:`<div class="head"><div><h1>${t}</h1>${sub?`<p class="sub">${sub}</p>`:''}</div>${right?`<div class="row">${right}</div>`:''}</div>`;
+const cmdBtn=()=>`<button type="button" class="btn ghost sm cmd-trig" data-a="opencmd" title="Search & commands (Ctrl+K)">${ICONS.search}<span class="mono small">⌘K</span></button>`;
+const head=(t,sub,right)=>INNER
+  ?`<div class="row between toolbar-inner" style="margin-bottom:14px;align-items:center;gap:10px">${sub?`<span class="small muted">${sub}</span>`:'<span></span>'}${right?`<div class="row" style="gap:8px">${right}</div>`:''}</div>`
+  :`<div class="head"><div class="head-left"><div class="row" style="gap:8px;align-items:center"><h1>${t}</h1>${sub?`<button type="button" class="btn ghost sm help-trig ${U.showHelp?'on':''}" data-a="togglehelp" title="About this page" aria-label="Page info">${ICONS.info}</button>`:''}</div>${U.route==='overview'&&sub?`<p class="sub">${sub}</p>`:''}</div><div class="row head-right" style="gap:8px">${right||''}${cmdBtn()}</div></div>${U.showHelp&&sub?`<div class="help-pop"><span>${sub}</span><button type="button" class="btn ghost sm" data-a="togglehelp" aria-label="Dismiss">✕</button></div>`:''}`;
 
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function dateBadge(iso,d){
@@ -696,51 +851,123 @@ function setupPanel(){
   <div class="row" style="margin-top:20px"><button class="btn primary" data-a="setup">Create my terms</button><button class="btn" data-a="loadsample">Load the Habib EE grid</button></div></div>`;
 }
 
-/* ---------- views ---------- */
+/* ---------- views & customizable widgets ---------- */
+const WIDGETS={
+  gpa:{title:'Cumulative GPA',render(){
+    const cum=cumulative(),tg=S.settings.targetGpa,d=cum.gpa==null?null:cum.gpa-tg;
+    return`<div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}">
+      <div class="row between"><div class="lbl">Cumulative GPA</div>${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)} vs target</span>`:''}</div>
+      <div class="num" style="margin:10px 0 8px">${fmt(cum.gpa)}</div>
+      <div class="small muted">${d==null?'Enter final grades for finished courses':`Target ${fmt(tg)} across ${cum.cr} graded credits`}</div>
+    </div>`;
+  }},
+  term:{title:'This term so far',render(){
+    const cur=curCourses(),cg=gpaOf(cur,true),proj=gpaOf(doneCourses().concat(cur),true),cum=cumulative();
+    const curCr=cur.reduce((a,c)=>a+c.credits,0),ct=S.terms.find(t=>t.status==='current');
+    return`<div class="card kpi-card kpi-acc">
+      <div class="row between"><div class="lbl">This term so far</div>${ct?`<span class="pill acc">${esc(ct.name)}</span>`:''}</div>
+      <div class="num" style="margin:10px 0 8px">${fmt(cg.gpa)}</div>
+      <div class="small muted">${cur.length} courses · ${curCr} cr${proj.gpa!=null&&cum.gpa!=null?` · cum <b class="mono">${fmt(proj.gpa)}</b>`:''}</div>
+    </div>`;
+  }},
+  credits:{title:'Credits earned',render(){
+    const er=earnedCredits(),tot=S.settings.totalCredits||1,curCr=curCourses().reduce((a,c)=>a+c.credits,0);
+    const planCr=planCourses().filter(counts).reduce((a,c)=>a+c.credits,0),pct=Math.min(100,er/tot*100);
+    return`<div class="card kpi-card kpi-good" style="flex-direction:row;align-items:center;gap:14px;justify-content:flex-start">
+      <div class="ring" style="--p:${pct.toFixed(1)}"><div>${Math.round(pct)}%</div></div>
+      <div style="min-width:0"><div class="lbl">Credits earned</div><div class="mono" style="font-size:22px;font-weight:600;margin:6px 0 4px">${er}<span class="muted" style="font-weight:400"> / ${tot}</span></div><div class="small muted">${curCr} now · ${planCr} planned</div></div>
+    </div>`;
+  }},
+  target:{title:'Target tracker',render(){
+    const p=typeof termPlan==='function'?termPlan():null;
+    if(!p)return`<div class="card kpi-card kpi-acc"><div class="row between"><div class="lbl">Target tracker</div><a class="btn ghost sm" href="#gpa">GPA lab</a></div><div class="small muted" style="margin-top:10px">Add courses to your current term to track target grades.</div></div>`;
+    const main=p.state==='secured'?'Safe':p.state==='out'?fmt(p.best):fmt(p.need);
+    const sub=p.state==='secured'?`Target ${fmt(p.tg)} secured this term`:p.state==='out'?`Max ${fmt(p.best)} this term (need ${fmt(p.need)} for ${fmt(p.tg)})`:`Needed this term for ${fmt(p.tg)} overall`;
+    const aims=p.rows.slice(0,3).map(r=>`<span class="pill" style="font-size:10.5px">${esc(r.c.code)}: <b>${esc(r.goal||r.aim)}</b></span>`).join(' ');
+    return`<div class="card kpi-card ${p.state==='out'?'kpi-warn':p.state==='secured'?'kpi-good':'kpi-acc'}">
+      <div class="row between"><div class="lbl">Target tracker</div><a class="btn ghost sm" href="#gpa" style="padding:2px 6px;font-size:11.5px">Details ›</a></div>
+      <div class="num" style="margin:8px 0 6px;font-size:clamp(30px,3vw,42px)">${main}</div>
+      <div class="small muted" style="margin-bottom:8px">${sub}</div>
+      <div class="row" style="gap:4px">${aims}</div>
+    </div>`;
+  }},
+  inprog:{title:'In progress',render(){
+    const cur=curCourses();
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div style="text-align:right;flex:none"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(st.letter)}</div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
+  }},
+  duenext:{title:'Due next',render(){
+    const dl=deadlines().slice(0,5);
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Due next</h2></div>${dl.length?`<div class="list">${dl.map(x=>`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div><div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="pill acc">${fmt(x.a.w,0)}%</span></div></div>`).join('')}</div>`:'<div class="empty">Nothing dated yet. Add due dates in a course or sync Canvas.</div>'}</div>`;
+  }},
+  week:{title:'This week',render(){
+    const pk=typeof picked==='function'?picked():[];
+    if(!pk.length){
+      const srv=typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft sm" data-a="loadsrvsched">Load Spring 2027</button>`:'';
+      return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Enrollment ›</a></div><div class="empty" style="padding:20px 14px">No sections picked yet.<div class="row" style="justify-content:center;margin-top:10px"><a class="btn sm" href="#enroll">Pick sections</a>${srv}</div></div></div>`;
+    }
+    const bad=clashes(pk);
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Edit ›</a></div>${weekGrid(pk,bad)}</div>`;
+  }},
+  trend:{title:'GPA by term',render(){
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">GPA by term</h2><a class="btn ghost sm" href="#gpa">GPA lab ›</a></div>${spark(trend())}</div>`;
+  }},
+  attention:{title:'Worth a look',render(){
+    const att=attention().slice(0,5);
+    return`<div class="card"><h2 style="margin-bottom:8px">Worth a look</h2>${att.length?`<div class="list">${att.map(a=>`<div class="li click" ${a.course?`data-a="open" data-id="${a.course}"`:`data-a="go" data-v="${a.to}"`}><span class="row" style="flex-wrap:nowrap;gap:10px"><span class="pill ${a.t}" style="flex:none">${a.t==='bad'?'grade':a.t==='warn'?'plan':'note'}</span><span class="small">${a.x}</span></span><span class="muted" style="font-size:18px;line-height:1">›</span></div>`).join('')}</div>`:'<div class="empty" style="padding:20px">Nothing needs attention right now.</div>'}</div>`;
+  }},
+  reqs:{title:'Requirements',render(){
+    const cp=catProgress().filter(x=>!(x.k.k==='minor'&&!S.courses.some(c=>c.cat==='minor')));
+    return`<div class="card"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Requirements</h2><a class="btn ghost sm" href="#req">Details ›</a></div><div style="display:flex;flex-direction:column;gap:10px">${cp.map(x=>{const req=x.k.req||0,pct=req>0?Math.min(100,(x.e+x.cu+x.pl)/req*100):100;return`<div><div class="row between small"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${esc(catColor(x.k.k))};margin-right:6px"></i><b>${esc(x.k.n)}</b></span><span class="mono muted">${x.e+x.cu+x.pl}${req>0?' / '+req:''} cr</span></div>${req>0?`<div class="bar" style="height:5px;margin-top:4px"><i class="d" style="width:${Math.min(100,x.e/req*100)}%"></i><i style="width:${Math.min(100,x.cu/req*100)}%"></i><i class="p" style="width:${Math.min(100,x.pl/req*100)}%"></i></div>`:''}</div>`}).join('')}</div></div>`;
+  }},
+  portals:{title:'Portals & sync',render(){
+    const ps=(S.settings.portals||[]).filter(p=>p.on),at=S.links&&S.links.canvas&&S.links.canvas.at;
+    return`<div class="card"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Portals &amp; sync</h2><button type="button" class="btn soft sm" data-a="quickcanvas">Sync Canvas</button></div><div class="more-grid" style="margin-bottom:10px">${ps.map(p=>`<button type="button" class="more-tile" data-a="openportal" data-id="${esc(p.id)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span>${esc(p.name)}</span></button>`).join('')}</div><div class="small muted">Canvas sync: ${at?esc(new Date(at).toLocaleString()):'Not synced yet'}</div></div>`;
+  }},
+  note:{title:'Quick notes',render(){
+    const v=(S.ui&&S.ui.dash&&S.ui.dash.note)||'';
+    return`<div class="card"><h2 style="margin-bottom:8px">Quick notes</h2><textarea id="dash-note" data-c="dashnote" rows="5" placeholder="Advising notes, enrollment reminders…">${esc(v)}</textarea></div>`;
+  }}
+};
 function vOverview(){
   if(!S.terms.length)return head('Atlas','One place for your grades, your roadmap and your four years.')+setupPanel();
-  const cum=cumulative(),er=earnedCredits(),tot=S.settings.totalCredits,tg=S.settings.targetGpa;
-  const cur=curCourses(),cg=gpaOf(cur,true),proj=gpaOf(doneCourses().concat(cur),true);
-  const curCr=cur.reduce((a,c)=>a+c.credits,0),planCr=planCourses().filter(counts).reduce((a,c)=>a+c.credits,0);
-  const pct=Math.min(100,er/tot*100),d=cum.gpa==null?null:cum.gpa-tg;
-  const dl=deadlines().slice(0,5),att=attention().slice(0,4);
-  const ct=S.terms.find(t=>t.status==='current');
-  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+'now in '+esc(ct.name):''))+`
-  <div class="grid g3">
-    <div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}">
-      <div class="row between"><div class="lbl">Cumulative GPA</div>${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)} vs target</span>`:''}</div>
-      <div class="num" style="margin:12px 0 10px">${fmt(cum.gpa)}</div>
-      <div class="small muted">${d==null?'Enter final grades for finished courses':`Target ${fmt(tg)} across ${cum.cr} graded credits`}</div>
-    </div>
-    <div class="card kpi-card kpi-acc">
-      <div class="row between"><div class="lbl">This term so far</div>${ct?`<span class="pill acc">${esc(ct.name)}</span>`:''}</div>
-      <div class="num" style="margin:12px 0 10px">${fmt(cg.gpa)}</div>
-      <div class="small muted">${cur.length} courses · ${curCr} credits${proj.gpa!=null&&cum.gpa!=null?` · projected cum <b class="mono">${fmt(proj.gpa)}</b>`:''}</div>
-    </div>
-    <div class="card kpi-card kpi-good" style="flex-direction:row;align-items:center;gap:18px;justify-content:flex-start">
-      <div class="ring" style="--p:${pct.toFixed(1)}"><div>${Math.round(pct)}%</div></div>
-      <div style="min-width:0"><div class="lbl">Credits earned</div><div class="mono" style="font-size:24px;font-weight:600;margin:6px 0 4px">${er}<span class="muted" style="font-weight:400"> / ${tot}</span></div><div class="small muted">${curCr} in progress · ${planCr} planned</div></div>
-    </div>
-  </div>
-  <div class="grid g2 sec">
-    <div><h2>In progress</h2>${cur.length?`<div class="card list" style="padding:4px 16px">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:8px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div style="text-align:right;flex:none"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(st.letter)}</div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>
-    <div><h2>Due next</h2>${dl.length?`<div class="card list" style="padding:4px 16px">${dl.map(x=>`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div><div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="pill acc">${fmt(x.a.w,0)}%</span></div></div>`).join('')}</div>`:'<div class="empty">Nothing dated yet. Add due dates in a course, or from its syllabus.</div>'}</div>
-  </div>
-  <div class="grid g2 sec">
-    <div><h2>GPA by term</h2><div class="card">${spark(trend())}</div></div>
-    <div><h2>Worth a look</h2>${att.length?`<div class="card list" style="padding:4px 16px">${att.map(a=>`<div class="li click" ${a.course?`data-a="open" data-id="${a.course}"`:`data-a="go" data-v="${a.to}"`}><span class="row" style="flex-wrap:nowrap;gap:10px"><span class="pill ${a.t}" style="flex:none">${a.t==='bad'?'grade':a.t==='warn'?'plan':'note'}</span><span class="small">${a.x}</span></span><span class="muted" style="font-size:18px;line-height:1">›</span></div>`).join('')}</div>`:'<div class="empty">Nothing needs attention right now.</div>'}</div>
-  </div>`;
+  const ct=S.terms.find(t=>t.status==='current'),mods=(S.ui&&S.ui.modules)||{};
+  const isMob=typeof window!=='undefined'&&window.innerWidth<=860;
+  const devMode=U.dashEdit?(U.dashEditMode||(isMob?'mobile':'desktop')):(isMob?'mobile':'desktop');
+  const rawList=(S.ui&&S.ui.dash&&S.ui.dash[devMode])||defUi().dash[devMode];
+  const visible=rawList.filter(x=>{
+    if(!WIDGETS[x.w])return false;
+    if(x.w==='week'&&mods.enroll===false)return false;
+    if(x.w==='portals'&&mods.portals===false)return false;
+    return U.dashEdit||x.on!==false;
+  });
+  const editBtn=`<button type="button" class="btn sm ${U.dashEdit?'primary':''}" data-a="dashedit">${U.dashEdit?'Done':'Customize'}</button>`;
+  const editBar=U.dashEdit?`<div class="dash-edit-bar"><div class="row" style="gap:8px"><b class="small">Editing layout:</b><div class="seg"><button type="button" class="${devMode==='desktop'?'on':''}" data-a="dashmode" data-v="desktop">Desktop</button><button type="button" class="${devMode==='mobile'?'on':''}" data-a="dashmode" data-v="mobile">Mobile</button></div></div><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="dashreset">Reset default</button><button type="button" class="btn sm primary" data-a="dashedit">Done</button></div></div>`:'';
+  const cards=visible.map((x,i)=>{
+    const w=WIDGETS[x.w],sz=x.size||'m';
+    const ctrl=U.dashEdit?`<div class="w-ctrl"><button type="button" class="btn sm ${x.on!==false?'soft':'ghost'}" data-a="wvis" data-w="${x.w}">${x.on!==false?'Shown':'Hidden'}</button><div class="seg">${['s','m','l'].map(s=>`<button type="button" class="${sz===s?'on':''}" data-a="wsize" data-w="${x.w}" data-v="${s}">${s.toUpperCase()}</button>`).join('')}</div><div class="row" style="gap:3px"><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="-1" ${i===0?'disabled':''} aria-label="Move earlier">←</button><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="1" ${i===visible.length-1?'disabled':''} aria-label="Move later">→</button></div></div>`:'';
+    return`<div class="dash-w w-${sz}${x.on===false?' w-off':''}">${ctrl}${w.render()}</div>`;
+  }).join('');
+  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+'now in '+esc(ct.name):''),editBtn)+editBar+`<div class="dash-grid">${cards}</div>`;
 }
 
+const canvasPortalUrl=()=>{const p=(S.settings.portals||[]).find(x=>x.id==='canvas'||x.kind==='canvas');return((p&&p.url)||'https://hulms.instructure.com').replace(/\/+$/,'')};
 function courseRow(c){
   const st=standing(c),is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c),s=status(c);
   const rt=S.courses.find(o=>o.retakeOf===c.id);
   const gcls=gradeCls(c.grade);
   const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
-  return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code">${esc(c.code)} · ${c.credits} cr · ${esc(catName(c.cat))}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${s==='done'?gsel:(l?lpill(l):stPill(c))}</div></div>`;
+  return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code row" style="gap:6px"><i class="cat-dot" style="background:${esc(catColor(c.cat))}" title="${esc(catName(c.cat))}"></i>${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${s==='done'?gsel:(l?lpill(l):stPill(c))}</div></div>`;
+}
+function courseTableRow(c){
+  const st=standing(c),l=effLetter(c),s=status(c),t=termOf(c.term);
+  const gcls=gradeCls(c.grade);
+  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
+  const stand=s==='current'&&st.pct!=null?`<span class="mono small">${fmt(st.pct,1)}%</span> ${lpill(st.letter)}`:(l?lpill(l):stPill(c));
+  return`<tr class="click" data-a="open" data-id="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r">${s==='done'?gsel:stand}</td></tr>`;
 }
 function vCourses(){
-  const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`;
+  const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
+  const syncBtn=mods.canvas!==false?`<button class="btn" data-a="go" data-v="canvas">Sync Canvas</button>`:'';
   if(!S.courses.length)return head('Courses','Every course with its grading breakdown.',add)+'<div class="empty">No courses yet. Add one from a syllabus or by hand.</div>';
   const T=S.terms,ci=T.findIndex(t=>t.status==='current');
   const ni=T.findIndex((t,i)=>t.status==='planned'&&i>ci);
@@ -748,14 +975,24 @@ function vCourses(){
   const view=U.cview&&(U.cview==='all'||T.some(t=>t.id===U.cview))?U.cview:'now';
   let shown=view==='all'?T.slice():view==='now'?T.filter((t,i)=>i===li||i===ci||i===ni):T.filter(t=>t.id===view);
   if(!shown.length)shown=T.slice(0,2);
-  const strip=`<div class="tabs"><a href="#" data-a="cview" data-v="now" ${view==='now'?'aria-current="page"':''}>Now</a>${T.map(t=>`<a href="#" data-a="cview" data-v="${t.id}" ${view===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="cview" data-v="all" ${view==='all'?'aria-current="page"':''}>All</a></div>`;
-  const blocks=`<div class="cols" style="margin-top:4px">`+shown.map(t=>{
-    const cs=S.courses.filter(c=>c.term===t.id),g=termGpa(t);
-    const stBadge=`<span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>`;
-    return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><div class="row" style="gap:6px"><span class="pill">${cs.reduce((a,c)=>a+c.credits,0)} cr</span>${g.gpa!=null?`<span class="pill acc">GPA ${fmt(g.gpa)}</span>`:''}</div></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">Empty term</div>'}</div>`;
-  }).join('')+`</div>`;
-  const cat=S.courses.filter(c=>!termOf(c.term));
-  return head('Courses','Your current term, the next one and the last one you finished. Pick any term below to focus on it or enter final grades.',add+`<button class="btn" data-a="go" data-v="canvas">Sync from Canvas</button>`)+strip+blocks+(cat.length&&(view==='now'||view==='all')?`<div class="sec" style="margin-top:26px"><h2>Not in a term yet</h2><div class="card list" style="padding:4px 16px">${cat.map(courseRow).join('')}</div></div>`:'');
+  const q=(U.courseQ||'').trim().toLowerCase(),ck=U.courseCat||'',mode=U.courseMode||'cards';
+  const match=c=>(!ck||c.cat===ck)&&(!q||(c.code+' '+c.title+' '+(c.instructor||'')).toLowerCase().includes(q));
+  const strip=`<div class="tabs" style="margin-bottom:10px"><a href="#" data-a="cview" data-v="now" ${view==='now'?'aria-current="page"':''}>Now</a>${T.map(t=>`<a href="#" data-a="cview" data-v="${t.id}" ${view===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="cview" data-v="all" ${view==='all'?'aria-current="page"':''}>All</a></div>`;
+  const ctrl=`<div class="grid-bar"><div class="grid-bar-grp"><input id="course-q" type="search" data-c="courseq" value="${esc(U.courseQ||'')}" placeholder="Search code, title, instructor…" style="width:220px;padding:5px 10px;font-size:13px"><select class="sel-pill" data-c="coursecat" aria-label="Filter by category"><option value="">All categories</option>${S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${ck===k.k?'selected':''}>${esc(k.n)}</option>`).join('')}</select></div><div class="seg" role="group" aria-label="View mode"><button type="button" class="${mode==='cards'?'on':''}" data-a="cmode" data-v="cards">Cards</button><button type="button" class="${mode==='table'?'on':''}" data-a="cmode" data-v="table">Table</button></div></div>`;
+  const cat=S.courses.filter(c=>!termOf(c.term)&&match(c));
+  let body='';
+  if(mode==='table'){
+    const list=shown.flatMap(t=>S.courses.filter(c=>c.term===t.id&&match(c))).concat((view==='now'||view==='all')?cat:[]);
+    body=list.length?`<div class="card scroll" style="padding:6px 14px"><table class="t"><thead><tr><th>Code</th><th>Title</th><th>Term</th><th>Category</th><th class="r">Cr</th><th class="r">Standing / Grade</th></tr></thead><tbody>${list.map(courseTableRow).join('')}</tbody></table></div>`:'<div class="empty">No matching courses in the selected terms.</div>';
+  }else{
+    const blocks=`<div class="cols" style="margin-top:4px">`+shown.map(t=>{
+      const cs=S.courses.filter(c=>c.term===t.id&&match(c)),g=termGpa(t);
+      const stBadge=`<span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>`;
+      return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><div class="row" style="gap:6px"><span class="pill">${cs.reduce((a,c)=>a+c.credits,0)} cr</span>${g.gpa!=null?`<span class="pill acc">GPA ${fmt(g.gpa)}</span>`:''}</div></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">No matching courses</div>'}</div>`;
+    }).join('')+`</div>`;
+    body=blocks+(cat.length&&(view==='now'||view==='all')?`<div class="sec" style="margin-top:26px"><h2>Not in a term yet</h2><div class="card list" style="padding:4px 16px">${cat.map(courseRow).join('')}</div></div>`:'');
+  }
+  return head('Courses','Your current term, the next one and the last one you finished. Pick any term below to focus on it or enter final grades.',add+syncBtn)+strip+ctrl+body;
 }
 
 const gradeOpts=c=>{const t=termOf(c.term);return t&&t.cr?['','CR','NC']:['',...S.settings.scale.map(x=>x.l),'W']};
@@ -816,11 +1053,14 @@ function drawer(){
     ${is.length?`<div class="banner">${is.map(i=>i.kind==='missing'?`${esc(i.code)} is not in your course list yet.`:i.kind==='unscheduled'?`${esc(i.code)} is not scheduled in any term.`:i.kind==='same'?`${esc(i.code)} is in the same term.`:`${esc(i.code)} comes after this course.`).join(' ')}</div>`:''}
     <label class="f" style="margin-bottom:14px"><span>This course is a retake of</span><select data-c="cf" data-f="retakeOf" data-id="${c.id}"><option value="">Not a retake</option>${S.courses.filter(o=>o.id!==c.id).map(o=>`<option value="${o.id}" ${c.retakeOf===o.id?'selected':''}>${esc(o.code)} · ${esc((termOf(o.term)||{}).name||'no term')}</option>`).join('')}</select></label>
     <label class="f" style="margin-bottom:14px"><span>Instructor</span><input data-c="cf" data-f="instructor" data-id="${c.id}" value="${esc(c.instructor||'')}"></label>
+    <label class="f" style="margin-bottom:14px"><span>Syllabus link (optional https://…)</span><input data-c="cf" data-f="syllabusUrl" data-id="${c.id}" value="${esc(c.syllabusUrl||'')}" placeholder="https://…"></label>
     <label class="f" style="margin-bottom:18px"><span>Notes</span><textarea rows="4" data-c="cf" data-f="notes" data-id="${c.id}">${esc(c.notes||'')}</textarea></label>
     ${dep.length?`<h2>Unlocks</h2><div class="row" style="margin-bottom:22px">${dep.map(o=>`<button class="btn sm" data-a="open" data-id="${o.id}">${esc(o.code)}</button>`).join('')}</div>`:''}
     <button class="btn danger" data-a="delcourse" data-id="${c.id}">Delete this course</button>`;
   }
-  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}</div>${tabs}${body}</div></div>`;
+  const cvLink=c.canvasId?`<a class="btn sm soft" href="${esc(canvasPortalUrl()+'/courses/'+c.canvasId)}" target="_blank" rel="noopener">Canvas ↗</a>`:'';
+  const sylLink=c.syllabusUrl?`<a class="btn sm" href="${esc(c.syllabusUrl)}" target="_blank" rel="noopener">Syllabus ↗</a>`:'';
+  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}${cvLink}${sylLink}</div>${tabs}${body}</div></div>`;
 }
 /* ---------- roadmap ---------- */
 const ORD=['Entry courses','Second step','Third step','Fourth step','Fifth step','Sixth step','Seventh step','Eighth step'];
@@ -871,22 +1111,118 @@ function vRoadmap(){
 }
 
 /* ---------- four-year grid ---------- */
-function gcard(c){
+function canDropTerm(courseId,targetTermId){
+  if(!targetTermId)return'ok';
+  const c=getC(courseId);if(!c)return'ok';
+  const m=byCode(),ti=termIdx(targetTermId);if(ti<0)return'ok';
+  let sev='ok';
+  const bump=s=>{if(s==='bad')sev='bad';else if(s==='warn'&&sev==='ok')sev='warn'};
+  (c.prereqs||[]).forEach(code=>{
+    const p=m[NC(code)];if(!p)return;
+    if(!p.term){bump('warn');return}
+    const pi=termIdx(p.term);
+    if(pi>ti)bump('bad');else if(pi===ti)bump('warn');
+  });
+  (c.coreqs||[]).forEach(code=>{
+    const p=m[NC(code)];if(!p||!p.term)return;
+    if(termIdx(p.term)>ti)bump('bad');
+  });
+  S.courses.forEach(d=>{
+    if(!d.term||d.id===c.id)return;
+    if((d.prereqs||[]).some(x=>NC(x)===NC(c.code))){
+      const di=termIdx(d.term);
+      if(ti>di)bump('bad');else if(ti===di)bump('warn');
+    }
+  });
+  if(c.term!==targetTermId){
+    const t=termOf(targetTermId);
+    if(t&&t.status!=='done'){
+      const add=(S.settings.capOwn&&outside(c))?0:c.credits;
+      if(loadOf(targetTermId)+add>(S.settings.maxLoad||18))bump('warn');
+    }
+  }
+  return sev;
+}
+function groupTermsByYear(terms){
+  const years=[];
+  terms.forEach(t=>{
+    const nm=String(t.name||'');
+    const isFall=/^fall/i.test(nm),isSummer=/^sum/i.test(nm);
+    const cur=years[years.length-1];
+    if(!cur||isFall){years.push({terms:[t]});return}
+    if(isSummer||cur.terms.length<2){cur.terms.push(t);return}
+    years.push({terms:[t]});
+  });
+  return years;
+}
+function gcard(c,P){
+  P=P||{colorBy:'status'};
   const is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c);
-  return`<div class="cc ${status(c)} ${is.length?'warn':''}" draggable="true" data-drag="${c.id}" data-a="open" data-id="${c.id}" title="${is.length?'A prerequisite is not finished before this course':'Drag to another term, or tap to edit'}"><div class="t1"><span class="code">${esc(c.code)}</span><span class="mono small" style="font-size:11px;color:var(--muted)">${c.credits} cr${l?' · <b style="color:var(--ink)">'+esc(l)+'</b>':''}</span></div><div class="t2">${esc(c.title)}</div></div>`;
+  const gcls=P.colorBy==='grade'&&l?('g-'+(gradeCls(l)||'')):'';
+  const catStyle=P.colorBy==='cat'?` style="border-left:3.5px solid ${esc(catColor(c.cat))};border-left-style:solid"`:'';
+  const cls=P.colorBy==='status'?status(c):gcls;
+  const mv=U.moveCourseId===c.id?'moving':'';
+  const tip=(c.title||'')+(is.length?' · Prerequisite order warning':'')+' · Drag or click to open';
+  return`<div class="cc ${cls} ${is.length?'warn':''} ${mv}"${catStyle} draggable="true" data-drag="${c.id}" data-a="open" data-id="${c.id}" title="${esc(tip)}"><div class="t1"><span class="code">${esc(c.code)}</span><span class="row" style="gap:3px;flex-wrap:nowrap"><span class="mono small" style="font-size:11px;color:var(--muted)">${c.credits}${l?' · <b style="color:var(--ink)">'+esc(l)+'</b>':''}</span><button type="button" class="cc-mv" data-a="startmove" data-id="${c.id}" title="Move to another term" aria-label="Move ${esc(c.code)}">⇄</button></span></div><div class="t2">${esc(c.title)}</div></div>`;
+}
+function termBoxHtml(t,P,isYear){
+  const maxLoad=S.settings.maxLoad||18;
+  const cs=S.courses.filter(c=>c.term===t.id),cr=loadOf(t.id),all=termCredits(t.id),g=termGpa(t);
+  const over=cr>maxLoad&&t.status!=='done',barW=Math.min(100,cr/maxLoad*100);
+  const mvBtn=U.moveCourseId?`<button type="button" class="btn sm mv-here mv-${canDropTerm(U.moveCourseId,t.id)}" data-a="moveto" data-term="${t.id}">Place</button>`:'';
+  const cardsCls=isYear?'term-cards':'';
+  return`<div class="term ${isYear?'term-yr':''}" data-drop="${t.id}"><header><b>${esc(t.name)}</b><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="mono small" style="color:var(--${over?'warn':'muted'})">${cr}${all>cr?`+${all-cr}`:''}/${maxLoad} cr</span>${mvBtn}</span></header>
+  <div class="bar" style="height:4px;margin-bottom:8px"><i class="${over?'w':t.status==='done'?'d':''}" style="width:${barW}%"></i></div>
+  <div class="row" style="margin:0 0 8px;gap:5px"><span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>${g.gpa!=null?`<span class="pill">GPA ${fmt(g.gpa)}</span>`:''}</div>
+  <div class="${cardsCls}">${cs.map(c=>gcard(c,P)).join('')||'<div class="small muted" style="padding:12px 4px;text-align:center;border:1px dashed var(--line);border-radius:8px">Drop courses here</div>'}</div></div>`;
+}
+function catalogTrayHtml(cat,P){
+  const catCr=cat.reduce((a,c)=>a+c.credits,0);
+  const open=!!(P.trayOpen||U.moveCourseId);
+  if(!open){
+    return`<div class="cat-bar" data-drop=""><div class="row" style="gap:8px"><b>Catalog</b><span class="pill">${cat.length} unscheduled · ${catCr} cr</span><span class="small muted">Drop a course here to unschedule</span></div><button type="button" class="btn sm" data-a="toggletray">Open catalog</button></div>`;
+  }
+  const q=(U.catQ||'').trim().toLowerCase(),ck=U.catCat||'';
+  const shown=cat.filter(c=>(!ck||c.cat===ck)&&(!q||(c.code+' '+c.title).toLowerCase().includes(q)));
+  const mvBtn=U.moveCourseId?`<button type="button" class="btn sm mv-here mv-ok" data-a="moveto" data-term="">Place in Catalog</button>`:'';
+  return`<div class="cat-tray" data-drop=""><div class="cat-tray-head"><div class="row" style="gap:8px"><b>Catalog</b><span class="pill">${cat.length} unscheduled · ${catCr} cr</span>${mvBtn}</div><div class="row" style="gap:8px"><input type="search" id="cat-q" data-c="catq" value="${esc(U.catQ||'')}" placeholder="Search catalog…" style="width:170px;padding:4px 9px;font-size:13px"><select class="sel-pill" data-c="catcat" aria-label="Filter category"><option value="">All categories</option>${S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${ck===k.k?'selected':''}>${esc(k.n)}</option>`).join('')}</select><button type="button" class="btn ghost sm" data-a="toggletray">Hide</button></div></div>
+  <div class="term-cards">${shown.map(c=>gcard(c,P)).join('')||'<div class="small muted" style="padding:12px;grid-column:1/-1;text-align:center">No matching unscheduled courses.</div>'}</div></div>`;
+}
+function vGridYears(terms,cat,P){
+  const years=groupTermsByYear(terms);
+  const densCls=P.density==='mini'?'dens-mini':P.density==='comfort'?'':'dens-compact';
+  const body=years.map((yr,idx)=>{
+    const yts=yr.terms,ycs=yts.flatMap(t=>S.courses.filter(c=>c.term===t.id));
+    const ycr=ycs.reduce((a,c)=>a+c.credits,0),yg=gpaOf(ycs,yts.some(t=>t.status==='current'));
+    const allDone=yts.every(t=>t.status==='done'),isCur=yts.some(t=>t.status==='current');
+    const exp=U.expandedYears&&U.expandedYears[idx];
+    if(P.collapseDone&&allDone&&!exp){
+      return`<div class="year-collapsed"><div class="row" style="gap:8px"><b>Year ${idx+1}</b><span class="pill good">finished</span><span class="small muted">${yts.map(t=>esc(t.name)).join(' · ')}</span><span class="mono small muted">${ycr} cr${yg.gpa!=null?' · GPA '+fmt(yg.gpa):''}</span></div><div class="row" style="gap:6px">${yts.map(t=>`<span class="pill" data-drop="${t.id}" title="Drop onto ${esc(t.name)}">${esc(t.name)}</span>`).join('')}<button type="button" class="btn sm ghost" data-a="expandyear" data-i="${idx}">Expand</button></div></div>`;
+    }
+    return`<section class="year-block"><div class="year-head"><div class="row" style="gap:8px"><h3 style="font-size:15px">Year ${idx+1}</h3>${isCur?'<span class="pill acc">current year</span>':allDone?'<span class="pill good">finished</span>':''}<span class="mono small muted">${ycr} cr${yg.gpa!=null?' · GPA '+fmt(yg.gpa):''}</span></div>${P.collapseDone&&allDone?`<button type="button" class="btn sm ghost" data-a="expandyear" data-i="${idx}">Collapse</button>`:''}</div><div class="year-terms">${yts.map(t=>termBoxHtml(t,P,true)).join('')}</div></section>`;
+  }).join('');
+  return catalogTrayHtml(cat,P)+`<div class="years-wrap ${densCls}">${body}</div>`;
+}
+function vGridTimeline(terms,cat,P){
+  const done=terms.filter(t=>t.status==='done');
+  const shown=P.collapseDone?terms.filter(t=>t.status!=='done'):terms;
+  const effDens=P.density==='auto'?(shown.length>=7?'compact':'comfort'):P.density;
+  const doneStrip=P.collapseDone&&done.length?`<div class="cat-bar" style="border-style:solid;margin-bottom:12px"><div class="row" style="gap:8px"><span class="small muted"><b>Finished:</b></span>${done.map(t=>{const g=termGpa(t);return`<span class="pill good" data-drop="${t.id}">${esc(t.name)} · ${loadOf(t.id)} cr${g.gpa!=null?' · '+fmt(g.gpa):''}</span>`}).join('')}</div><button type="button" class="btn sm ghost" data-a="plancfg" data-f="collapseDone" data-v="0">Show all</button></div>`:'';
+  const grid=shown.length?`<div class="termwrap timeline dens-${effDens}" style="grid-template-columns:repeat(${shown.length},minmax(134px,1fr))">${shown.map(t=>termBoxHtml(t,P,false)).join('')}</div>`:'<div class="empty">All terms are finished and collapsed. Click "Show all" above to view them.</div>';
+  return catalogTrayHtml(cat,P)+doneStrip+grid;
 }
 function vGrid(){
   if(!S.terms.length)return head('Four years','Every term at a glance.')+setupPanel();
-  const cat=S.courses.filter(c=>!termOf(c.term)),maxLoad=S.settings.maxLoad||18;
-  const cols=S.terms.map(t=>{const cs=S.courses.filter(c=>c.term===t.id),cr=loadOf(t.id),all=termCredits(t.id),g=termGpa(t);
-    const over=cr>maxLoad&&t.status!=='done';
-    const barW=Math.min(100,cr/maxLoad*100);
-    return`<div class="term" data-drop="${t.id}"><header><b>${esc(t.name)}</b><span class="mono small" style="color:var(--${over?'warn':'muted'})">${cr}${all>cr?`+${all-cr}`:''}/${maxLoad} cr</span></header>
-    <div class="bar" style="height:4px;margin-bottom:10px"><i class="${over?'w':t.status==='done'?'d':''}" style="width:${barW}%"></i></div>
-    <div class="row" style="margin:0 0 10px;gap:6px"><span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>${g.gpa!=null?`<span class="pill">GPA ${fmt(g.gpa)}</span>`:''}</div>${cs.map(gcard).join('')}${cs.length?'':'<div class="small muted" style="padding:14px 4px;text-align:center;border:1px dashed var(--line);border-radius:8px">Drop courses here</div>'}</div>`}).join('');
+  const P=(S.ui&&S.ui.plan)||{layout:'years',density:'auto',colorBy:'status',collapseDone:false,trayOpen:false};
+  const cat=S.courses.filter(c=>!termOf(c.term));
   const tot=S.courses.filter(c=>termOf(c.term)&&counts(c)).reduce((a,c)=>a+c.credits,0);
-  return head('Four years','Drag a course to move it between terms. On a phone, tap a course and pick its term. A dashed outline means a prerequisite is not finished before that course.',`<span class="pill acc">${tot} of ${S.settings.totalCredits} credits placed</span>`)+
-  `<div class="termwrap"><div class="term" data-drop=""><header><b>Catalog</b><span class="mono small muted">${cat.reduce((a,c)=>a+c.credits,0)} cr</span></header><div class="small muted" style="margin:-2px 0 10px">Not in a term yet</div>${cat.map(gcard).join('')||'<div class="small muted" style="padding:14px 4px;text-align:center;border:1px dashed var(--line);border-radius:8px">Nothing waiting</div>'}</div>${cols}</div>`;
+  const laySeg=`<div class="seg" role="group" aria-label="Grid layout">${[['years','Years'],['timeline','Timeline']].map(([k,l])=>`<button type="button" class="${P.layout===k?'on':''}" data-a="plancfg" data-f="layout" data-v="${k}">${l}</button>`).join('')}</div>`;
+  const densSeg=`<div class="seg" role="group" aria-label="Card density">${[['auto','Auto'],['comfort','Comfort'],['compact','Compact'],['mini','Mini']].map(([k,l])=>`<button type="button" class="${P.density===k?'on':''}" data-a="plancfg" data-f="density" data-v="${k}">${l}</button>`).join('')}</div>`;
+  const colorSel=`<select class="sel-pill" data-c="plancfg" data-f="colorBy" aria-label="Color cards by">${[['status','Color: Status'],['cat','Color: Category'],['grade','Color: Grade']].map(([k,l])=>`<option value="${k}" ${P.colorBy===k?'selected':''}>${l}</option>`).join('')}</select>`;
+  const bar=`<div class="grid-bar"><div class="grid-bar-grp">${laySeg}${densSeg}${colorSel}<button type="button" class="btn sm ${P.collapseDone?'soft':''}" data-a="plancfg" data-f="collapseDone" data-v="${P.collapseDone?'0':'1'}">${P.collapseDone?'Show finished':'Collapse done'}</button></div><div class="grid-bar-grp"><button type="button" class="btn sm ${P.trayOpen?'soft':''}" data-a="toggletray">Catalog (${cat.length})</button><span class="pill acc">${tot} / ${S.settings.totalCredits} cr</span></div></div>`;
+  const mc=U.moveCourseId?getC(U.moveCourseId):null;
+  const mvBar=mc?`<div class="move-bar"><span>Moving <b>${esc(mc.code)}</b> — tap <b>Place</b> on a term</span><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="moveto" data-term="">Move to Catalog</button><button type="button" class="btn sm ghost" data-a="cancelmove">Cancel</button></div></div>`:'';
+  return bar+(P.layout==='timeline'?vGridTimeline(S.terms,cat,P):vGridYears(S.terms,cat,P))+mvBar;
 }
 /* ---------- GPA lab ---------- */
 /* What the rest of the degree has to average. Retaken courses drop their old grade, CR courses carry no points, and credits not yet in a term still count as future work. */
@@ -933,7 +1269,7 @@ function vGpa(){
   <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
   ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="pill good">+${fmt(x.gain)}</span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
   <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
-`+termPlanSection()+whatIf(cum)+transcriptSection();
+`+termPlanSection()+((S.ui&&S.ui.modules&&S.ui.modules.whatif!==false)?whatIf(cum):'')+transcriptSection();
 }
 
 /* ---------- requirements and minors ---------- */
@@ -957,13 +1293,27 @@ function vReq(){
       <div class="bar" style="margin:12px 0 14px"><i class="d" style="width:${pct}%"></i></div>
       <div class="small muted">${diff>0?`${diff} credits of the degree are not in any term yet.`:diff===0?'Every credit of your degree has a place in a term, so the plan is full. A minor course either takes the place of a free elective, or goes on top and adds to your total.':`Your plan holds ${-diff} credits beyond the ${tot} your degree needs. That is normal with a minor. It only matters if a term goes over its credit limit.`}${free.length?` Free elective slots left: <b>${free.length}</b>.`:''}</div></div>
     </div>
-  </div>`+minorsSection();
+  </div>`+((S.ui&&S.ui.modules&&S.ui.modules.minors!==false)?minorsSection():'');
 }
 
 function vPlan(){
-  const t=U.planTab||'grid',tabs=[['grid','Four years'],['roadmap','Roadmap'],['req','Requirements'],['enroll','Enrollment']];
+  const mods=(S.ui&&S.ui.modules)||{};
+  const tabs=[
+    ['grid','Four years'],
+    mods.roadmap!==false?['roadmap','Roadmap']:null,
+    ['req','Requirements'],
+    mods.enroll!==false?['enroll','Enrollment']:null
+  ].filter(Boolean);
+  let t=U.planTab||'grid';
+  if(!tabs.some(x=>x[0]===t))t='grid';
   let v='';INNER=true;try{v=({grid:vGrid,roadmap:vRoadmap,req:vReq,enroll:vEnroll})[t]()}finally{INNER=false}
-  return head('Plan','Where every course sits, how they connect, and what the degree still needs.')+`<div class="tabs">${tabs.map(x=>`<a href="#${x[0]}" ${t===x[0]?'aria-current="page"':''}>${x[1]}</a>`).join('')}</div>`+v;
+  const subMap={
+    grid:'Drag courses between terms or use ⇄ to place them. A dashed outline means a prerequisite is not finished before that course.',
+    roadmap:'Read left to right. Select a course to trace what it needs and what it unlocks.',
+    req:'Credits by category, and how a minor fits around your degree.',
+    enroll:'Choose sections from published offerings and check for time clashes.'
+  };
+  return head('Plan',subMap[t])+`<div class="plan-bar"><div class="tabs" style="margin-bottom:0">${tabs.map(x=>`<a href="#${x[0]}" ${t===x[0]?'aria-current="page"':''}>${x[1]}</a>`).join('')}</div></div>`+v;
 }
 /* ---------- add a course ---------- */
 const termSel=(id,val,none)=>`<select id="${id}">${none?`<option value="">${none}</option>`:''}${S.terms.map(t=>`<option value="${t.id}" ${val===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select>`;
@@ -993,55 +1343,111 @@ function vAdd(){
 }
 
 /* ---------- settings ---------- */
+const MOD_META=[
+  ['minors','Minors tracker','Minor degree progress and slot matcher on Requirements.'],
+  ['enroll','Enrollment & timetable','Section picker, clash checker, and This week widget.'],
+  ['roadmap','Prerequisite roadmap','Interactive prerequisite graph under Plan.'],
+  ['whatif','What-if GPA simulator','Grade simulator in GPA lab.'],
+  ['portals','Portal dock','Quick-launch university portals in the sidebar and More sheet.'],
+  ['canvas','Canvas sync & import','Sync courses, grades, and due dates from Canvas.']
+];
+const ACCENT_META=[['blue','Blue','#2945B8'],['emerald','Emerald','#16794F'],['amber','Amber','#B86B11'],['violet','Violet','#6D28D9'],['rose','Rose','#BE123C']];
 function vSettings(){
-  const s=S.settings;
+  const s=S.settings,ui=S.ui||defUi(),mods=ui.modules||{},tab=U.setTab||'general';
   const th=U.theme||'';
   const thSeg=[['','System'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('');
   const capSeg=[['no','All courses'],['yes','Own school only']].map(([v,l])=>`<button type="button" class="${(s.capOwn?'yes':'no')===v?'on':''}" data-a="setopt" data-f="capOwn" data-v="${v}">${l}</button>`).join('');
   const retSeg=[['yes','Replaces old grade'],['no','Both grades count']].map(([v,l])=>`<button type="button" class="${(s.retakeReplaces!==false?'yes':'no')===v?'on':''}" data-a="setopt" data-f="retakeReplaces" data-v="${v}">${l}</button>`).join('');
-  return head('Settings','Make Atlas match how your university counts things.')+
-  `<div class="card"><h2>Degree &amp; preferences</h2><div class="fgrid">
-    <label class="f"><span>Your name</span><input data-c="set" data-f="name" value="${esc(s.name||'')}"></label>
-    <label class="f"><span>Programme</span><input data-c="set" data-f="program" value="${esc(s.program)}"></label>
-    <label class="f"><span>University</span><input data-c="set" data-f="school" value="${esc(s.school)}"></label>
-    <label class="f"><span>Credits to graduate</span><input type="number" data-c="set" data-f="totalCredits" value="${s.totalCredits}"></label>
-    <label class="f"><span>Credit limit per term</span><input type="number" data-c="set" data-f="maxLoad" value="${s.maxLoad}"></label>
-    <label class="f"><span>Your school (for minors)</span><input data-c="set" data-f="unit" placeholder="DSSE" value="${esc(s.unit||'')}"></label>
-    <label class="f"><span>Target GPA</span><input type="number" step="0.01" data-c="set" data-f="targetGpa" value="${s.targetGpa}"></label>
-  </div>
-  <div class="fgrid-wide" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
-    <div class="f"><span class="lbl">Theme</span><div class="seg">${thSeg}</div></div>
-    <div class="f"><span class="lbl">Credit limit applies to</span><div class="seg">${capSeg}</div></div>
-    <div class="f"><span class="lbl">Retaken courses</span><div class="seg">${retSeg}</div></div>
-  </div></div>
-  <div class="grid g2 sec"><div class="card scroll"><h2>Terms</h2><table class="t"><tbody>${S.terms.map((t,i)=>`<tr><td><input data-c="tf" data-f="name" data-id="${t.id}" value="${esc(t.name)}" style="min-width:118px"></td><td><select class="sel-pill ${t.status==='done'?'good':t.status==='current'?'acc':''}" data-c="tf" data-f="status" data-id="${t.id}">${['done','current','planned'].map(x=>`<option value="${x}" ${t.status===x?'selected':''}>${x==='done'?'Finished':x==='current'?'Current':'Planned'}</option>`).join('')}</select></td><td><select class="sel-pill" data-c="tf" data-f="cr" data-id="${t.id}" aria-label="Grading"><option value="">Graded</option><option value="1" ${t.cr?'selected':''}>CR / NC</option></select></td><td><button class="btn ghost sm" data-a="termUp" data-id="${t.id}" aria-label="Move earlier" ${i?'':'disabled'}>↑</button></td><td><button class="btn ghost danger sm" data-a="delterm" data-id="${t.id}" aria-label="Delete term">✕</button></td></tr>`).join('')}</tbody></table><div style="margin-top:14px"><button class="btn" data-a="addterm">+ Add a term</button></div></div>
-  <div class="card scroll"><h2>Requirement categories</h2><table class="t"><thead><tr><th>Name</th><th class="r">Credits</th><th></th></tr></thead><tbody>${s.cats.map(k=>`<tr><td><input data-c="kf" data-f="n" data-id="${esc(k.k)}" value="${esc(k.n)}"></td><td class="r"><input class="w" type="number" data-c="kf" data-f="req" data-id="${esc(k.k)}" value="${k.req}"></td><td><button class="btn ghost danger sm" data-a="delcat" data-id="${esc(k.k)}" aria-label="Delete category">✕</button></td></tr>`).join('')}</tbody></table><div style="margin-top:14px"><button class="btn" data-a="addcat">+ Add a category</button></div></div></div>
-  <details class="card scroll sec"><summary>Grade scale</summary><p class="small muted" style="margin:0 0 12px">Letter, grade points, and the lowest percentage that earns it. Used for GPA and for turning marks into a letter.</p><table class="t" style="max-width:520px"><thead><tr><th>Letter</th><th class="r">Points</th><th class="r">From %</th><th></th></tr></thead><tbody>${s.scale.map((g,i)=>`<tr><td><input data-c="sf" data-f="l" data-i="${i}" value="${esc(g.l)}" style="width:74px"></td><td class="r"><input class="w" type="number" step="0.01" data-c="sf" data-f="p" data-i="${i}" value="${g.p}"></td><td class="r"><input class="w" type="number" step="any" data-c="sf" data-f="min" data-i="${i}" value="${g.min}"></td><td><button class="btn ghost danger sm" data-a="delgrade" data-i="${i}" aria-label="Delete grade">✕</button></td></tr>`).join('')}</tbody></table><div class="row" style="margin-top:14px"><button class="btn" data-a="addgrade">+ Add a grade</button><button class="btn ghost" data-a="resetscale">Restore the common 4.0 scale</button></div></details>
-  <div class="card sec"><h2>Syllabus reading</h2><p class="small muted" style="margin:-4px 0 14px">Add a free Gemini API key to read syllabi automatically. The key stays in this browser and is never saved with your plan.</p><div class="fgrid"><label class="f"><span>Gemini API key</span><input type="password" data-c="ai" data-f="key" value="${esc(AI.key)}" autocomplete="off" placeholder="Paste your key"></label><label class="f"><span>Model</span><input data-c="ai" data-f="model" value="${esc(AI.model)}"></label></div></div>
-  <div class="card sec"><h2>Your data</h2><p class="small muted" style="margin:-4px 0 14px">${U.sync||''}</p><div class="row"><button class="btn" data-a="export">Download a backup</button><label class="btn" style="cursor:pointer">Restore from a backup<input type="file" accept=".json,application/json" data-c="impf" hidden></label>${U.confirmReset?`<span class="small">Erase every term, course and grade?</span><button class="btn danger" data-a="resetall">Yes, erase all</button><button class="btn ghost" data-a="noreset">Keep</button>`:`<button class="btn danger" data-a="askreset">Erase everything</button>`}</div></div>`;
-}
-/* ---------- Canvas sync ---------- */
-/* This function is never run on this page. It is copied into a bookmark and run on your Canvas page,
-   where your own login lets it read your own courses, grades and due dates. It only reads, and it only shows the result on screen. */
-const CANVAS_EXPORT=async()=>{try{
-  const J=async u=>{let o=[];while(u){const r=await fetch(u,{credentials:'same-origin',headers:{Accept:'application/json'}});if(!r.ok)throw new Error('Canvas answered '+r.status);const t=(await r.text()).replace(/^while\(1\);/,'');o=o.concat(JSON.parse(t));const l=r.headers.get('Link'),m=l&&l.match(/<([^>]+)>;\s*rel="next"/);u=m?m[1]:null}return o};
-  const cs=await J('/api/v1/courses?enrollment_state=active&include[]=teachers&include[]=term&per_page=100');
-  const out=[];
-  for(const c of cs){if(!c.name)continue;
-    const gs=await J('/api/v1/courses/'+c.id+'/assignment_groups?include[]=assignments&include[]=submission&per_page=100');
-    out.push({id:c.id,name:c.name,code:c.course_code||'',term:(c.term||{}).name||'',teachers:(c.teachers||[]).map(t=>t.display_name),groups:gs.map(g=>({name:g.name,weight:g.group_weight||0,items:(g.assignments||[]).map(a=>{const s=a.submission||{};return{name:a.name,max:a.points_possible,due:a.due_at,score:s.score==null?null:s.score,state:s.workflow_state||'',late:!!s.late,missing:!!s.missing,excused:!!s.excused}})}))});
+  const setTabs=[['general','Degree & modules'],['academic','Terms & scale'],['portals','Portals & AI'],['appearance','Appearance'],['data','Data & sync']];
+  const nav=`<div class="tabs">${setTabs.map(([k,l])=>`<a href="#" data-a="settab" data-v="${k}" ${tab===k?'aria-current="page"':''}>${l}</a>`).join('')}</div>`;
+  let body='';
+  if(tab==='general'){
+    body=`<div class="card"><h2>Degree &amp; preferences</h2><div class="fgrid">
+      <label class="f"><span>Your name</span><input data-c="set" data-f="name" value="${esc(s.name||'')}"></label>
+      <label class="f"><span>Programme</span><input data-c="set" data-f="program" value="${esc(s.program)}"></label>
+      <label class="f"><span>University</span><input data-c="set" data-f="school" value="${esc(s.school)}"></label>
+      <label class="f"><span>Credits to graduate</span><input type="number" data-c="set" data-f="totalCredits" value="${s.totalCredits}"></label>
+      <label class="f"><span>Credit limit per term</span><input type="number" data-c="set" data-f="maxLoad" value="${s.maxLoad}"></label>
+      <label class="f"><span>Your school (for minors)</span><input data-c="set" data-f="unit" placeholder="DSSE" value="${esc(s.unit||'')}"></label>
+      <label class="f"><span>Target GPA</span><input type="number" step="0.01" data-c="set" data-f="targetGpa" value="${s.targetGpa}"></label>
+    </div>
+    <div class="fgrid-wide" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line)">
+      <div class="f"><span class="lbl">Credit limit applies to</span><div class="seg">${capSeg}</div></div>
+      <div class="f"><span class="lbl">Retaken courses</span><div class="seg">${retSeg}</div></div>
+    </div></div>
+    <div class="card sec"><h2>Active modules</h2><p class="small muted" style="margin:-4px 0 12px">Hide modules you do not need. Your existing data stays untouched.</p>
+    <div class="list">${MOD_META.map(([k,n,desc])=>{const on=mods[k]!==false;return`<div class="li"><div><b>${n}</b><div class="small muted">${desc}</div></div><button type="button" class="btn sm ${on?'soft':''}" data-a="modtoggle" data-f="${k}">${on?'Enabled':'Hidden'}</button></div>`}).join('')}</div></div>`;
+  }else if(tab==='academic'){
+    body=`<div class="grid g2"><div class="card scroll"><h2>Terms</h2><table class="t"><tbody>${S.terms.map((t,i)=>`<tr><td><input data-c="tf" data-f="name" data-id="${t.id}" value="${esc(t.name)}" style="min-width:118px"></td><td><select class="sel-pill ${t.status==='done'?'good':t.status==='current'?'acc':''}" data-c="tf" data-f="status" data-id="${t.id}">${['done','current','planned'].map(x=>`<option value="${x}" ${t.status===x?'selected':''}>${x==='done'?'Finished':x==='current'?'Current':'Planned'}</option>`).join('')}</select></td><td><select class="sel-pill" data-c="tf" data-f="cr" data-id="${t.id}" aria-label="Grading"><option value="">Graded</option><option value="1" ${t.cr?'selected':''}>CR / NC</option></select></td><td><button class="btn ghost sm" data-a="termUp" data-id="${t.id}" aria-label="Move earlier" ${i?'':'disabled'}>↑</button><button class="btn ghost sm" data-a="termDown" data-id="${t.id}" aria-label="Move later" ${i<S.terms.length-1?'':'disabled'}>↓</button></td><td><button class="btn ghost danger sm" data-a="delterm" data-id="${t.id}" aria-label="Delete term">✕</button></td></tr>`).join('')}</tbody></table><div class="row" style="margin-top:14px"><button class="btn" data-a="addterm">+ Add a term</button><button class="btn soft" data-a="addsummer">+ Add Summer term</button></div></div>
+    <div class="card scroll"><h2>Requirement categories</h2><table class="t"><thead><tr><th>Color</th><th>Name</th><th class="r">Credits</th><th></th></tr></thead><tbody>${s.cats.map(k=>`<tr><td style="width:44px"><input type="color" data-c="kf" data-f="color" data-id="${esc(k.k)}" value="${esc(catColor(k.k))}" aria-label="Color for ${esc(k.n)}" style="width:34px;height:30px;padding:2px;cursor:pointer"></td><td><input data-c="kf" data-f="n" data-id="${esc(k.k)}" value="${esc(k.n)}"></td><td class="r"><input class="w" type="number" data-c="kf" data-f="req" data-id="${esc(k.k)}" value="${k.req}"></td><td><button class="btn ghost danger sm" data-a="delcat" data-id="${esc(k.k)}" aria-label="Delete category">✕</button></td></tr>`).join('')}</tbody></table><div style="margin-top:14px"><button class="btn" data-a="addcat">+ Add a category</button></div></div></div>
+    <details open class="card scroll sec"><summary>Grade scale</summary><p class="small muted" style="margin:0 0 12px">Letter, grade points, and the lowest percentage that earns it. Used for GPA and for turning marks into a letter.</p><table class="t" style="max-width:520px"><thead><tr><th>Letter</th><th class="r">Points</th><th class="r">From %</th><th></th></tr></thead><tbody>${s.scale.map((g,i)=>`<tr><td><input data-c="sf" data-f="l" data-i="${i}" value="${esc(g.l)}" style="width:74px"></td><td class="r"><input class="w" type="number" step="0.01" data-c="sf" data-f="p" data-i="${i}" value="${g.p}"></td><td class="r"><input class="w" type="number" step="any" data-c="sf" data-f="min" data-i="${i}" value="${g.min}"></td><td><button class="btn ghost danger sm" data-a="delgrade" data-i="${i}" aria-label="Delete grade">✕</button></td></tr>`).join('')}</tbody></table><div class="row" style="margin-top:14px"><button class="btn" data-a="addgrade">+ Add a grade</button><button class="btn ghost" data-a="resetscale">Restore the common 4.0 scale</button></div></details>`;
+  }else if(tab==='portals'){
+    const portals=s.portals||[];
+    body=`<div class="card scroll"><h2>Portal dock links</h2><p class="small muted" style="margin:-4px 0 14px">Quick links shown in the sidebar dock and mobile More sheet. Works on both desktop and web.</p>
+    <table class="t"><thead><tr><th>Dock</th><th>Tile</th><th>Color</th><th>Name</th><th>Address (https://…)</th><th></th></tr></thead><tbody>${portals.map((p,i)=>`<tr><td><button type="button" class="btn sm ${p.on?'soft':''}" data-a="portaltoggle" data-i="${i}">${p.on?'On':'Off'}</button></td><td><input data-c="pf" data-f="short" data-i="${i}" value="${esc(p.short||'')}" maxlength="2" style="width:48px;text-align:center"></td><td><input type="color" data-c="pf" data-f="color" data-i="${i}" value="${esc(p.color||'#2945B8')}" style="width:34px;height:30px;padding:2px;cursor:pointer"></td><td><input data-c="pf" data-f="name" data-i="${i}" value="${esc(p.name||'')}" style="min-width:120px"></td><td><input data-c="pf" data-f="url" data-i="${i}" value="${esc(p.url||'')}" placeholder="https://…" style="min-width:220px"></td><td style="white-space:nowrap"><button type="button" class="btn sm" data-a="openportal" data-id="${esc(p.id)}">Open</button>${['canvas','pscs','syllabus'].includes(p.id)?'':` <button type="button" class="btn ghost danger sm" data-a="delportal" data-i="${i}" aria-label="Delete portal">✕</button>`}</td></tr>`).join('')}</tbody></table>
+    <div style="margin-top:14px"><button type="button" class="btn" data-a="addportal">+ Add portal link</button></div></div>
+    <div class="card sec"><h2>Syllabus reading</h2><p class="small muted" style="margin:-4px 0 14px">Add a free Gemini API key to read syllabi automatically. The key stays in this browser and is never saved with your plan.</p><div class="fgrid"><label class="f"><span>Gemini API key</span><input type="password" data-c="ai" data-f="key" value="${esc(AI.key)}" autocomplete="off" placeholder="Paste your key"></label><label class="f"><span>Model</span><input data-c="ai" data-f="model" value="${esc(AI.model)}"></label></div></div>`;
+  }else if(tab==='appearance'){
+    const acc=ui.accent||'blue',dens=ui.density||'comfortable';
+    body=`<div class="card"><h2>Theme &amp; style</h2><div class="fgrid-wide">
+      <div class="f"><span class="lbl">Theme</span><div class="seg">${thSeg}</div></div>
+      <div class="f"><span class="lbl">Density</span><div class="seg">${[['comfortable','Comfortable'],['compact','Compact']].map(([v,l])=>`<button type="button" class="${dens===v?'on':''}" data-a="setdensity" data-v="${v}">${l}</button>`).join('')}</div></div>
+    </div>
+    <div class="f" style="margin-top:18px"><span class="lbl">Accent color</span><div class="opt-pills" style="margin-top:6px">${ACCENT_META.map(([k,n,hex])=>`<button type="button" class="opt-pill ${acc===k?'on':''}" data-a="setaccent" data-v="${k}"><span class="accent-swatch"><i style="background:${hex}"></i>${n}</span></button>`).join('')}</div></div>
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--line)"><h3 style="margin-bottom:6px">Overview widgets</h3><p class="small muted" style="margin:0 0 10px">Reorder, resize, or hide cards independently for desktop and mobile.</p><button type="button" class="btn" data-a="editdash">Customize Overview dashboard</button></div></div>`;
+  }else{
+    body=`<div class="card"><h2>Your data</h2><p class="small muted" style="margin:-4px 0 14px">${U.sync||''}</p><div class="row"><button class="btn" data-a="export">Download a backup</button><label class="btn" style="cursor:pointer">Restore from a backup<input type="file" accept=".json,application/json" data-c="impf" hidden></label>${U.confirmReset?`<span class="small">Erase every term, course and grade?</span><button class="btn danger" data-a="resetall">Yes, erase all</button><button class="btn ghost" data-a="noreset">Keep</button>`:`<button class="btn danger" data-a="askreset">Erase everything</button>`}</div></div>`;
   }
-  const j=JSON.stringify({v:1,courses:out});
-  const d=document.createElement('div');d.style.cssText='position:fixed;z-index:99999;left:8%;right:8%;top:8%;background:#fff;color:#111;padding:16px;border:2px solid #333;border-radius:8px;font:14px sans-serif';
-  d.innerHTML='<b>Atlas export</b><p>Copy everything below and paste it into Atlas. It was copied for you if your browser allowed it.</p><textarea style="width:100%;height:240px"></textarea><p><button>Close</button></p>';
-  document.body.appendChild(d);const ta=d.querySelector('textarea');ta.value=j;ta.select();d.querySelector('button').onclick=()=>d.remove();
+  return head('Settings','Make Atlas match how your university counts things, customize portals, appearance, and backups.')+nav+body;
+}
+/* ---------- Canvas sync, PSCS reconciliation & universal bookmarklet ---------- */
+const atlasBaseUrl=()=>{
+  if(typeof IS_WEB!=='undefined'&&IS_WEB)return location.origin+(typeof WEB_BASE==='string'?WEB_BASE:'')+'/';
+  return (typeof HC!=='undefined'&&HC&&HC.serverUrl)?HC.serverUrl.replace(/\/+$/,'')+'/':'https://starserver.tailbf777f.ts.net/atlas/';
+};
+const UNIVERSAL_BOOKMARK_FN=async(ATLAS_URL)=>{try{
+  const isCanvas=/instructure\.com$/i.test(location.hostname)||!!(window.ENV&&(window.ENV.COURSE_ID||window.ENV.current_user_id));
+  let payload;
+  if(isCanvas){
+    const J=async u=>{let o=[];while(u){const r=await fetch(u,{credentials:'same-origin',headers:{Accept:'application/json'}});if(!r.ok)throw new Error('Canvas answered '+r.status);const t=(await r.text()).replace(/^while\(1\);/,'');o=o.concat(JSON.parse(t));const l=r.headers.get('Link'),m=l&&l.match(/<([^>]+)>;\s*rel="next"/);u=m?m[1]:null}return o};
+    const cs=await J('/api/v1/courses?enrollment_state=active&include[]=teachers&include[]=term&per_page=100');
+    const out=[];
+    for(const c of cs){if(!c.name)continue;
+      const gs=await J('/api/v1/courses/'+c.id+'/assignment_groups?include[]=assignments&include[]=submission&per_page=100');
+      out.push({id:c.id,name:c.name,code:c.course_code||'',term:(c.term||{}).name||'',teachers:(c.teachers||[]).map(t=>t.display_name),groups:gs.map(g=>({name:g.name,weight:g.group_weight||0,items:(g.assignments||[]).map(a=>{const s=a.submission||{};return{name:a.name,max:a.points_possible,due:a.due_at,score:s.score==null?null:s.score,state:s.workflow_state||'',late:!!s.late,missing:!!s.missing,excused:!!s.excused}})}))});
+    }
+    payload={v:2,kind:'canvas',at:Date.now(),courses:out};
+  }else{
+    const docs=[document];
+    Array.from(document.querySelectorAll('iframe')).forEach(f=>{try{if(f.contentDocument)docs.push(f.contentDocument)}catch(e){}});
+    const t=s=>(s||'').replace(/\s+/g,' ').trim();
+    const tables=[],texts=[];
+    docs.forEach(doc=>{
+      Array.from(doc.querySelectorAll('table')).slice(0,25).forEach(tb=>{
+        const rows=Array.from(tb.rows).slice(0,150).map(r=>Array.from(r.cells).map(c=>t(c.innerText).slice(0,120)));
+        if(rows.length)tables.push({id:tb.id||'',rows});
+      });
+      if(doc.body&&doc.body.innerText)texts.push(doc.body.innerText.slice(0,20000));
+    });
+    const kind=/pscs|peoplesoft/i.test(location.href)?'pscs':'syllabus';
+    payload={v:2,kind,at:Date.now(),url:location.origin+location.pathname,title:document.title,tables,text:texts.join('\n')};
+  }
+  const j=JSON.stringify(payload);
+  const b64=btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  const target=ATLAS_URL+'#import/'+b64;
   try{await navigator.clipboard.writeText(j)}catch(e){}
+  if(b64.length<120000){try{window.open(target,'_blank')}catch(e){}}
+  const d=document.createElement('div');d.style.cssText='position:fixed;z-index:99999;right:18px;top:18px;width:min(420px,90vw);background:#fff;color:#111;padding:16px;border:2px solid #2945B8;border-radius:12px;font:14px system-ui,sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.22)';
+  d.innerHTML='<b>Sent to Atlas</b><p style="margin:6px 0 10px;font-size:13px;color:#444">If Atlas did not open automatically, click below or copy the export text.</p>'+(b64.length<120000?'<p><a href="'+target+'" target="_blank" style="display:inline-block;padding:8px 14px;background:#2945B8;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">Open in Atlas →</a></p>':'')+'<textarea style="width:100%;height:110px;font:12px monospace"></textarea><p style="margin:8px 0 0"><button>Close</button></p>';
+  document.body.appendChild(d);const ta=d.querySelector('textarea');ta.value=j;ta.select();d.querySelector('button').onclick=()=>d.remove();
 }catch(e){alert('Atlas export failed: '+e.message)}};
-const bmCode=()=>'javascript:('+CANVAS_EXPORT.toString().replace(/\s*\n\s*/g,' ')+')()';
+const bmCode=()=>'javascript:('+UNIVERSAL_BOOKMARK_FN.toString().replace(/\s*\n\s*/g,' ')+')('+JSON.stringify(atlasBaseUrl())+')';
 
 const nn=s=>String(s||'').toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'').replace(/([a-z])0+(\d)/g,'$1$2').replace(/parti$/,'part1');
 const cvBase=n=>String(n||'').replace(/-[A-Za-z0-9,\s]*$/,'');
 function cvMatch(cv){
+  const mapped=S.links&&S.links.canvas&&S.links.canvas.map&&S.links.canvas.map[cv.id];
+  if(mapped&&getC(mapped))return mapped;
   const b=nn(cvBase(cv.name)),code=nn(cv.code);let best='',bs=0;
   S.courses.forEach(c=>{let sc=0;const t=nn(c.title);
     if(b&&t===b)sc=100;else if(b&&(t.startsWith(b)||b.startsWith(t))&&Math.abs(t.length-b.length)<=6)sc=60;
@@ -1066,7 +1472,11 @@ function cvGroup(c,name){
 function cvGuessType(n){const l=String(n).toLowerCase();for(const [k,ty] of KW)if(l.includes(k))return ty;return 'Other'}
 function cvApply(){
   let upd=0,add=0,un=0;
+  S.links=S.links||{canvas:{at:0,map:{}},pscs:{at:0}};
+  S.links.canvas=S.links.canvas||{at:0,map:{}};
+  S.links.canvas.map=S.links.canvas.map||{};
   (U.cv||[]).forEach(cv=>{const c=getC(cv.target);if(!c)return;
+    if(cv.id){S.links.canvas.map[cv.id]=c.id;c.canvasId=cv.id}
     if(!c.instructor&&cv.teachers&&cv.teachers.length)c.instructor=cv.teachers.join(', ');
     if(!(c.assess||[]).length){
       c.assess=cv.groups.filter(g=>g.items.length).map(g=>({id:uid(),n:g.name,type:cvGuessType(g.name),w:+g.weight||0,cnt:g.items.length,drop:0,items:g.items.map(cvItem)}));
@@ -1079,29 +1489,179 @@ function cvApply(){
         grp.items.push(it);add++}
     }));
   });
+  S.links.canvas.at=Date.now();
   return{upd,add,un};
 }
+function cvAutoSync(rawJson){
+  try{
+    const j=JSON.parse(String(rawJson||'').trim());
+    if(!j||!Array.isArray(j.courses)||!j.courses.length)return;
+    U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)})).filter(cv=>cv.target);
+    if(!U.cv.length)return;
+    const r=cvApply();U.cv=[];persist();render();
+    if(r.upd+r.add>0)toast(`Canvas synced automatically (${r.upd} updated, ${r.add} added)`);
+  }catch(e){}
+}
+function parsePscsGrades(obj){
+  const valid=new Set(['CR','NC','W','A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F']);
+  (S.settings.scale||[]).forEach(x=>{if(x.l)valid.add(String(x.l).toUpperCase())});
+  const codeRe=/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/i;
+  const gradeTok=s=>{const u=String(s||'').trim().toUpperCase();return valid.has(u)?u:''};
+  const found={};
+  const consider=(codeStr,gStr,rowText)=>{
+    if(!codeStr||!gStr)return;
+    const key=NC(codeStr);
+    const cands=S.courses.filter(c=>NC(c.code)===key);
+    if(!cands.length)return;
+    const c=cands.find(x=>rowText&&termOf(x.term)&&rowText.toLowerCase().includes((termOf(x.term).name||'').toLowerCase()))||cands.find(x=>status(x)==='done')||cands[0];
+    found[c.id]={id:c.id,code:c.code,title:c.title,term:(termOf(c.term)||{}).name||'Catalog',curGrade:c.grade||'',pscsGrade:gStr,status:!c.grade?'new':(c.grade===gStr?'match':'diff'),apply:!c.grade||c.grade!==gStr};
+  };
+  ((obj&&obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>{
+    const cells=r.map(x=>String(x||'').trim());
+    let code='';let g='';
+    cells.forEach(cell=>{
+      if(!code){const m=cell.match(codeRe);if(m)code=m[1]+' '+m[2]}
+      const gt=gradeTok(cell);if(gt)g=gt;
+    });
+    if(code&&g)consider(code,g,cells.join(' '));
+  }));
+  if(!Object.keys(found).length&&obj&&obj.text){
+    String(obj.text).split(/\r?\n/).forEach(line=>{
+      const m=line.match(codeRe);if(!m)return;
+      const toks=line.trim().split(/[\s\t,|]+/);
+      for(let i=toks.length-1;i>=0;i--){const gt=gradeTok(toks[i]);if(gt){consider(m[1]+' '+m[2],gt,line);break}}
+    });
+  }
+  return Object.values(found);
+}
+function parseSyllabusDeterministic(obj){
+  const textLines=[];
+  if(obj.title)textLines.push(obj.title);
+  ((obj&&obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>{const line=r.map(x=>String(x||'').trim()).filter(Boolean).join(' · ');if(line)textLines.push(line)}));
+  if(obj.text)textLines.push(obj.text);
+  const fullText=textLines.join('\n').slice(0,120000);
+  const codeM=fullText.match(/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/);
+  const code=codeM?(codeM[1]+' '+codeM[2]):'';
+  const assessments=[];
+  const seen=new Set();
+  const scanRow=(label,wStr)=>{
+    const w=parseFloat(wStr),nm=String(label||'').replace(/\b\d+(?:\.\d+)?\s*%/g,'').replace(/[:\-–·]+$/,'').trim();
+    if(!nm||isNaN(w)||w<=0||w>=100||/^total\b/i.test(nm))return;
+    const k=nm.toLowerCase();if(seen.has(k))return;seen.add(k);
+    assessments.push({name:nm.slice(0,60),type:cvGuessType(nm),weight:w,count:1,drop:0});
+  };
+  ((obj&&obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>{
+    const pctCell=r.find(c=>/\b(\d{1,3}(?:\.\d+)?)\s*%/.test(String(c||'')));
+    if(!pctCell)return;
+    const m=String(pctCell).match(/\b(\d{1,3}(?:\.\d+)?)\s*%/);
+    const lbl=r.find(c=>c!==pctCell&&String(c||'').trim().length>1)||'';
+    if(m&&lbl)scanRow(lbl,m[1]);
+  }));
+  if(!assessments.length){
+    fullText.split(/\r?\n/).forEach(line=>{
+      const m=line.match(/^(.{2,50}?)\s+(\d{1,3}(?:\.\d+)?)\s*%/);
+      if(m)scanRow(m[1],m[2]);
+    });
+  }
+  return{fullText,code,title:String(obj.title||'').replace(/\s*[-|].*$/,'').trim(),assessments};
+}
+function routeImportedObj(j,rawStr){
+  if(j&&Array.isArray(j.courses)){
+    U.pscsDiff=null;
+    U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)}));
+    render();return true;
+  }
+  if(j&&(j.kind==='pscs'||/pscs|peoplesoft/i.test(j.url||''))){
+    U.cv=[];
+    const diffs=parsePscsGrades(j);
+    if(!diffs.length){U.pscsDiff=null;U.cvErr='No matching course grades found in that PSCS page. Open Academic Records → Course History or Grades first.';render();return true}
+    U.pscsDiff=diffs;U.cvErr='';render();return true;
+  }
+  if(j&&(j.kind==='syllabus'||/syllabus/i.test((j.url||'')+(j.title||'')))){
+    const parsed=parseSyllabusDeterministic(j);
+    U.syl.text=parsed.fullText;
+    U.syl.err='';
+    if(!AI.key&&parsed.assessments.length){
+      const cur=S.settings.cats;
+      U.syl.out={code:parsed.code,title:parsed.title,credits:3,instructor:'',notes:'',prereqs:[],cat:cur[0]?cur[0].k:'',term:(S.terms.find(t=>t.status==='current')||{}).id||'',assessments:parsed.assessments};
+    }
+    location.hash='add';
+    toast('Syllabus imported — review and add');
+    return true;
+  }
+  return false;
+}
+function handleIncomingImport(jsonStr){
+  U.cvText=jsonStr;U.cvErr='';U.pscsDiff=null;
+  try{
+    const j=JSON.parse(String(jsonStr||'').trim());
+    if(routeImportedObj(j,jsonStr))return;
+  }catch(e){}
+  ACT2.cvread();
+}
 function vCanvas(){
-  const y=U.cvText||'',list=U.cv||[];
+  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
   const opts=sel=>`<option value="">Skip this one</option>`+S.courses.filter(c=>status(c)!=='done'||c.id===sel).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('');
-  return head('Sync from Canvas','Pull your scores, due dates and instructors from Canvas in one go. Nothing leaves your browser except what you paste here.',`<button class="btn" data-a="go" data-v="courses">Back to courses</button>`)+
-  (DESKTOP_HOST?hostCanvasCard():'')+`<div class="card"><h2>${DESKTOP_HOST?'Or use the bookmark':'One-time setup'}</h2><p class="small muted" style="margin:-6px 0 12px">Canvas blocks access tokens at Habib, so this uses your own login on the Canvas page instead. It only reads, and it only shows the result on screen.</p>
-  <ol class="small" style="margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:6px"><li>Copy the code below.</li><li>In your computer’s browser, bookmark any page, then edit the bookmark and paste this code as its address. Name it “Atlas export”.</li><li>Open hulms.instructure.com while signed in and click that bookmark.</li><li>Copy the box that appears and paste it below.</li></ol>
-  <textarea id="bm-code" rows="3" readonly class="mono small">${esc(bmCode())}</textarea><div class="row" style="margin-top:8px"><button class="btn" data-a="copybm">Copy code</button></div></div>
-  <div class="card" style="margin-top:16px"><h2>Paste the export</h2><textarea id="cv-text" rows="5" data-c="cvtext" placeholder="Paste here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
-  (list.length?`<div class="card" style="margin-top:16px"><h2>Match to your courses</h2><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Your course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td>${esc(cv.name)}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into the matched courses</button></div><p class="small muted">Scores and dates you already have are kept when Canvas has nothing newer. Items that do not fit a group go into “Unsorted from Canvas” with no weight, so they never change your grade until you move them.</p></div>`:'');
+  return head('Sync & Import','Sync scores from Canvas, reconcile PSCS grades, or import a syllabus in one click.',`<button class="btn" data-a="go" data-v="courses">Back to courses</button>`)+
+  (DESKTOP_HOST?hostCanvasCard():'')+`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">One-click “Send to Atlas” bookmark</h2><span class="pill">Last Canvas sync: ${lastAt?esc(new Date(lastAt).toLocaleString()):'Never'}</span></div>
+  <p class="small muted" style="margin:0 0 12px">Drag this button onto your browser Bookmarks bar once. Then whenever you are signed into Canvas, PSCS, or Simple Syllabus, click it once to send the page straight into Atlas without copy/pasting.</p>
+  <div class="row" style="margin-bottom:12px"><a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Canvas, PSCS, or Simple Syllabus!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button class="btn" data-a="copybm">Copy bookmark code</button></div>
+  <details><summary>Manual code</summary><textarea id="bm-code" rows="3" readonly class="mono small">${esc(bmCode())}</textarea></details></div>
+  <div class="card" style="margin-top:16px"><h2>Paste export or page report</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Paste Canvas JSON, a PSCS report/table, or a Simple Syllabus report here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  (list.length?`<div class="card" style="margin-top:16px"><h2>Match Canvas courses</h2><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Your course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td>${esc(cv.name)}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into the matched courses</button></div><p class="small muted">Your course matching is remembered for next time. Items that do not fit a group go into “Unsorted from Canvas” with no weight.</p></div>`:'')+
+  (pscs.length?`<div class="card" style="margin-top:16px"><h2>PSCS grade reconciliation</h2><p class="small muted" style="margin:-4px 0 12px">Found ${pscs.length} matching course${pscs.length===1?'':'s'}. Review differences before applying.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':'New'}</span></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply selected grades</button></div></div>`:'')+
+  `<div class="card" style="margin-top:16px"><h2>Calendar feed &amp; companion extension</h2><p class="small muted" style="margin:-4px 0 12px">Subscribe Apple/Google Calendar to your live Atlas due dates over Tailscale, or load the unpacked companion browser extension for background Canvas auto-sync.</p>
+  <div class="row"><button type="button" class="btn" data-a="calics">Download .ics calendar</button><button type="button" class="btn soft" data-a="copycalurl">Copy calendar subscription URL</button></div>
+  <details style="margin-top:12px"><summary>Browser extension setup (Edge / Chrome)</summary><ol class="small muted" style="margin:6px 0 0;padding-left:20px;line-height:1.6"><li>Open <code>edge://extensions</code> (or <code>chrome://extensions</code>) and enable <b>Developer mode</b>.</li><li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder inside your Atlas repo.</li><li>Open the Atlas Companion icon to set your server URL (<code>https://starserver.tailbf777f.ts.net/atlas</code>) and sync Canvas automatically whenever you browse Canvas.</li></ol></details></div>`;
+}
+const icsEsc=s=>String(s==null?'':s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+function calendarIcs(){
+  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Atlas Degree Planner//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Atlas'];
+  const stamp=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d+Z$/,'Z');
+  S.courses.forEach(c=>{
+    if(status(c)==='done')return;
+    (c.assess||[]).forEach(g=>(g.items||[]).forEach(it=>{
+      const due=String(it.due||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(due))return;
+      const dt=due.replace(/-/g,''),st=it.s!=null?`Scored ${it.s}/${it.m}`:(it.st||'Upcoming');
+      lines.push('BEGIN:VEVENT','UID:atlas-due-'+(it.id||uid())+'@atlas','DTSTAMP:'+stamp,'DTSTART;VALUE=DATE:'+dt,'SUMMARY:'+icsEsc(c.code+': '+it.n),'DESCRIPTION:'+icsEsc(c.code+' — '+c.title+'\nGroup: '+g.n+' ('+g.w+'%)\nStatus: '+st),'END:VEVENT');
+    }));
+  });
+  return lines.concat(['END:VCALENDAR']).join('\r\n')+'\r\n';
 }
 const ACT2={
   copybm(){const t=$('#bm-code');if(!t)return;t.select();let ok=false;try{ok=navigator.clipboard&&navigator.clipboard.writeText(t.value)}catch(e){}Promise.resolve(ok).then(()=>toast('Code copied'),()=>toast('Press Ctrl+C to copy the selected code'))},
   cvread(){
-    const t=($('#cv-text')||{}).value||U.cvText||'';U.cvText=t;U.cvErr='';
-    try{const j=JSON.parse(t.trim());if(!j||!Array.isArray(j.courses)||!j.courses.length)throw 0;U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)}))}
-    catch(e){U.cv=[];U.cvErr='That does not look like an Atlas export. Copy the whole box again.'}
+    const t=($('#cv-text')||{}).value||U.cvText||'';U.cvText=t;U.cvErr='';U.pscsDiff=null;
+    try{
+      const j=JSON.parse(t.trim());
+      if(routeImportedObj(j,t))return;
+      throw 0;
+    }catch(e){
+      const diffs=parsePscsGrades({tables:[],text:t});
+      if(diffs.length){U.cv=[];U.pscsDiff=diffs;render();return}
+      U.cv=[];U.cvErr='That does not look like a Canvas export, PSCS grade report, or Simple Syllabus export.';
+    }
     render();
   },
   cvapply(){const r=cvApply();U.cv=[];U.cvText='';persist();toast(`Updated ${r.upd} items, added ${r.add}${r.un?`, ${r.un} unsorted`:''}`);render()},
+  pscsapply(){
+    const list=(U.pscsDiff||[]).filter(r=>r.apply);
+    if(!list.length)return toast('No grades selected');
+    pushUndo('PSCS grade import');
+    let n=0;
+    list.forEach(r=>{const c=getC(r.id);if(c){c.grade=r.pscsGrade;n++}});
+    S.links=S.links||{canvas:{at:0,map:{}},pscs:{at:0}};
+    S.links.pscs=S.links.pscs||{at:0};S.links.pscs.at=Date.now();
+    U.pscsDiff=null;U.cvText='';persist();toast(`Applied ${n} PSCS grade${n===1?'':'s'}`,true);
+  },
+  calics(){saveFile('atlas-calendar.ics',calendarIcs()).then(()=>toast('Calendar saved'),e=>{if(!e||e.code!=='declined')toast('Could not save calendar')})},
+  copycalurl(){
+    const u=atlasBaseUrl().replace(/\/+$/,'')+'/api/calendar.ics';
+    if(navigator.clipboard)navigator.clipboard.writeText(u).then(()=>toast('Calendar subscription URL copied'),()=>toast(u));
+    else toast(u);
+  },
 };
-const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v}};
+const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v},pscsrow(e,d){const r=(U.pscsDiff||[])[+d.i];if(r)r.apply=!!e.target.checked}};
 
 /* ---------- transcript ---------- */
 function transcript(){
@@ -1141,11 +1701,12 @@ async function transcriptPdf(){
 }
 function transcriptSection(){
   const T=transcript();
-  return`<details class="card sec"><summary>Transcript</summary><div class="row" style="margin-bottom:14px"><button class="btn" data-a="trcsv">Download CSV</button><button class="btn" data-a="trpdf">Download PDF</button></div>${T.map(t=>`<div style="margin-bottom:16px"><div class="row between"><h3>${esc(t.name)}${t.cr?' <span class="pill">credit / no credit</span>':t.status==='current'?' <span class="pill acc">in progress</span>':''}</h3><span class="mono small muted">${t.credits} cr${t.tg!=null?' · GPA '+fmt(t.tg):''}${t.cg!=null?' · cumulative '+fmt(t.cg):''}</span></div><div class="scroll"><table class="t"><tbody>${t.rows.map(r=>`<tr><td class="mono small" style="white-space:nowrap">${esc(r.code)}</td><td>${esc(r.title)}${r.note?` <span class="pill">${r.note}</span>`:''}</td><td class="r mono">${r.cr}</td><td class="r mono">${esc(r.grade)}</td></tr>`).join('')}</tbody></table></div></div>`).join('')||'<div class="empty">Finished and current terms appear here.</div>'}</details>`;
+  return`<details id="tr-details" class="card sec"><summary>Transcript</summary><div class="row" style="margin-bottom:14px"><button class="btn" data-a="trcsv">Download CSV</button><button class="btn" data-a="trpdf">Download PDF</button><button class="btn" data-a="trprint">Print / Save PDF</button></div>${T.map(t=>`<div style="margin-bottom:16px"><div class="row between"><h3>${esc(t.name)}${t.cr?' <span class="pill">credit / no credit</span>':t.status==='current'?' <span class="pill acc">in progress</span>':''}</h3><span class="mono small muted">${t.credits} cr${t.tg!=null?' · GPA '+fmt(t.tg):''}${t.cg!=null?' · cumulative '+fmt(t.cg):''}</span></div><div class="scroll"><table class="t"><tbody>${t.rows.map(r=>`<tr><td class="mono small" style="white-space:nowrap">${esc(r.code)}</td><td>${esc(r.title)}${r.note?` <span class="pill">${r.note}</span>`:''}</td><td class="r mono">${r.cr}</td><td class="r mono">${esc(r.grade)}</td></tr>`).join('')}</tbody></table></div></div>`).join('')||'<div class="empty">Finished and current terms appear here.</div>'}</details>`;
 }
 Object.assign(ACT2,{
   trcsv(){saveFile('atlas-transcript.csv',transcriptCsv()).then(()=>toast('Transcript saved'),e=>{if(!e||e.code!=='declined')toast('The file could not be saved')})},
-  async trpdf(){try{const buf=await transcriptPdf();await saveFile('atlas-transcript.pdf',buf);toast('Transcript saved')}catch(e){if(!e||e.code!=='declined')toast('The PDF could not be made. Try the CSV.')}},
+  async trpdf(){try{const buf=await transcriptPdf();await saveFile('atlas-transcript.pdf',buf);toast('Transcript saved')}catch(e){if(!e||e.code!=='declined')toast('The PDF could not be made. Try Print / Save PDF or CSV.')}},
+  trprint(){const el=$('#tr-details');if(el)el.open=true;document.body.classList.add('print-tr');setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('print-tr'),400)},50)},
 });
 
 /* ---------- minors ---------- */
@@ -1323,13 +1884,12 @@ function termPlanSection(){
     p.state==='out'?`Reaching ${fmt(p.tg)} overall would take an average of ${fmt(p.need)} this term, and even your best case is ${fmt(p.best)}. Aim for the grades below and your overall target moves out to later terms.`:
     `To be on track for ${fmt(p.tg)} overall you need about <b>${fmt(p.need)}</b> across this term. The grades under “Aim for” are the lightest way to get there, given how much of each course is left to mark.`;
   const rowsH=p.rows.map(r=>{
-    const lim=r.has?`can still reach <b>${esc(r.ceL)}</b>`:'no grading breakdown yet';
-    const nd=r.need==null?'':r.need<=0?'<span style="color:var(--good)">already secured</span>':r.need>100?'<span style="color:var(--bad)">out of reach</span>':`needs <b>${fmt(r.need,0)}%</b> on the remaining ${fmt(r.st.rem,0)}%`;
+    const lim=r.has?`max <b>${esc(r.ceL)}</b>`:'no breakdown';
+    const nd=r.need==null?'–':r.need<=0?'<span style="color:var(--good)">secured</span>':r.need>100?'<span style="color:var(--bad)">out of reach</span>':`<b>${fmt(r.need,0)}%</b> on ${fmt(r.st.rem,0)}%`;
     const goalPills=`<div class="opt-pills compact"><button type="button" class="opt-pill ${!r.goal?'on subtle':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="">Auto</button>${scPass.map(x=>`<button type="button" class="opt-pill ${r.goal===x.l?'on':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}</div>`;
-    return`<div style="padding:14px 0;border-bottom:1px solid var(--line)"><div class="row between" style="align-items:flex-start;gap:12px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 220px"><span class="code">${esc(r.c.code)} · ${r.c.credits} cr${r.st.pct!=null?` · now ${fmt(r.st.pct,0)}% ${esc(r.st.letter||'')}`:''}</span><h3>${esc(r.c.title)}</h3><div class="small muted">${lim}</div></div>
-    <div class="row" style="gap:16px;flex-wrap:wrap;align-items:flex-start"><div><div class="lbl" style="margin-bottom:5px">Aim for</div>${lpill(r.aim)}</div><div><div class="lbl" style="margin-bottom:5px">Your goal</div>${goalPills}</div></div></div>${nd?`<div class="small" style="margin-top:6px">${r.goal?`For your goal of <b>${esc(r.goal)}</b>, `:`For <b>${esc(r.aim)}</b>, `}${nd}</div>`:''}</div>`}).join('');
-  return`<div class="sec"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 6px">${head1}</p>${rowsH}
-  <div class="row between" style="padding-top:14px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals, or the aim where you have none</span><div class="row" style="gap:6px"><span class="pill">Term ${fmt(p.proj)}</span><span class="pill acc">Overall ${fmt(p.after)}</span></div></div></div></div>`;
+    return`<tr><td style="min-width:170px"><a href="#" data-a="open" data-id="${r.c.id}" style="text-decoration:none;color:inherit"><b>${esc(r.c.code)}</b> <span class="muted small">${r.c.credits} cr${r.st.pct!=null?' · '+fmt(r.st.pct,0)+'%':''}</span><div class="small muted">${esc(r.c.title)}</div></a></td><td class="small muted" style="white-space:nowrap">${lim}</td><td>${lpill(r.aim)}</td><td>${goalPills}</td><td class="small r" style="white-space:nowrap">${nd}</td></tr>`}).join('');
+  return`<div class="sec"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 10px">${head1}</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Reach</th><th>Aim</th><th>Your goal</th><th class="r">Needed</th></tr></thead><tbody>${rowsH}</tbody></table></div>
+  <div class="row between" style="padding-top:12px;border-top:1px solid var(--line);margin-top:6px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals, or the aim where you have none</span><div class="row" style="gap:6px"><span class="pill">Term ${fmt(p.proj)}</span><span class="pill acc">Overall ${fmt(p.after)}</span></div></div></div></div>`;
 }
 
 /* ---------- what if, one term at a time ---------- */
@@ -1741,13 +2301,15 @@ const WEB_HOST=IS_WEB?{
 const HOST=DESKTOP_HOST||WEB_HOST;
 
 const hostCanvasCard=()=>DESKTOP_HOST?`<div class="card" style="margin-bottom:16px"><h2>Sign in and sync</h2><p class="small muted" style="margin:-6px 0 12px">Atlas opens ${esc(HC.canvasUrl||'your Canvas')} in its own window. Sign in the way you normally do. Atlas then reads your courses, scores and due dates, and the window closes. Your password is never stored.</p><div class="row"><button class="btn primary" data-a="hostcanvas">${U.hostBusy==='canvas'?'Waiting for you to sign in…':'Sign in to Canvas'}</button></div></div>`:'';
-const hostCard=()=>`<div class="sec"><h2>This computer</h2><div class="card">
+const hostCard=()=>`<div class="sec"><h2>This computer &amp; server sync</h2><div class="card">
   <div class="small muted" style="margin-bottom:12px">Your plan is saved in a file on this computer, with a backup copy kept at most once an hour.<br><span class="mono">${esc(HC.dataPath||'')}</span></div>
   <div class="row" style="margin-bottom:18px"><button class="btn" data-a="hostfolder">Open the data folder</button></div>
-  <h3 style="margin-bottom:8px">Portals</h3>
-  <div class="fgrid"><label class="f"><span>Canvas address</span><input data-c="hostcfg" data-f="canvasUrl" value="${esc(HC.canvasUrl||'')}" placeholder="https://hulms.instructure.com"></label><label class="f"><span>PSCS address</span><input data-c="hostcfg" data-f="pscsUrl" value="${esc(HC.pscsUrl||'')}" placeholder="https://…"></label><label class="f"><span>Simple Syllabus address</span><input data-c="hostcfg" data-f="syllabusUrl" value="${esc(HC.syllabusUrl||'')}" placeholder="https://…"></label></div>
-  <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn" data-a="hostopen" data-v="pscs">Open PSCS</button><button class="btn" data-a="hostopen" data-v="syllabus">Open Simple Syllabus</button><button class="btn" data-a="hostreport" data-v="pscs">Save a PSCS page report</button><button class="btn" data-a="hostreport" data-v="syllabus">Save a Simple Syllabus page report</button></div>
-  <p class="small muted" style="margin:10px 0 0">A page report lists the headings, tables, buttons and fields on the page you have open in that window, plus the text on it. It is how new importers get written. It can contain your grades or name, so read it and remove anything private before sharing it.</p></div></div>`;
+  <h3 style="margin-bottom:8px">Starserver sync</h3>
+  <div class="fgrid" style="margin-bottom:12px"><label class="f"><span>Sync server URL</span><input data-c="hostcfg" data-f="serverUrl" value="${esc(HC.serverUrl||'')}" placeholder="https://starserver.tailbf777f.ts.net/atlas"></label></div>
+  <div class="row" style="margin-bottom:18px"><button class="btn soft" data-a="hostserversync">Sync with server now</button><span class="small muted">${HC.updatedAt?'Last server timestamp: '+esc(new Date(HC.updatedAt).toLocaleString()):'Optional — syncs desktop & phone automatically'}</span></div>
+  <h3 style="margin-bottom:8px">Portal page reports</h3>
+  <div class="row" style="margin-top:8px;flex-wrap:wrap"><button class="btn" data-a="hostopen" data-v="pscs">Open PSCS</button><button class="btn" data-a="hostopen" data-v="syllabus">Open Simple Syllabus</button><button class="btn" data-a="hostreport" data-v="pscs">Save a PSCS page report</button><button class="btn" data-a="hostreport" data-v="syllabus">Save a Simple Syllabus page report</button></div>
+  <p class="small muted" style="margin:10px 0 0">A page report lists the headings, tables, buttons and fields on the page you have open in that window, plus the text on it. Field values are excluded, though table text may show grades or names.</p></div></div>`;
 
 const fmtBackupOpt=b=>{
   const dt=b.mtimeMs?new Date(b.mtimeMs).toLocaleString():b.name;
@@ -1770,17 +2332,70 @@ const webServerCard=()=>{
 };
 
 if(DESKTOP_HOST){
+  const _origSave=DESKTOP_HOST.save.bind(DESKTOP_HOST);
+  DESKTOP_HOST.save=async function(text,force){
+    await _origSave(text);
+    if(HC.serverUrl&&DESKTOP_HOST.serverSync){
+      const r=await DESKTOP_HOST.serverSync({method:'POST',body:text,base:HC.updatedAt||0,force:!!force});
+      if(r&&r.conflict){
+        U.conflict={data:r.data,updatedAt:r.updatedAt};
+        setSync('Conflict — newer save on server');render();return false;
+      }
+      if(r&&r.ok&&r.updatedAt)HC.updatedAt=r.updatedAt;
+    }
+    return true;
+  };
   Object.assign(ACT2,{
     async hostcanvas(){if(U.hostBusy)return;U.hostBusy='canvas';U.cvErr='';render();
-      try{U.cvText=await DESKTOP_HOST.canvasExport();U.hostBusy='';ACT2.cvread()}
+      try{const raw=await DESKTOP_HOST.canvasExport();U.hostBusy='';handleIncomingImport(raw)}
       catch(e){U.hostBusy='';U.cvErr=String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,'');render()}},
+    async hostserversync(){
+      if(!HC.serverUrl)return toast('Set your server URL first');
+      try{
+        const j=await DESKTOP_HOST.serverSync({method:'GET'});
+        if(j&&j.ok&&j.data&&(!HC.updatedAt||j.updatedAt>HC.updatedAt)){
+          HC.updatedAt=j.updatedAt;
+          const o=JSON.parse(j.data);
+          if(o&&Array.isArray(o.terms)&&!o.sample){adopt(o);await _origSave(JSON.stringify(S));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}render();return toast('Pulled newer plan from server')}
+        }
+        const p=await DESKTOP_HOST.serverSync({method:'POST',body:JSON.stringify(S),base:HC.updatedAt||0});
+        if(p&&p.conflict){U.conflict={data:p.data,updatedAt:p.updatedAt};setSync('Conflict — newer save on server');render();return}
+        if(p&&p.ok){HC.updatedAt=p.updatedAt||Date.now();setSync('Synced with server');toast('Synced with server')}
+        else toast((p&&p.error)||'Could not sync with server');
+      }catch(e){toast('Could not reach server')}
+    },
+    conflictTheirs(){
+      if(!U.conflict)return;
+      try{
+        const o=JSON.parse(U.conflict.data);
+        if(o&&Array.isArray(o.terms)){
+          HC.updatedAt=U.conflict.updatedAt||Date.now();U.conflict=null;adopt(o);
+          _origSave(JSON.stringify(S)).catch(()=>{});
+          try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+          setSync('Synced with server');render();toast('Loaded newer plan from server');
+        }
+      }catch(e){toast('Could not load server plan')}
+    },
+    async conflictMine(){
+      if(!U.conflict)return;
+      const ok=await DESKTOP_HOST.save(JSON.stringify(S),true);
+      if(ok){U.conflict=null;setSync('Synced with server');render();toast('Kept your changes and pushed to server')}
+    },
     hostopen(e,d){DESKTOP_HOST.openPortal(d.v).catch(x=>toast(String((x&&x.message)||x).replace(/^Error invoking remote method '[^']*': (Error: )?/,'')))},
     hostreport(e,d){DESKTOP_HOST.pageReport(d.v).then(r=>toast(r&&r.saved?'Report saved':'Nothing was saved'),x=>toast(String((x&&x.message)||x).replace(/^Error invoking remote method '[^']*': (Error: )?/,'')))},
     hostfolder(){DESKTOP_HOST.openDataFolder()},
   });
-  Object.assign(CHG2,{hostcfg(e,d,v){HC[d.f]=v.trim();DESKTOP_HOST.setConfig({[d.f]:v.trim()}).then(c=>{HC=c})}});
+  Object.assign(CHG2,{hostcfg(e,d,v){HC[d.f]=v.trim();DESKTOP_HOST.setConfig({[d.f]:v.trim()}).then(c=>{HC=c}).catch(err=>toast(err&&err.message||'Invalid URL'))}});
   window.addEventListener('beforeunload',()=>{if(U.touched&&DESKTOP_HOST.saveSync)try{DESKTOP_HOST.saveSync(JSON.stringify(S))}catch(e){}});
-  const _vs=vSettings;vSettings=function(){return _vs()+hostCard()};
+  setTimeout(async()=>{
+    if(HC.serverUrl&&DESKTOP_HOST.serverSync){
+      try{const j=await DESKTOP_HOST.serverSync({method:'GET'});if(j&&j.ok){if(!HC.updatedAt)HC.updatedAt=j.updatedAt||0;if(j.data&&j.updatedAt>HC.updatedAt&&!U.touched){const o=JSON.parse(j.data);if(o&&Array.isArray(o.terms)&&!o.sample){HC.updatedAt=j.updatedAt;adopt(o);await _origSave(JSON.stringify(S));render()}}}}catch(e){}
+    }
+    if(S.ui&&S.ui.modules&&S.ui.modules.canvas!==false&&DESKTOP_HOST.canvasSilent){
+      try{const r=await DESKTOP_HOST.canvasSilent();if(r&&r.ok&&r.data&&typeof cvAutoSync==='function')cvAutoSync(r.data)}catch(e){}
+    }
+  },2500);
+  const _vs=vSettings;vSettings=function(){return _vs()+((U.setTab==='data')?hostCard():'')};
 }else if(WEB_HOST){
   if(typeof navigator!=='undefined'&&'serviceWorker' in navigator){
     try{navigator.serviceWorker.register((WEB_BASE||'')+'/sw.js').catch(()=>{})}catch(e){}
@@ -1845,7 +2460,7 @@ if(DESKTOP_HOST){
     }catch(e){}
   });
   window.addEventListener('beforeunload',()=>{if(U.touched&&WEB_HOST.saveSync)try{WEB_HOST.saveSync(JSON.stringify(S))}catch(e){}});
-  const _vs=vSettings;vSettings=function(){return _vs()+webServerCard()};
+  const _vs=vSettings;vSettings=function(){return _vs()+((U.setTab==='data')?webServerCard():'')};
 }
 /* ---------- shell and render ---------- */
 const ICONS={
@@ -1855,34 +2470,129 @@ const ICONS={
   gpa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>',
   settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
-  sync:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>'
+  sync:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+  collapse:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 9l-3 3 3 3"/></svg>',
+  expand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M13 9l3 3-3 3"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>',
+  undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
+  more:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>',
+  external:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>',
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+  table:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18M9 3v18"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
 };
 const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
 const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,settings:vSettings};
 const LSTHEME='course-atlas.theme';
+const LSRAIL='course-atlas.rail';
 function applyTheme(t){U.theme=t||'';if(U.theme)document.documentElement.dataset.theme=U.theme;else delete document.documentElement.dataset.theme}
+function applyUiPrefs(){
+  const ui=(S&&S.ui)||{};
+  if(ui.accent&&ui.accent!=='blue')document.documentElement.dataset.accent=ui.accent;
+  else delete document.documentElement.dataset.accent;
+  if(ui.density==='compact')document.documentElement.dataset.density='compact';
+  else delete document.documentElement.dataset.density;
+}
+function cmdItems(q){
+  const s=String(q||'').trim().toLowerCase(),mods=(S.ui&&S.ui.modules)||{};
+  const all=[
+    {id:'r:overview',lbl:'Overview',sub:'Dashboard',act:()=>location.hash='overview'},
+    {id:'r:courses',lbl:'Courses',sub:'Terms & grades',act:()=>location.hash='courses'},
+    {id:'r:grid',lbl:'Plan · Four years',sub:'Course schedule grid',act:()=>location.hash='grid'},
+    mods.roadmap!==false?{id:'r:roadmap',lbl:'Plan · Roadmap',sub:'Prerequisite dependency map',act:()=>location.hash='roadmap'}:null,
+    {id:'r:req',lbl:'Plan · Requirements',sub:'Degree categories & minors',act:()=>location.hash='req'},
+    mods.enroll!==false?{id:'r:enroll',lbl:'Plan · Enrollment',sub:'Sections & weekly timetable',act:()=>location.hash='enroll'}:null,
+    {id:'r:gpa',lbl:'GPA lab',sub:'Target calculator & what-if',act:()=>location.hash='gpa'},
+    {id:'r:add',lbl:'Add course',sub:'From syllabus or manually',act:()=>location.hash='add'},
+    mods.canvas!==false?{id:'r:canvas',lbl:'Sync from Canvas',sub:'Import scores & due dates',act:()=>location.hash='canvas'}:null,
+    {id:'r:settings',lbl:'Settings',sub:'Degree, portals, appearance & sync',act:()=>location.hash='settings'},
+  ].filter(Boolean);
+  if(mods.portals!==false)(S.settings.portals||[]).filter(p=>p.on).forEach(p=>all.push({id:'p:'+p.id,lbl:'Open '+p.name,sub:'Portal · '+p.url,act:()=>ACT.openportal(null,{id:p.id})}));
+  all.push(
+    {id:'a:years',lbl:'Grid layout: Years',sub:'Plan setting',act:()=>{S.ui.plan.layout='years';persist();location.hash='grid';render()}},
+    {id:'a:timeline',lbl:'Grid layout: Timeline',sub:'Plan setting',act:()=>{S.ui.plan.layout='timeline';persist();location.hash='grid';render()}},
+    {id:'a:rail',lbl:'Toggle sidebar rail',sub:'Collapse or expand navigation',act:()=>ACT.togglerail()},
+    {id:'a:theme',lbl:'Cycle theme (Auto / Light / Dark)',sub:'Appearance',act:()=>ACT.cycletheme()},
+    UNDO.length?{id:'a:undo',lbl:'Undo last change',sub:UNDO[UNDO.length-1].label,act:()=>ACT.undo()}:null,
+    {id:'a:export',lbl:'Download backup JSON',sub:'Data export',act:()=>ACT.export()}
+  );
+  S.courses.forEach(c=>all.push({id:'c:'+c.id,lbl:c.code+' · '+c.title,sub:((termOf(c.term)||{}).name||'Catalog')+' · '+c.credits+' cr'+(c.instructor?' · '+c.instructor:''),act:()=>{U.course=c.id;U.tab='assess';render()}}));
+  const clean=all.filter(Boolean);
+  if(!s)return clean.slice(0,16);
+  return clean.filter(x=>(x.lbl+' '+x.sub).toLowerCase().includes(s)).slice(0,18);
+}
+function cmdListHtml(items){
+  if(!items.length)return'<div class="small muted" style="padding:14px">No matches found.</div>';
+  const ix=Math.min(U.cmdIdx||0,items.length-1);
+  return items.map((x,i)=>`<button type="button" class="cmd-item ${i===ix?'on':''}" data-a="cmdrun" data-i="${i}"><span>${esc(x.lbl)}</span><small>${esc(x.sub)}</small></button>`).join('');
+}
+function cmdModal(){
+  const items=cmdItems(U.cmdQ||'');
+  return`<div class="veil cmd-veil" data-a="closecmdbg"><div class="cmd-box" role="dialog" aria-label="Command palette"><div class="cmd-in">${ICONS.search}<input id="cmd-q" type="search" value="${esc(U.cmdQ||'')}" placeholder="Jump to a course, page, portal, or action…" autocomplete="off"><kbd class="mono small muted">Esc</kbd></div><div id="cmd-list" class="cmd-list">${cmdListHtml(items)}</div></div></div>`;
+}
+function moreSheet(){
+  const mods=(S.ui&&S.ui.modules)||{};
+  const portals=mods.portals!==false?(S.settings.portals||[]).filter(p=>p.on):[];
+  const th=U.theme||'';
+  return`<div class="veil more-veil" data-a="closemorebg"><div class="more-sheet" role="dialog" aria-label="More options">
+    <div class="row between"><h3 style="margin:0;font-size:17px">More</h3><button type="button" class="btn ghost sm" data-a="togglemore" aria-label="Close">✕</button></div>
+    ${portals.length?`<div><div class="lbl" style="margin-bottom:8px">Portals</div><div class="more-grid">${portals.map(p=>`<button type="button" class="more-tile" data-a="openportal" data-id="${esc(p.id)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span>${esc(p.name)}</span></button>`).join('')}</div></div>`:''}
+    <div><div class="lbl" style="margin-bottom:8px">Actions</div><div class="more-grid">
+      <a class="more-tile" href="#add" data-a="closemore">${ICONS.plus}<span>Add course</span></a>
+      ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync Canvas</span></a>`:''}
+      <button type="button" class="more-tile" data-a="opencmd">${ICONS.search}<span>Search (⌘K)</span></button>
+      <a class="more-tile" href="#settings" data-a="closemore">${ICONS.settings}<span>Settings</span></a>
+      ${UNDO.length?`<button type="button" class="more-tile" data-a="undo">${ICONS.undo}<span>Undo</span></button>`:''}
+    </div></div>
+    <div><div class="lbl" style="margin-bottom:8px">Theme</div><div class="theme-seg" role="group" aria-label="Theme">${[['','Auto'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div></div>
+    <div class="sidefoot"><span class="sync-dot ${/offline|could not|conflict/i.test(U.sync||'')?'warn':''}"></span><span>${esc(U.sync||'Ready')}</span></div>
+  </div></div>`;
+}
 function render(){
+  applyUiPrefs();
   const app=$('#app');if(!app)return;
   const sy=window.scrollY,dr=$('.drawer'),dy=dr?dr.scrollTop:0;
   let view='';try{view=(VIEWS[U.route]||vOverview)()}catch(e){view='<div class="empty">Something in your data could not be shown. Download a backup from Settings and restore it, or erase and start again.<br><small>'+esc(e&&e.message)+'</small></div>';console.error(e)}
-  const th=U.theme||'';
+  const th=U.theme||'',mods=(S.ui&&S.ui.modules)||{};
   const mobTheme=th==='dark'?'Dark':th==='light'?'Light':'Auto';
-  const dotCls=/offline|could not/i.test(U.sync||'')?'warn':'';
+  const dotCls=/offline|could not|conflict/i.test(U.sync||'')?'warn':'';
   const themeSeg=`<div class="theme-seg" role="group" aria-label="Theme">${[['','Auto'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`;
+  const deskRoutes=ROUTES;
+  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='settings'?'nav-settings':''}" title="${r[1]}" ${U.route===r[0]||(r[0]==='courses'&&(U.route==='add'||U.route==='canvas'))?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')+
+    `<button type="button" class="nav-more ${U.moreOpen||U.route==='settings'||U.route==='add'||U.route==='canvas'?'on':''}" data-a="togglemore" aria-label="More">${ICONS.more}<span>More</span></button>`;
+  const portals=mods.portals!==false?(S.settings.portals||[]).filter(p=>p.on):[];
+  const dockHtml=portals.length?`<div class="side-dock"><div class="side-lbl">Portals</div>${portals.map(p=>`<div class="dock-row"><button type="button" class="dock-btn" data-a="openportal" data-id="${esc(p.id)}" title="Open ${esc(p.name)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span class="dock-name">${esc(p.name)}</span></button>${p.kind==='canvas'&&mods.canvas!==false?`<button type="button" class="dock-act" data-a="quickcanvas" title="Sync Canvas" aria-label="Sync Canvas">${ICONS.sync}</button>`:''}</div>`).join('')}</div>`:'';
   const side=`<aside class="side"><div class="side-card">
-    <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><div class="mob-util"><a class="btn sm" href="#add">+ Add</a><button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
-    <nav class="nav" aria-label="Sections">${ROUTES.map(r=>`<a href="${r[2]}" ${U.route===r[0]||(r[0]==='courses'&&(U.route==='add'||U.route==='canvas'))?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')}</nav>
-    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a><a class="side-btn" href="#canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a></div>
-    <div class="side-foot">${themeSeg}<div class="sidefoot"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
+    <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button><a class="btn sm" href="#add">+ Add</a><button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
+    <nav class="nav" aria-label="Sections">${navLinks}</nav>
+    ${dockHtml}
+    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}</div>
+    <div class="side-foot">${themeSeg}<div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
   </div></aside>`;
   const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
-  app.innerHTML=`<div class="shell">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
+  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
 }
 function toast(t,withUndo){U.toast=t;U.toastUndo=!!withUndo;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';U.toastUndo=false;render()},withUndo?4000:2200)}
 function routeFromHash(){const h=(location.hash||'').replace('#','');
+  if(h.startsWith('import/')){
+    const raw=h.slice(7);
+    try{
+      const b64=raw.replace(/-/g,'+').replace(/_/g,'/');
+      const padLen=(4-b64.length%4)%4;
+      const json=decodeURIComponent(escape(atob(b64+'='.repeat(padLen))));
+      try{history.replaceState(null,'','#canvas')}catch(e){}
+      U.route='canvas';U.course=null;U.showHelp=false;U.moreOpen=false;
+      if(typeof handleIncomingImport==='function')handleIncomingImport(json);
+      else{U.cvText=json;render()}
+      window.scrollTo(0,0);return;
+    }catch(e){toast('Could not read incoming import link')}
+  }
   if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
-  U.course=null;render();window.scrollTo(0,0)}
+  U.course=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
 
 /* ---------- file export & Gemini syllabus reader ---------- */
 const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
@@ -1911,6 +2621,37 @@ const val=id=>{const e=document.getElementById(id);return e?e.value.trim():''};
 function termNames(first,season,n){const out=[];let y=first,s=season;for(let i=0;i<n;i++){out.push(s+' '+y);if(s==='Fall'){s='Spring';y++}else s='Fall'}return out}
 function nextCatKey(){return 'c'+uid()}
 const ACT={
+  togglerail(){U.railCollapsed=!U.railCollapsed;try{localStorage.setItem(LSRAIL,U.railCollapsed?'1':'0')}catch(e){}render()},
+  togglehelp(){U.showHelp=!U.showHelp;render()},
+  togglemore(){U.moreOpen=!U.moreOpen;render()},
+  closemore(){U.moreOpen=false},
+  closemorebg(e){if(e.target.classList.contains('more-veil')){U.moreOpen=false;render()}},
+  opencmd(){U.cmdOpen=true;U.cmdQ='';U.cmdIdx=0;U.moreOpen=false;render();setTimeout(()=>{const el=$('#cmd-q');if(el)el.focus()},0)},
+  closecmdbg(e){if(e.target.classList.contains('cmd-veil')){U.cmdOpen=false;render()}},
+  cmdrun(e,d){const items=cmdItems(U.cmdQ||'');const it=items[+d.i];U.cmdOpen=false;if(it&&it.act)it.act();else render()},
+  openportal(e,d){
+    const p=(S.settings.portals||[]).find(x=>x.id===d.id);if(!p||!p.url)return toast('Set a URL for '+((p&&p.name)||d.id)+' in Settings');
+    U.moreOpen=false;
+    if(DESKTOP_HOST){
+      DESKTOP_HOST.openPortal(p.id,p.url).catch(x=>toast(String((x&&x.message)||x).replace(/^Error invoking remote method '[^']*': (Error: )?/,'')));
+    }else{
+      window.open(p.url,'_blank','noopener,noreferrer');
+    }
+    render();
+  },
+  quickcanvas(){U.moreOpen=false;if(DESKTOP_HOST&&ACT2.hostcanvas){ACT2.hostcanvas()}else{location.hash='canvas';render()}},
+  plancfg(e,d){const f=d.f;if(!f)return;S.ui.plan[f]=f==='collapseDone'?(d.v==='1'):d.v;persist();render()},
+  toggletray(){S.ui.plan.trayOpen=!S.ui.plan.trayOpen;persist();render()},
+  expandyear(e,d){U.expandedYears=U.expandedYears||{};U.expandedYears[+d.i]=!U.expandedYears[+d.i];render()},
+  startmove(e,d){U.moveCourseId=(U.moveCourseId===d.id?null:d.id);render()},
+  cancelmove(){U.moveCourseId=null;render()},
+  moveto(e,d){const c=getC(U.moveCourseId);U.moveCourseId=null;if(c){pushUndo('Moved '+c.code);c.term=d.term||null;persist();toast('Moved '+c.code,true)}else render()},
+  dashedit(){U.dashEdit=!U.dashEdit;if(U.dashEdit&&!U.dashEditMode)U.dashEditMode=(typeof window!=='undefined'&&window.innerWidth<=860)?'mobile':'desktop';render()},
+  dashmode(e,d){U.dashEditMode=d.v;render()},
+  dashreset(){const m=U.dashEditMode||'desktop';S.ui.dash[m]=defUi().dash[m];persist();toast('Reset '+m+' layout');render()},
+  wvis(e,d){const m=U.dashEditMode||'desktop',it=(S.ui.dash[m]||[]).find(x=>x.w===d.w);if(it){it.on=(it.on===false);persist();render()}},
+  wsize(e,d){const m=U.dashEditMode||'desktop',it=(S.ui.dash[m]||[]).find(x=>x.w===d.w);if(it){it.size=d.v;persist();render()}},
+  wmove(e,d){const m=U.dashEditMode||'desktop',arr=S.ui.dash[m]||[];const i=arr.findIndex(x=>x.w===d.w),j=i+(+d.dir||0);if(i>=0&&j>=0&&j<arr.length){const tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;persist();render()}},
   go(e,d){location.hash=d.v},
   open(e,d){U.course=d.id;U.tab='assess';render()},
   close(){U.course=null;render()},
@@ -1920,6 +2661,16 @@ const ACT={
   hidedone(){U.hideDone=!U.hideDone;render()},
   allterms(){U.allTerms=!U.allTerms;render()},
   cview(e,d){U.cview=d.v;render()},
+  cmode(e,d){U.courseMode=d.v;render()},
+  settab(e,d){e.preventDefault();U.setTab=d.v;render()},
+  modtoggle(e,d){S.ui.modules[d.f]=(S.ui.modules[d.f]===false);persist();render()},
+  portaltoggle(e,d){const p=S.settings.portals[+d.i];if(p){p.on=!p.on;persist();render()}},
+  addportal(){S.settings.portals=S.settings.portals||[];S.settings.portals.push({id:'p'+uid(),name:'Custom link',short:'L',url:'https://',on:true,kind:'link',color:'#4F46E5'});persist();render()},
+  delportal(e,d){S.settings.portals.splice(+d.i,1);persist();render()},
+  setaccent(e,d){S.ui.accent=d.v;persist();render()},
+  setdensity(e,d){S.ui.density=d.v;persist();render()},
+  editdash(){U.dashEdit=true;U.dashEditMode=(typeof window!=='undefined'&&window.innerWidth<=860)?'mobile':'desktop';location.hash='overview';render()},
+  termDown(e,d){mut(()=>{const i=termIdx(d.id);if(i>=0&&i<S.terms.length-1){const t=S.terms.splice(i,1)[0];S.terms.splice(i+1,0,t)}})},
   setup(){
     const n=Math.max(2,Math.min(14,parseInt(val('su-n'))||8)),dn=Math.max(0,Math.min(n,parseInt(val('su-done'))||0));
     const names=termNames(parseInt(val('su-year'))||new Date().getFullYear(),val('su-season')||'Fall',n);
@@ -1948,6 +2699,23 @@ const ACT={
   wisetall(e,d){if(d.v){curCourses().concat(planCourses()).filter(c=>!U.wiTerm||U.wiTerm==='all'||c.term===U.wiTerm).forEach(c=>U.whatif[c.id]=d.v);render()}},
   setopt(e,d){if(d.f==='capOwn')S.settings.capOwn=(d.v==='yes');else if(d.f==='retakeReplaces')S.settings.retakeReplaces=(d.v!=='no');persist();render()},
   addterm(){mut(()=>S.terms.push({id:'t'+uid(),name:'New term',status:'planned'}))},
+  addsummer(){
+    mut(()=>{
+      let insIdx=S.terms.length,year=new Date().getFullYear();
+      const curIdx=S.terms.findIndex(t=>t.status==='current');
+      for(let i=Math.max(0,curIdx);i<S.terms.length;i++){
+        const m=String(S.terms[i].name||'').match(/spring\s+(\d{4})/i);
+        if(m&&!/^sum/i.test(String((S.terms[i+1]&&S.terms[i+1].name)||''))){year=+m[1];insIdx=i+1;break}
+      }
+      if(insIdx===S.terms.length){
+        for(let i=0;i<S.terms.length;i++){
+          const m=String(S.terms[i].name||'').match(/spring\s+(\d{4})/i);
+          if(m&&!/^sum/i.test(String((S.terms[i+1]&&S.terms[i+1].name)||''))){year=+m[1];insIdx=i+1;break}
+        }
+      }
+      S.terms.splice(insIdx,0,{id:'t'+uid(),name:'Summer '+year,status:'planned'});
+    },'Added Summer term');
+  },
   delterm(e,d){mut(()=>{S.courses.forEach(c=>{if(c.term===d.id)c.term=null});S.terms=S.terms.filter(t=>t.id!==d.id)})},
   termUp(e,d){mut(()=>{const i=termIdx(d.id);if(i>0){const t=S.terms.splice(i,1)[0];S.terms.splice(i-1,0,t)}})},
   addcat(){mut(()=>S.settings.cats.push({k:nextCatKey(),n:'New category',req:0}))},
@@ -2020,12 +2788,18 @@ const CHG={
   cf(e,d,v){const c=getC(d.id);if(c){pushUndo('Edited '+c.code);parseCoursesField(c,d.f,v)}},
   set(e,d,v){S.settings[d.f]=['totalCredits','maxLoad'].includes(d.f)?(parseInt(v)||0):d.f==='targetGpa'?(num(v)||0):d.f==='retakeReplaces'?(v!=='no'):d.f==='capOwn'?(v==='yes'):v},
   tf(e,d,v){termOf(d.id)[d.f]=d.f==='cr'?v==='1':v},
-  kf(e,d,v){const k=S.settings.cats.find(x=>x.k===d.id);k[d.f]=d.f==='req'?(num(v)||0):v},
+  kf(e,d,v){const k=S.settings.cats.find(x=>x.k===d.id);if(k)k[d.f]=d.f==='req'?(num(v)||0):v},
+  pf(e,d,v){const p=(S.settings.portals||[])[+d.i];if(p)p[d.f]=d.f==='short'?v.trim().slice(0,2).toUpperCase():v.trim()},
+  coursecat(e,d,v){U.courseCat=v},
+  courseq(e,d,v){U.courseQ=v},
   sf(e,d,v){const g=S.settings.scale[+d.i];g[d.f]=d.f==='l'?v.trim():(num(v)||0)},
   syl(e,d,v){const o=U.syl.out;o[d.f]=d.f==='credits'?(num(v)||0):d.f==='prereqs'?splitList(v):v},
   sylA(e,d,v){const a=U.syl.out.assessments[+d.i];a[d.f]=['weight','count','drop'].includes(d.f)?(num(v)||0):v},
   wi(e,d,v){if(v)U.whatif[d.id]=v;else delete U.whatif[d.id]},
   wiall(e,d,v){if(v){curCourses().concat(planCourses()).filter(c=>!U.wiTerm||U.wiTerm==='all'||c.term===U.wiTerm).forEach(c=>U.whatif[c.id]=v)}},
+  plancfg(e,d,v){S.ui.plan[d.f]=v},
+  catcat(e,d,v){U.catCat=v},
+  dashnote(e,d,v){S.ui.dash.note=v},
 };
 async function onFiles(e){
   const files=Array.from(e.target.files||[]),y=U.syl;let msg=[];
@@ -2064,11 +2838,34 @@ document.addEventListener('click',e=>{
   f(e,el.dataset);
 });
 document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if(U.cmdOpen){U.cmdOpen=false;render()}else ACT.opencmd();return}
+  if(U.cmdOpen){
+    const items=cmdItems(U.cmdQ||'');
+    if(e.key==='Escape'){e.preventDefault();U.cmdOpen=false;render();return}
+    if(e.key==='ArrowDown'){e.preventDefault();if(items.length){U.cmdIdx=((U.cmdIdx||0)+1)%items.length;const cl=$('#cmd-list');if(cl){cl.innerHTML=cmdListHtml(items);const on=cl.querySelector('.cmd-item.on');if(on)on.scrollIntoView({block:'nearest'})}}return}
+    if(e.key==='ArrowUp'){e.preventDefault();if(items.length){U.cmdIdx=((U.cmdIdx||0)-1+items.length)%items.length;const cl=$('#cmd-list');if(cl){cl.innerHTML=cmdListHtml(items);const on=cl.querySelector('.cmd-item.on');if(on)on.scrollIntoView({block:'nearest'})}}return}
+    if(e.key==='Enter'){e.preventDefault();const it=items[Math.min(U.cmdIdx||0,items.length-1)];U.cmdOpen=false;if(it&&it.act)it.act();else render();return}
+  }
+  if(e.key==='Escape'&&U.moreOpen){U.moreOpen=false;render();return}
   if(e.key==='Escape'&&U.course){U.course=null;render()}
+  if(e.key==='Enter'&&e.target.matches&&e.target.matches('.ir input[data-f="s"]')){
+    e.preventDefault();
+    const list=Array.from(document.querySelectorAll('.drawer .ir input[data-f="s"]'));
+    const ix=list.indexOf(e.target);
+    e.target.dispatchEvent(new Event('change',{bubbles:true}));
+    if(ix>=0&&ix+1<list.length)setTimeout(()=>{const nx=document.querySelectorAll('.drawer .ir input[data-f="s"]')[ix+1];if(nx){nx.focus();nx.select&&nx.select()}},0);
+    return;
+  }
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&!e.shiftKey&&!e.target.closest('input,textarea,select')){e.preventDefault();ACT.undo()}
   if((e.key==='Enter'||e.key===' ')&&e.target.closest&&e.target.closest('g.nd')){e.preventDefault();ACT.sel(e,e.target.closest('g.nd').dataset)}
 });
-document.addEventListener('input',e=>{if(e.target.dataset&&e.target.dataset.c==='syltext')U.syl.text=e.target.value});
+document.addEventListener('input',e=>{
+  if(e.target.id==='cmd-q'){U.cmdQ=e.target.value;U.cmdIdx=0;const cl=$('#cmd-list');if(cl)cl.innerHTML=cmdListHtml(cmdItems(U.cmdQ));return}
+  if(e.target.id==='course-q'){U.courseQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#course-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
+  if(e.target.id==='cat-q'){U.catQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#cat-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
+  if(e.target.dataset&&e.target.dataset.c==='dashnote'){S.ui.dash.note=e.target.value;return}
+  if(e.target.dataset&&e.target.dataset.c==='syltext')U.syl.text=e.target.value;
+});
 document.addEventListener('change',e=>{
   const t=e.target,k=t.dataset&&t.dataset.c;if(!k)return;
   if(k==='syltext'){U.syl.text=t.value;return}
@@ -2078,14 +2875,20 @@ document.addEventListener('change',e=>{
   if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=AI.key?8:0;render();return}
   const f=CHG[k]||CHG2[k];if(!f)return;
   try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
-  if(k==='syl'||k==='sylA'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'){render();return}
+  if(k==='syl'||k==='sylA'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
   persist();render();
 });
 let dragId=null;
-document.addEventListener('dragstart',e=>{const c=e.target.closest&&e.target.closest('[data-drag]');if(!c)return;dragId=c.dataset.drag;try{e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'}catch(x){}});
-document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');if(!t||!dragId)return;e.preventDefault();document.querySelectorAll('.term.over').forEach(x=>{if(x!==t)x.classList.remove('over')});t.classList.add('over')});
-document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'));if(!t||!dragId)return;e.preventDefault();const c=getC(dragId);dragId=null;if(c){pushUndo('Moved '+c.code);c.term=t.dataset.drop||null;persist();toast('Moved '+c.code,true)}});
-document.addEventListener('dragend',()=>{dragId=null;document.querySelectorAll('.term.over').forEach(x=>x.classList.remove('over'))});
+function clearDropMarks(){document.querySelectorAll('[data-drop]').forEach(x=>x.classList.remove('over','drop-ok','drop-warn','drop-bad'))}
+document.addEventListener('dragstart',e=>{
+  const c=e.target.closest&&e.target.closest('[data-drag]');if(!c)return;
+  dragId=c.dataset.drag;
+  try{e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move'}catch(x){}
+  document.querySelectorAll('[data-drop]').forEach(t=>{const st=canDropTerm(dragId,t.dataset.drop||'');t.classList.add('drop-'+st)});
+});
+document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');if(!t||!dragId)return;e.preventDefault();document.querySelectorAll('[data-drop].over').forEach(x=>{if(x!==t)x.classList.remove('over')});t.classList.add('over')});
+document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');clearDropMarks();if(!t||!dragId)return;e.preventDefault();const c=getC(dragId);dragId=null;if(c){pushUndo('Moved '+c.code);c.term=t.dataset.drop||null;persist();toast('Moved '+c.code,true)}});
+document.addEventListener('dragend',()=>{dragId=null;clearDropMarks()});
 window.addEventListener('hashchange',routeFromHash);
 
 /* ---------- saving ---------- */
@@ -2162,6 +2965,7 @@ function upgrade(o){
 function adopt(o){S=upgrade(o);S.sample=false}
 async function boot(){
   try{applyTheme(localStorage.getItem(LSTHEME)||'')}catch(e){}
+  try{U.railCollapsed=localStorage.getItem(LSRAIL)==='1'}catch(e){}
   let local=null;try{const r=localStorage.getItem(LS);if(r)local=JSON.parse(r)}catch(e){}
   let serverHad=false;
   if(HOST){try{HC=await HOST.config()}catch(e){}try{const r=await HOST.load();if(r){const o=JSON.parse(r);if(o&&Array.isArray(o.terms)&&!o.sample){local=o;serverHad=true}}}catch(e){}}

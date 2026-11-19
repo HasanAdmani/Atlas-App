@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Atlas Companion</title>
+  <style>
+    body { margin: 0; padding: 14px; width: 320px; font: 13.5px/1.45 system-ui, -apple-system, sans-serif; background: #f3f4f1; color: #111715; }
+    h1 { font-size: 16px; margin: 0 0 4px; }
+    .muted { color: #63706a; font-size: 12px; }
+    .card { background: #fff; border: 1px solid #e1e5df; border-radius: 10px; padding: 12px; margin-top: 10px; }
+    label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #63706a; margin-bottom: 4px; }
+    input[type="text"] { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #cbd2c8; border-radius: 7px; font-size: 12.5px; }
+    button { width: 100%; margin-top: 8px; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd2c8; background: #fff; color: #111715; font-weight: 600; font-size: 13px; cursor: pointer; }
+    button.primary { background: #2945b8; border-color: #2945b8; color: #fff; }
+    button:disabled { opacity: .6; cursor: default; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 12.5px; }
+    #status { margin-top: 10px; font-size: 12.5px; }
+  </style>
+</head>
+<body>
+  <h1>Atlas Companion</h1>
+  <div class="muted">Background Canvas sync &amp; portal importer</div>
+
+  <div class="card">
+    <label for="srv">Atlas Server URL</label>
+    <input id="srv" type="text" placeholder="https://starserver.tailbf777f.ts.net/atlas">
+    <div class="row">
+      <span>Auto-sync on Canvas visit</span>
+      <input id="auto" type="checkbox" checked>
+    </div>
+  </div>
+
+  <div class="card">
+    <button id="sync-cv" class="primary">Sync Canvas Now</button>
+    <button id="send-tab">Send Current Tab (PSCS / Syllabus)</button>
+    <button id="open-atlas">Open Atlas</button>
+    <div id="status" class="muted">Ready.</div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -29,6 +29,7 @@ if (theme === 'light' || theme === 'dark') {
 } else {
   preloadLines.push(`localStorage.removeItem('course-atlas.theme');`);
 }
+preloadLines.push(`const _vw=location.search.match(/vw=(\\d+)/);if(_vw)document.head.insertAdjacentHTML('beforeend','<style>html,body,.nav,.veil{max-width:'+_vw[1]+'px!important;width:'+_vw[1]+'px!important;right:auto!important;margin-left:0!important}</style>');`);
 const inj = `<script>try{${preloadLines.join('')}}catch(e){}</script>`;
 html = html.replace('<div id="app"></div>', '<div id="app"></div>' + inj);
 
@@ -55,7 +56,7 @@ for (const j of jobs) {
         `--window-size=${w},${h}`,
         '--virtual-time-budget=2500',
         `--screenshot=${file}`,
-        'file:///' + page.replace(/\\/g, '/') + '#' + route,
+        'file:///' + page.replace(/\\/g, '/') + (+w < 500 ? '?vw=' + w : '') + '#' + route,
       ],
       { stdio: 'inherit', timeout: 30000 }
     );

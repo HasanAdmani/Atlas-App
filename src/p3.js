@@ -5,7 +5,10 @@ const gradeCls=l=>{if(!l||l==='W'||l==='NC')return'';if(l==='CR')return'good';co
 const stPill=c=>{const s=status(c);return s==='done'?'<span class="pill good">done</span>':s==='current'?'<span class="pill acc">in progress</span>':s==='planned'?'<span class="pill">planned</span>':'<span class="pill">not scheduled</span>'};
 const catName=k=>{const x=S.settings.cats.find(c=>c.k===k);return x?x.n:k||'Uncategorised'};
 let INNER=false;
-const head=(t,sub,right)=>INNER?`<div class="row between" style="margin-bottom:18px;align-items:flex-start">${sub?`<p class="sub" style="margin:0">${sub}</p>`:'<span></span>'}${right?`<div class="row">${right}</div>`:''}</div>`:`<div class="head"><div><h1>${t}</h1>${sub?`<p class="sub">${sub}</p>`:''}</div>${right?`<div class="row">${right}</div>`:''}</div>`;
+const cmdBtn=()=>`<button type="button" class="btn ghost sm cmd-trig" data-a="opencmd" title="Search & commands (Ctrl+K)">${ICONS.search}<span class="mono small">⌘K</span></button>`;
+const head=(t,sub,right)=>INNER
+  ?`<div class="row between toolbar-inner" style="margin-bottom:14px;align-items:center;gap:10px">${sub?`<span class="small muted">${sub}</span>`:'<span></span>'}${right?`<div class="row" style="gap:8px">${right}</div>`:''}</div>`
+  :`<div class="head"><div class="head-left"><div class="row" style="gap:8px;align-items:center"><h1>${t}</h1>${sub?`<button type="button" class="btn ghost sm help-trig ${U.showHelp?'on':''}" data-a="togglehelp" title="About this page" aria-label="Page info">${ICONS.info}</button>`:''}</div>${U.route==='overview'&&sub?`<p class="sub">${sub}</p>`:''}</div><div class="row head-right" style="gap:8px">${right||''}${cmdBtn()}</div></div>${U.showHelp&&sub?`<div class="help-pop"><span>${sub}</span><button type="button" class="btn ghost sm" data-a="togglehelp" aria-label="Dismiss">✕</button></div>`:''}`;
 
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function dateBadge(iso,d){
@@ -70,51 +73,123 @@ function setupPanel(){
   <div class="row" style="margin-top:20px"><button class="btn primary" data-a="setup">Create my terms</button><button class="btn" data-a="loadsample">Load the Habib EE grid</button></div></div>`;
 }
 
-/* ---------- views ---------- */
+/* ---------- views & customizable widgets ---------- */
+const WIDGETS={
+  gpa:{title:'Cumulative GPA',render(){
+    const cum=cumulative(),tg=S.settings.targetGpa,d=cum.gpa==null?null:cum.gpa-tg;
+    return`<div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}">
+      <div class="row between"><div class="lbl">Cumulative GPA</div>${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)} vs target</span>`:''}</div>
+      <div class="num" style="margin:10px 0 8px">${fmt(cum.gpa)}</div>
+      <div class="small muted">${d==null?'Enter final grades for finished courses':`Target ${fmt(tg)} across ${cum.cr} graded credits`}</div>
+    </div>`;
+  }},
+  term:{title:'This term so far',render(){
+    const cur=curCourses(),cg=gpaOf(cur,true),proj=gpaOf(doneCourses().concat(cur),true),cum=cumulative();
+    const curCr=cur.reduce((a,c)=>a+c.credits,0),ct=S.terms.find(t=>t.status==='current');
+    return`<div class="card kpi-card kpi-acc">
+      <div class="row between"><div class="lbl">This term so far</div>${ct?`<span class="pill acc">${esc(ct.name)}</span>`:''}</div>
+      <div class="num" style="margin:10px 0 8px">${fmt(cg.gpa)}</div>
+      <div class="small muted">${cur.length} courses · ${curCr} cr${proj.gpa!=null&&cum.gpa!=null?` · cum <b class="mono">${fmt(proj.gpa)}</b>`:''}</div>
+    </div>`;
+  }},
+  credits:{title:'Credits earned',render(){
+    const er=earnedCredits(),tot=S.settings.totalCredits||1,curCr=curCourses().reduce((a,c)=>a+c.credits,0);
+    const planCr=planCourses().filter(counts).reduce((a,c)=>a+c.credits,0),pct=Math.min(100,er/tot*100);
+    return`<div class="card kpi-card kpi-good" style="flex-direction:row;align-items:center;gap:14px;justify-content:flex-start">
+      <div class="ring" style="--p:${pct.toFixed(1)}"><div>${Math.round(pct)}%</div></div>
+      <div style="min-width:0"><div class="lbl">Credits earned</div><div class="mono" style="font-size:22px;font-weight:600;margin:6px 0 4px">${er}<span class="muted" style="font-weight:400"> / ${tot}</span></div><div class="small muted">${curCr} now · ${planCr} planned</div></div>
+    </div>`;
+  }},
+  target:{title:'Target tracker',render(){
+    const p=typeof termPlan==='function'?termPlan():null;
+    if(!p)return`<div class="card kpi-card kpi-acc"><div class="row between"><div class="lbl">Target tracker</div><a class="btn ghost sm" href="#gpa">GPA lab</a></div><div class="small muted" style="margin-top:10px">Add courses to your current term to track target grades.</div></div>`;
+    const main=p.state==='secured'?'Safe':p.state==='out'?fmt(p.best):fmt(p.need);
+    const sub=p.state==='secured'?`Target ${fmt(p.tg)} secured this term`:p.state==='out'?`Max ${fmt(p.best)} this term (need ${fmt(p.need)} for ${fmt(p.tg)})`:`Needed this term for ${fmt(p.tg)} overall`;
+    const aims=p.rows.slice(0,3).map(r=>`<span class="pill" style="font-size:10.5px">${esc(r.c.code)}: <b>${esc(r.goal||r.aim)}</b></span>`).join(' ');
+    return`<div class="card kpi-card ${p.state==='out'?'kpi-warn':p.state==='secured'?'kpi-good':'kpi-acc'}">
+      <div class="row between"><div class="lbl">Target tracker</div><a class="btn ghost sm" href="#gpa" style="padding:2px 6px;font-size:11.5px">Details ›</a></div>
+      <div class="num" style="margin:8px 0 6px;font-size:clamp(30px,3vw,42px)">${main}</div>
+      <div class="small muted" style="margin-bottom:8px">${sub}</div>
+      <div class="row" style="gap:4px">${aims}</div>
+    </div>`;
+  }},
+  inprog:{title:'In progress',render(){
+    const cur=curCourses();
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div style="text-align:right;flex:none"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(st.letter)}</div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
+  }},
+  duenext:{title:'Due next',render(){
+    const dl=deadlines().slice(0,5);
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Due next</h2></div>${dl.length?`<div class="list">${dl.map(x=>`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div><div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="pill acc">${fmt(x.a.w,0)}%</span></div></div>`).join('')}</div>`:'<div class="empty">Nothing dated yet. Add due dates in a course or sync Canvas.</div>'}</div>`;
+  }},
+  week:{title:'This week',render(){
+    const pk=typeof picked==='function'?picked():[];
+    if(!pk.length){
+      const srv=typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft sm" data-a="loadsrvsched">Load Spring 2027</button>`:'';
+      return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Enrollment ›</a></div><div class="empty" style="padding:20px 14px">No sections picked yet.<div class="row" style="justify-content:center;margin-top:10px"><a class="btn sm" href="#enroll">Pick sections</a>${srv}</div></div></div>`;
+    }
+    const bad=clashes(pk);
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Edit ›</a></div>${weekGrid(pk,bad)}</div>`;
+  }},
+  trend:{title:'GPA by term',render(){
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">GPA by term</h2><a class="btn ghost sm" href="#gpa">GPA lab ›</a></div>${spark(trend())}</div>`;
+  }},
+  attention:{title:'Worth a look',render(){
+    const att=attention().slice(0,5);
+    return`<div class="card"><h2 style="margin-bottom:8px">Worth a look</h2>${att.length?`<div class="list">${att.map(a=>`<div class="li click" ${a.course?`data-a="open" data-id="${a.course}"`:`data-a="go" data-v="${a.to}"`}><span class="row" style="flex-wrap:nowrap;gap:10px"><span class="pill ${a.t}" style="flex:none">${a.t==='bad'?'grade':a.t==='warn'?'plan':'note'}</span><span class="small">${a.x}</span></span><span class="muted" style="font-size:18px;line-height:1">›</span></div>`).join('')}</div>`:'<div class="empty" style="padding:20px">Nothing needs attention right now.</div>'}</div>`;
+  }},
+  reqs:{title:'Requirements',render(){
+    const cp=catProgress().filter(x=>!(x.k.k==='minor'&&!S.courses.some(c=>c.cat==='minor')));
+    return`<div class="card"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Requirements</h2><a class="btn ghost sm" href="#req">Details ›</a></div><div style="display:flex;flex-direction:column;gap:10px">${cp.map(x=>{const req=x.k.req||0,pct=req>0?Math.min(100,(x.e+x.cu+x.pl)/req*100):100;return`<div><div class="row between small"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${esc(catColor(x.k.k))};margin-right:6px"></i><b>${esc(x.k.n)}</b></span><span class="mono muted">${x.e+x.cu+x.pl}${req>0?' / '+req:''} cr</span></div>${req>0?`<div class="bar" style="height:5px;margin-top:4px"><i class="d" style="width:${Math.min(100,x.e/req*100)}%"></i><i style="width:${Math.min(100,x.cu/req*100)}%"></i><i class="p" style="width:${Math.min(100,x.pl/req*100)}%"></i></div>`:''}</div>`}).join('')}</div></div>`;
+  }},
+  portals:{title:'Portals & sync',render(){
+    const ps=(S.settings.portals||[]).filter(p=>p.on),at=S.links&&S.links.canvas&&S.links.canvas.at;
+    return`<div class="card"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Portals &amp; sync</h2><button type="button" class="btn soft sm" data-a="quickcanvas">Sync Canvas</button></div><div class="more-grid" style="margin-bottom:10px">${ps.map(p=>`<button type="button" class="more-tile" data-a="openportal" data-id="${esc(p.id)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span>${esc(p.name)}</span></button>`).join('')}</div><div class="small muted">Canvas sync: ${at?esc(new Date(at).toLocaleString()):'Not synced yet'}</div></div>`;
+  }},
+  note:{title:'Quick notes',render(){
+    const v=(S.ui&&S.ui.dash&&S.ui.dash.note)||'';
+    return`<div class="card"><h2 style="margin-bottom:8px">Quick notes</h2><textarea id="dash-note" data-c="dashnote" rows="5" placeholder="Advising notes, enrollment reminders…">${esc(v)}</textarea></div>`;
+  }}
+};
 function vOverview(){
   if(!S.terms.length)return head('Atlas','One place for your grades, your roadmap and your four years.')+setupPanel();
-  const cum=cumulative(),er=earnedCredits(),tot=S.settings.totalCredits,tg=S.settings.targetGpa;
-  const cur=curCourses(),cg=gpaOf(cur,true),proj=gpaOf(doneCourses().concat(cur),true);
-  const curCr=cur.reduce((a,c)=>a+c.credits,0),planCr=planCourses().filter(counts).reduce((a,c)=>a+c.credits,0);
-  const pct=Math.min(100,er/tot*100),d=cum.gpa==null?null:cum.gpa-tg;
-  const dl=deadlines().slice(0,5),att=attention().slice(0,4);
-  const ct=S.terms.find(t=>t.status==='current');
-  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+'now in '+esc(ct.name):''))+`
-  <div class="grid g3">
-    <div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}">
-      <div class="row between"><div class="lbl">Cumulative GPA</div>${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)} vs target</span>`:''}</div>
-      <div class="num" style="margin:12px 0 10px">${fmt(cum.gpa)}</div>
-      <div class="small muted">${d==null?'Enter final grades for finished courses':`Target ${fmt(tg)} across ${cum.cr} graded credits`}</div>
-    </div>
-    <div class="card kpi-card kpi-acc">
-      <div class="row between"><div class="lbl">This term so far</div>${ct?`<span class="pill acc">${esc(ct.name)}</span>`:''}</div>
-      <div class="num" style="margin:12px 0 10px">${fmt(cg.gpa)}</div>
-      <div class="small muted">${cur.length} courses · ${curCr} credits${proj.gpa!=null&&cum.gpa!=null?` · projected cum <b class="mono">${fmt(proj.gpa)}</b>`:''}</div>
-    </div>
-    <div class="card kpi-card kpi-good" style="flex-direction:row;align-items:center;gap:18px;justify-content:flex-start">
-      <div class="ring" style="--p:${pct.toFixed(1)}"><div>${Math.round(pct)}%</div></div>
-      <div style="min-width:0"><div class="lbl">Credits earned</div><div class="mono" style="font-size:24px;font-weight:600;margin:6px 0 4px">${er}<span class="muted" style="font-weight:400"> / ${tot}</span></div><div class="small muted">${curCr} in progress · ${planCr} planned</div></div>
-    </div>
-  </div>
-  <div class="grid g2 sec">
-    <div><h2>In progress</h2>${cur.length?`<div class="card list" style="padding:4px 16px">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:8px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div style="text-align:right;flex:none"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(st.letter)}</div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>
-    <div><h2>Due next</h2>${dl.length?`<div class="card list" style="padding:4px 16px">${dl.map(x=>`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div><div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="pill acc">${fmt(x.a.w,0)}%</span></div></div>`).join('')}</div>`:'<div class="empty">Nothing dated yet. Add due dates in a course, or from its syllabus.</div>'}</div>
-  </div>
-  <div class="grid g2 sec">
-    <div><h2>GPA by term</h2><div class="card">${spark(trend())}</div></div>
-    <div><h2>Worth a look</h2>${att.length?`<div class="card list" style="padding:4px 16px">${att.map(a=>`<div class="li click" ${a.course?`data-a="open" data-id="${a.course}"`:`data-a="go" data-v="${a.to}"`}><span class="row" style="flex-wrap:nowrap;gap:10px"><span class="pill ${a.t}" style="flex:none">${a.t==='bad'?'grade':a.t==='warn'?'plan':'note'}</span><span class="small">${a.x}</span></span><span class="muted" style="font-size:18px;line-height:1">›</span></div>`).join('')}</div>`:'<div class="empty">Nothing needs attention right now.</div>'}</div>
-  </div>`;
+  const ct=S.terms.find(t=>t.status==='current'),mods=(S.ui&&S.ui.modules)||{};
+  const isMob=typeof window!=='undefined'&&window.innerWidth<=860;
+  const devMode=U.dashEdit?(U.dashEditMode||(isMob?'mobile':'desktop')):(isMob?'mobile':'desktop');
+  const rawList=(S.ui&&S.ui.dash&&S.ui.dash[devMode])||defUi().dash[devMode];
+  const visible=rawList.filter(x=>{
+    if(!WIDGETS[x.w])return false;
+    if(x.w==='week'&&mods.enroll===false)return false;
+    if(x.w==='portals'&&mods.portals===false)return false;
+    return U.dashEdit||x.on!==false;
+  });
+  const editBtn=`<button type="button" class="btn sm ${U.dashEdit?'primary':''}" data-a="dashedit">${U.dashEdit?'Done':'Customize'}</button>`;
+  const editBar=U.dashEdit?`<div class="dash-edit-bar"><div class="row" style="gap:8px"><b class="small">Editing layout:</b><div class="seg"><button type="button" class="${devMode==='desktop'?'on':''}" data-a="dashmode" data-v="desktop">Desktop</button><button type="button" class="${devMode==='mobile'?'on':''}" data-a="dashmode" data-v="mobile">Mobile</button></div></div><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="dashreset">Reset default</button><button type="button" class="btn sm primary" data-a="dashedit">Done</button></div></div>`:'';
+  const cards=visible.map((x,i)=>{
+    const w=WIDGETS[x.w],sz=x.size||'m';
+    const ctrl=U.dashEdit?`<div class="w-ctrl"><button type="button" class="btn sm ${x.on!==false?'soft':'ghost'}" data-a="wvis" data-w="${x.w}">${x.on!==false?'Shown':'Hidden'}</button><div class="seg">${['s','m','l'].map(s=>`<button type="button" class="${sz===s?'on':''}" data-a="wsize" data-w="${x.w}" data-v="${s}">${s.toUpperCase()}</button>`).join('')}</div><div class="row" style="gap:3px"><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="-1" ${i===0?'disabled':''} aria-label="Move earlier">←</button><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="1" ${i===visible.length-1?'disabled':''} aria-label="Move later">→</button></div></div>`:'';
+    return`<div class="dash-w w-${sz}${x.on===false?' w-off':''}">${ctrl}${w.render()}</div>`;
+  }).join('');
+  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+'now in '+esc(ct.name):''),editBtn)+editBar+`<div class="dash-grid">${cards}</div>`;
 }
 
+const canvasPortalUrl=()=>{const p=(S.settings.portals||[]).find(x=>x.id==='canvas'||x.kind==='canvas');return((p&&p.url)||'https://hulms.instructure.com').replace(/\/+$/,'')};
 function courseRow(c){
   const st=standing(c),is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c),s=status(c);
   const rt=S.courses.find(o=>o.retakeOf===c.id);
   const gcls=gradeCls(c.grade);
   const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
-  return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code">${esc(c.code)} · ${c.credits} cr · ${esc(catName(c.cat))}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${s==='done'?gsel:(l?lpill(l):stPill(c))}</div></div>`;
+  return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code row" style="gap:6px"><i class="cat-dot" style="background:${esc(catColor(c.cat))}" title="${esc(catName(c.cat))}"></i>${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${s==='done'?gsel:(l?lpill(l):stPill(c))}</div></div>`;
+}
+function courseTableRow(c){
+  const st=standing(c),l=effLetter(c),s=status(c),t=termOf(c.term);
+  const gcls=gradeCls(c.grade);
+  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
+  const stand=s==='current'&&st.pct!=null?`<span class="mono small">${fmt(st.pct,1)}%</span> ${lpill(st.letter)}`:(l?lpill(l):stPill(c));
+  return`<tr class="click" data-a="open" data-id="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r">${s==='done'?gsel:stand}</td></tr>`;
 }
 function vCourses(){
-  const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`;
+  const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
+  const syncBtn=mods.canvas!==false?`<button class="btn" data-a="go" data-v="canvas">Sync Canvas</button>`:'';
   if(!S.courses.length)return head('Courses','Every course with its grading breakdown.',add)+'<div class="empty">No courses yet. Add one from a syllabus or by hand.</div>';
   const T=S.terms,ci=T.findIndex(t=>t.status==='current');
   const ni=T.findIndex((t,i)=>t.status==='planned'&&i>ci);
@@ -122,14 +197,24 @@ function vCourses(){
   const view=U.cview&&(U.cview==='all'||T.some(t=>t.id===U.cview))?U.cview:'now';
   let shown=view==='all'?T.slice():view==='now'?T.filter((t,i)=>i===li||i===ci||i===ni):T.filter(t=>t.id===view);
   if(!shown.length)shown=T.slice(0,2);
-  const strip=`<div class="tabs"><a href="#" data-a="cview" data-v="now" ${view==='now'?'aria-current="page"':''}>Now</a>${T.map(t=>`<a href="#" data-a="cview" data-v="${t.id}" ${view===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="cview" data-v="all" ${view==='all'?'aria-current="page"':''}>All</a></div>`;
-  const blocks=`<div class="cols" style="margin-top:4px">`+shown.map(t=>{
-    const cs=S.courses.filter(c=>c.term===t.id),g=termGpa(t);
-    const stBadge=`<span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>`;
-    return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><div class="row" style="gap:6px"><span class="pill">${cs.reduce((a,c)=>a+c.credits,0)} cr</span>${g.gpa!=null?`<span class="pill acc">GPA ${fmt(g.gpa)}</span>`:''}</div></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">Empty term</div>'}</div>`;
-  }).join('')+`</div>`;
-  const cat=S.courses.filter(c=>!termOf(c.term));
-  return head('Courses','Your current term, the next one and the last one you finished. Pick any term below to focus on it or enter final grades.',add+`<button class="btn" data-a="go" data-v="canvas">Sync from Canvas</button>`)+strip+blocks+(cat.length&&(view==='now'||view==='all')?`<div class="sec" style="margin-top:26px"><h2>Not in a term yet</h2><div class="card list" style="padding:4px 16px">${cat.map(courseRow).join('')}</div></div>`:'');
+  const q=(U.courseQ||'').trim().toLowerCase(),ck=U.courseCat||'',mode=U.courseMode||'cards';
+  const match=c=>(!ck||c.cat===ck)&&(!q||(c.code+' '+c.title+' '+(c.instructor||'')).toLowerCase().includes(q));
+  const strip=`<div class="tabs" style="margin-bottom:10px"><a href="#" data-a="cview" data-v="now" ${view==='now'?'aria-current="page"':''}>Now</a>${T.map(t=>`<a href="#" data-a="cview" data-v="${t.id}" ${view===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="cview" data-v="all" ${view==='all'?'aria-current="page"':''}>All</a></div>`;
+  const ctrl=`<div class="grid-bar"><div class="grid-bar-grp"><input id="course-q" type="search" data-c="courseq" value="${esc(U.courseQ||'')}" placeholder="Search code, title, instructor…" style="width:220px;padding:5px 10px;font-size:13px"><select class="sel-pill" data-c="coursecat" aria-label="Filter by category"><option value="">All categories</option>${S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${ck===k.k?'selected':''}>${esc(k.n)}</option>`).join('')}</select></div><div class="seg" role="group" aria-label="View mode"><button type="button" class="${mode==='cards'?'on':''}" data-a="cmode" data-v="cards">Cards</button><button type="button" class="${mode==='table'?'on':''}" data-a="cmode" data-v="table">Table</button></div></div>`;
+  const cat=S.courses.filter(c=>!termOf(c.term)&&match(c));
+  let body='';
+  if(mode==='table'){
+    const list=shown.flatMap(t=>S.courses.filter(c=>c.term===t.id&&match(c))).concat((view==='now'||view==='all')?cat:[]);
+    body=list.length?`<div class="card scroll" style="padding:6px 14px"><table class="t"><thead><tr><th>Code</th><th>Title</th><th>Term</th><th>Category</th><th class="r">Cr</th><th class="r">Standing / Grade</th></tr></thead><tbody>${list.map(courseTableRow).join('')}</tbody></table></div>`:'<div class="empty">No matching courses in the selected terms.</div>';
+  }else{
+    const blocks=`<div class="cols" style="margin-top:4px">`+shown.map(t=>{
+      const cs=S.courses.filter(c=>c.term===t.id&&match(c)),g=termGpa(t);
+      const stBadge=`<span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>`;
+      return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><div class="row" style="gap:6px"><span class="pill">${cs.reduce((a,c)=>a+c.credits,0)} cr</span>${g.gpa!=null?`<span class="pill acc">GPA ${fmt(g.gpa)}</span>`:''}</div></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">No matching courses</div>'}</div>`;
+    }).join('')+`</div>`;
+    body=blocks+(cat.length&&(view==='now'||view==='all')?`<div class="sec" style="margin-top:26px"><h2>Not in a term yet</h2><div class="card list" style="padding:4px 16px">${cat.map(courseRow).join('')}</div></div>`:'');
+  }
+  return head('Courses','Your current term, the next one and the last one you finished. Pick any term below to focus on it or enter final grades.',add+syncBtn)+strip+ctrl+body;
 }
 
 const gradeOpts=c=>{const t=termOf(c.term);return t&&t.cr?['','CR','NC']:['',...S.settings.scale.map(x=>x.l),'W']};
@@ -190,9 +275,12 @@ function drawer(){
     ${is.length?`<div class="banner">${is.map(i=>i.kind==='missing'?`${esc(i.code)} is not in your course list yet.`:i.kind==='unscheduled'?`${esc(i.code)} is not scheduled in any term.`:i.kind==='same'?`${esc(i.code)} is in the same term.`:`${esc(i.code)} comes after this course.`).join(' ')}</div>`:''}
     <label class="f" style="margin-bottom:14px"><span>This course is a retake of</span><select data-c="cf" data-f="retakeOf" data-id="${c.id}"><option value="">Not a retake</option>${S.courses.filter(o=>o.id!==c.id).map(o=>`<option value="${o.id}" ${c.retakeOf===o.id?'selected':''}>${esc(o.code)} · ${esc((termOf(o.term)||{}).name||'no term')}</option>`).join('')}</select></label>
     <label class="f" style="margin-bottom:14px"><span>Instructor</span><input data-c="cf" data-f="instructor" data-id="${c.id}" value="${esc(c.instructor||'')}"></label>
+    <label class="f" style="margin-bottom:14px"><span>Syllabus link (optional https://…)</span><input data-c="cf" data-f="syllabusUrl" data-id="${c.id}" value="${esc(c.syllabusUrl||'')}" placeholder="https://…"></label>
     <label class="f" style="margin-bottom:18px"><span>Notes</span><textarea rows="4" data-c="cf" data-f="notes" data-id="${c.id}">${esc(c.notes||'')}</textarea></label>
     ${dep.length?`<h2>Unlocks</h2><div class="row" style="margin-bottom:22px">${dep.map(o=>`<button class="btn sm" data-a="open" data-id="${o.id}">${esc(o.code)}</button>`).join('')}</div>`:''}
     <button class="btn danger" data-a="delcourse" data-id="${c.id}">Delete this course</button>`;
   }
-  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}</div>${tabs}${body}</div></div>`;
+  const cvLink=c.canvasId?`<a class="btn sm soft" href="${esc(canvasPortalUrl()+'/courses/'+c.canvasId)}" target="_blank" rel="noopener">Canvas ↗</a>`:'';
+  const sylLink=c.syllabusUrl?`<a class="btn sm" href="${esc(c.syllabusUrl)}" target="_blank" rel="noopener">Syllabus ↗</a>`:'';
+  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}${cvLink}${sylLink}</div>${tabs}${body}</div></div>`;
 }

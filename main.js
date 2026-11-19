@@ -4,7 +4,7 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const DEFAULTS = { canvasUrl: 'https://hulms.instructure.com', pscsUrl: '', syllabusUrl: '' };
+const DEFAULTS = { canvasUrl: 'https://hulms.instructure.com', pscsUrl: '', syllabusUrl: '', serverUrl: '' };
 const SOURCES = { canvas: 'canvasUrl', pscs: 'pscsUrl', syllabus: 'syllabusUrl' };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -62,6 +62,11 @@ ipcMain.handle('cfg:set', (e, patch) => {
     if (v && !/^https:\/\/[^\s]+$/i.test(v)) throw new Error('The address must start with https://');
     cur[k] = v;
   });
+  if (patch && typeof patch.serverUrl === 'string') {
+    const sv = patch.serverUrl.trim().replace(/\/+$/, '');
+    if (sv && !/^https?:\/\/[^\s]+$/i.test(sv)) throw new Error('Server address must start with http:// or https://');
+    cur.serverUrl = sv;
+  }
   writeAtomic(cfgFile(), JSON.stringify(cur, null, 1));
   return config();
 });
@@ -77,6 +82,11 @@ ipcMain.handle('folder:open', () => shell.openPath(dataDir()));
 
 /* ---------- portal windows ---------- */
 function portalUrl(source) {
+  if (source && typeof source === 'object') {
+    const u = String(source.url || '').trim();
+    if (!/^https:\/\/[^\s]+$/i.test(u)) throw new Error('Portal address must start with https://');
+    return u;
+  }
   const key = SOURCES[source];
   if (!key) throw new Error('Unknown portal');
   const url = config()[key];
@@ -84,20 +94,22 @@ function portalUrl(source) {
   return url;
 }
 function portalWindow(source, show) {
-  let w = portals[source];
+  const safeId = String(source || 'portal').replace(/[^a-z0-9_-]/gi, '') || 'portal';
+  let w = portals[safeId];
   if (w && !w.isDestroyed()) { if (show) { w.show(); w.focus(); } return w; }
   w = new BrowserWindow({
-    width: 1100, height: 820, show: !!show, title: 'Atlas: ' + source,
-    webPreferences: { partition: 'persist:' + source, contextIsolation: true, nodeIntegration: false, sandbox: true },
+    width: 1100, height: 820, show: !!show, title: 'Atlas: ' + safeId,
+    webPreferences: { partition: 'persist:' + safeId, contextIsolation: true, nodeIntegration: false, sandbox: true },
   });
   w.setMenuBarVisibility(false);
-  portals[source] = w;
-  w.on('closed', () => { delete portals[source]; });
+  portals[safeId] = w;
+  w.on('closed', () => { delete portals[safeId]; });
   return w;
 }
 ipcMain.handle('portal:open', async (e, source) => {
-  const url = portalUrl(source), w = portalWindow(source, true);
-  if (!w.webContents.getURL()) await w.loadURL(url).catch(() => {});
+  const id = source && typeof source === 'object' ? source.id : source;
+  const url = portalUrl(source), w = portalWindow(id, true);
+  if (!w.webContents.getURL() || (source && typeof source === 'object')) await w.loadURL(url).catch(() => {});
   return true;
 });
 ipcMain.handle('portal:report', async (e, source) => {
@@ -139,6 +151,60 @@ ipcMain.handle('canvas:export', async () => {
   }
   if (!w.isDestroyed()) w.close();
   throw new Error('Timed out waiting for you to sign in');
+});
+
+/* ---------- Canvas silent background check ---------- */
+ipcMain.handle('canvas:silent', async () => {
+  let url, host;
+  try { url = portalUrl('canvas'); host = new URL(url).hostname; } catch (e) { return { ok: false }; }
+  const w = portalWindow('canvas', false);
+  try {
+    await w.loadURL(url).catch(() => {});
+    for (let i = 0; i < 4; i++) {
+      if (w.isDestroyed()) return { ok: false };
+      let onCanvas = false;
+      try { onCanvas = new URL(w.webContents.getURL()).hostname === host; } catch (x) {}
+      if (onCanvas) {
+        const signedIn = await w.webContents.executeJavaScript(
+          "fetch('/api/v1/users/self',{credentials:'same-origin',headers:{Accept:'application/json'}}).then(r=>r.ok).catch(()=>false)"
+        ).catch(() => false);
+        if (signedIn) {
+          const script = fs.readFileSync(path.join(__dirname, 'connectors', 'canvas.js'), 'utf8');
+          const json = await w.webContents.executeJavaScript(script);
+          if (!w.isDestroyed()) w.close();
+          return { ok: true, data: json };
+        }
+      }
+      await sleep(1500);
+    }
+  } catch (e) {}
+  if (!w.isDestroyed()) w.close();
+  return { ok: false };
+});
+
+/* ---------- Starserver sync bridge ---------- */
+ipcMain.handle('server:sync', async (e, payload) => {
+  const srv = (config().serverUrl || '').trim().replace(/\/+$/, '');
+  if (!srv) return { ok: false, unconfigured: true };
+  try {
+    const method = payload && payload.method === 'POST' ? 'POST' : 'GET';
+    if (method === 'GET') {
+      const r = await fetch(srv + '/api/store', { cache: 'no-store' });
+      const j = await r.json().catch(() => null);
+      return Object.assign({ status: r.status }, j || { ok: false, error: 'Invalid response' });
+    }
+    const base = payload.base || 0;
+    const force = payload.force ? '&force=1' : '';
+    const r = await fetch(srv + '/api/store?base=' + encodeURIComponent(base) + force, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: String(payload.body || ''),
+    });
+    const j = await r.json().catch(() => null);
+    return Object.assign({ status: r.status }, j || { ok: false, error: 'Invalid response' });
+  } catch (err) {
+    return { ok: false, error: String((err && err.message) || err) };
+  }
 });
 
 /* ---------- main window ---------- */

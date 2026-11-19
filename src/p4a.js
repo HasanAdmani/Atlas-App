@@ -48,20 +48,116 @@ function vRoadmap(){
 }
 
 /* ---------- four-year grid ---------- */
-function gcard(c){
+function canDropTerm(courseId,targetTermId){
+  if(!targetTermId)return'ok';
+  const c=getC(courseId);if(!c)return'ok';
+  const m=byCode(),ti=termIdx(targetTermId);if(ti<0)return'ok';
+  let sev='ok';
+  const bump=s=>{if(s==='bad')sev='bad';else if(s==='warn'&&sev==='ok')sev='warn'};
+  (c.prereqs||[]).forEach(code=>{
+    const p=m[NC(code)];if(!p)return;
+    if(!p.term){bump('warn');return}
+    const pi=termIdx(p.term);
+    if(pi>ti)bump('bad');else if(pi===ti)bump('warn');
+  });
+  (c.coreqs||[]).forEach(code=>{
+    const p=m[NC(code)];if(!p||!p.term)return;
+    if(termIdx(p.term)>ti)bump('bad');
+  });
+  S.courses.forEach(d=>{
+    if(!d.term||d.id===c.id)return;
+    if((d.prereqs||[]).some(x=>NC(x)===NC(c.code))){
+      const di=termIdx(d.term);
+      if(ti>di)bump('bad');else if(ti===di)bump('warn');
+    }
+  });
+  if(c.term!==targetTermId){
+    const t=termOf(targetTermId);
+    if(t&&t.status!=='done'){
+      const add=(S.settings.capOwn&&outside(c))?0:c.credits;
+      if(loadOf(targetTermId)+add>(S.settings.maxLoad||18))bump('warn');
+    }
+  }
+  return sev;
+}
+function groupTermsByYear(terms){
+  const years=[];
+  terms.forEach(t=>{
+    const nm=String(t.name||'');
+    const isFall=/^fall/i.test(nm),isSummer=/^sum/i.test(nm);
+    const cur=years[years.length-1];
+    if(!cur||isFall){years.push({terms:[t]});return}
+    if(isSummer||cur.terms.length<2){cur.terms.push(t);return}
+    years.push({terms:[t]});
+  });
+  return years;
+}
+function gcard(c,P){
+  P=P||{colorBy:'status'};
   const is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c);
-  return`<div class="cc ${status(c)} ${is.length?'warn':''}" draggable="true" data-drag="${c.id}" data-a="open" data-id="${c.id}" title="${is.length?'A prerequisite is not finished before this course':'Drag to another term, or tap to edit'}"><div class="t1"><span class="code">${esc(c.code)}</span><span class="mono small" style="font-size:11px;color:var(--muted)">${c.credits} cr${l?' · <b style="color:var(--ink)">'+esc(l)+'</b>':''}</span></div><div class="t2">${esc(c.title)}</div></div>`;
+  const gcls=P.colorBy==='grade'&&l?('g-'+(gradeCls(l)||'')):'';
+  const catStyle=P.colorBy==='cat'?` style="border-left:3.5px solid ${esc(catColor(c.cat))};border-left-style:solid"`:'';
+  const cls=P.colorBy==='status'?status(c):gcls;
+  const mv=U.moveCourseId===c.id?'moving':'';
+  const tip=(c.title||'')+(is.length?' · Prerequisite order warning':'')+' · Drag or click to open';
+  return`<div class="cc ${cls} ${is.length?'warn':''} ${mv}"${catStyle} draggable="true" data-drag="${c.id}" data-a="open" data-id="${c.id}" title="${esc(tip)}"><div class="t1"><span class="code">${esc(c.code)}</span><span class="row" style="gap:3px;flex-wrap:nowrap"><span class="mono small" style="font-size:11px;color:var(--muted)">${c.credits}${l?' · <b style="color:var(--ink)">'+esc(l)+'</b>':''}</span><button type="button" class="cc-mv" data-a="startmove" data-id="${c.id}" title="Move to another term" aria-label="Move ${esc(c.code)}">⇄</button></span></div><div class="t2">${esc(c.title)}</div></div>`;
+}
+function termBoxHtml(t,P,isYear){
+  const maxLoad=S.settings.maxLoad||18;
+  const cs=S.courses.filter(c=>c.term===t.id),cr=loadOf(t.id),all=termCredits(t.id),g=termGpa(t);
+  const over=cr>maxLoad&&t.status!=='done',barW=Math.min(100,cr/maxLoad*100);
+  const mvBtn=U.moveCourseId?`<button type="button" class="btn sm mv-here mv-${canDropTerm(U.moveCourseId,t.id)}" data-a="moveto" data-term="${t.id}">Place</button>`:'';
+  const cardsCls=isYear?'term-cards':'';
+  return`<div class="term ${isYear?'term-yr':''}" data-drop="${t.id}"><header><b>${esc(t.name)}</b><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="mono small" style="color:var(--${over?'warn':'muted'})">${cr}${all>cr?`+${all-cr}`:''}/${maxLoad} cr</span>${mvBtn}</span></header>
+  <div class="bar" style="height:4px;margin-bottom:8px"><i class="${over?'w':t.status==='done'?'d':''}" style="width:${barW}%"></i></div>
+  <div class="row" style="margin:0 0 8px;gap:5px"><span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>${g.gpa!=null?`<span class="pill">GPA ${fmt(g.gpa)}</span>`:''}</div>
+  <div class="${cardsCls}">${cs.map(c=>gcard(c,P)).join('')||'<div class="small muted" style="padding:12px 4px;text-align:center;border:1px dashed var(--line);border-radius:8px">Drop courses here</div>'}</div></div>`;
+}
+function catalogTrayHtml(cat,P){
+  const catCr=cat.reduce((a,c)=>a+c.credits,0);
+  const open=!!(P.trayOpen||U.moveCourseId);
+  if(!open){
+    return`<div class="cat-bar" data-drop=""><div class="row" style="gap:8px"><b>Catalog</b><span class="pill">${cat.length} unscheduled · ${catCr} cr</span><span class="small muted">Drop a course here to unschedule</span></div><button type="button" class="btn sm" data-a="toggletray">Open catalog</button></div>`;
+  }
+  const q=(U.catQ||'').trim().toLowerCase(),ck=U.catCat||'';
+  const shown=cat.filter(c=>(!ck||c.cat===ck)&&(!q||(c.code+' '+c.title).toLowerCase().includes(q)));
+  const mvBtn=U.moveCourseId?`<button type="button" class="btn sm mv-here mv-ok" data-a="moveto" data-term="">Place in Catalog</button>`:'';
+  return`<div class="cat-tray" data-drop=""><div class="cat-tray-head"><div class="row" style="gap:8px"><b>Catalog</b><span class="pill">${cat.length} unscheduled · ${catCr} cr</span>${mvBtn}</div><div class="row" style="gap:8px"><input type="search" id="cat-q" data-c="catq" value="${esc(U.catQ||'')}" placeholder="Search catalog…" style="width:170px;padding:4px 9px;font-size:13px"><select class="sel-pill" data-c="catcat" aria-label="Filter category"><option value="">All categories</option>${S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${ck===k.k?'selected':''}>${esc(k.n)}</option>`).join('')}</select><button type="button" class="btn ghost sm" data-a="toggletray">Hide</button></div></div>
+  <div class="term-cards">${shown.map(c=>gcard(c,P)).join('')||'<div class="small muted" style="padding:12px;grid-column:1/-1;text-align:center">No matching unscheduled courses.</div>'}</div></div>`;
+}
+function vGridYears(terms,cat,P){
+  const years=groupTermsByYear(terms);
+  const densCls=P.density==='mini'?'dens-mini':P.density==='comfort'?'':'dens-compact';
+  const body=years.map((yr,idx)=>{
+    const yts=yr.terms,ycs=yts.flatMap(t=>S.courses.filter(c=>c.term===t.id));
+    const ycr=ycs.reduce((a,c)=>a+c.credits,0),yg=gpaOf(ycs,yts.some(t=>t.status==='current'));
+    const allDone=yts.every(t=>t.status==='done'),isCur=yts.some(t=>t.status==='current');
+    const exp=U.expandedYears&&U.expandedYears[idx];
+    if(P.collapseDone&&allDone&&!exp){
+      return`<div class="year-collapsed"><div class="row" style="gap:8px"><b>Year ${idx+1}</b><span class="pill good">finished</span><span class="small muted">${yts.map(t=>esc(t.name)).join(' · ')}</span><span class="mono small muted">${ycr} cr${yg.gpa!=null?' · GPA '+fmt(yg.gpa):''}</span></div><div class="row" style="gap:6px">${yts.map(t=>`<span class="pill" data-drop="${t.id}" title="Drop onto ${esc(t.name)}">${esc(t.name)}</span>`).join('')}<button type="button" class="btn sm ghost" data-a="expandyear" data-i="${idx}">Expand</button></div></div>`;
+    }
+    return`<section class="year-block"><div class="year-head"><div class="row" style="gap:8px"><h3 style="font-size:15px">Year ${idx+1}</h3>${isCur?'<span class="pill acc">current year</span>':allDone?'<span class="pill good">finished</span>':''}<span class="mono small muted">${ycr} cr${yg.gpa!=null?' · GPA '+fmt(yg.gpa):''}</span></div>${P.collapseDone&&allDone?`<button type="button" class="btn sm ghost" data-a="expandyear" data-i="${idx}">Collapse</button>`:''}</div><div class="year-terms">${yts.map(t=>termBoxHtml(t,P,true)).join('')}</div></section>`;
+  }).join('');
+  return catalogTrayHtml(cat,P)+`<div class="years-wrap ${densCls}">${body}</div>`;
+}
+function vGridTimeline(terms,cat,P){
+  const done=terms.filter(t=>t.status==='done');
+  const shown=P.collapseDone?terms.filter(t=>t.status!=='done'):terms;
+  const effDens=P.density==='auto'?(shown.length>=7?'compact':'comfort'):P.density;
+  const doneStrip=P.collapseDone&&done.length?`<div class="cat-bar" style="border-style:solid;margin-bottom:12px"><div class="row" style="gap:8px"><span class="small muted"><b>Finished:</b></span>${done.map(t=>{const g=termGpa(t);return`<span class="pill good" data-drop="${t.id}">${esc(t.name)} · ${loadOf(t.id)} cr${g.gpa!=null?' · '+fmt(g.gpa):''}</span>`}).join('')}</div><button type="button" class="btn sm ghost" data-a="plancfg" data-f="collapseDone" data-v="0">Show all</button></div>`:'';
+  const grid=shown.length?`<div class="termwrap timeline dens-${effDens}" style="grid-template-columns:repeat(${shown.length},minmax(134px,1fr))">${shown.map(t=>termBoxHtml(t,P,false)).join('')}</div>`:'<div class="empty">All terms are finished and collapsed. Click "Show all" above to view them.</div>';
+  return catalogTrayHtml(cat,P)+doneStrip+grid;
 }
 function vGrid(){
   if(!S.terms.length)return head('Four years','Every term at a glance.')+setupPanel();
-  const cat=S.courses.filter(c=>!termOf(c.term)),maxLoad=S.settings.maxLoad||18;
-  const cols=S.terms.map(t=>{const cs=S.courses.filter(c=>c.term===t.id),cr=loadOf(t.id),all=termCredits(t.id),g=termGpa(t);
-    const over=cr>maxLoad&&t.status!=='done';
-    const barW=Math.min(100,cr/maxLoad*100);
-    return`<div class="term" data-drop="${t.id}"><header><b>${esc(t.name)}</b><span class="mono small" style="color:var(--${over?'warn':'muted'})">${cr}${all>cr?`+${all-cr}`:''}/${maxLoad} cr</span></header>
-    <div class="bar" style="height:4px;margin-bottom:10px"><i class="${over?'w':t.status==='done'?'d':''}" style="width:${barW}%"></i></div>
-    <div class="row" style="margin:0 0 10px;gap:6px"><span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>${g.gpa!=null?`<span class="pill">GPA ${fmt(g.gpa)}</span>`:''}</div>${cs.map(gcard).join('')}${cs.length?'':'<div class="small muted" style="padding:14px 4px;text-align:center;border:1px dashed var(--line);border-radius:8px">Drop courses here</div>'}</div>`}).join('');
+  const P=(S.ui&&S.ui.plan)||{layout:'years',density:'auto',colorBy:'status',collapseDone:false,trayOpen:false};
+  const cat=S.courses.filter(c=>!termOf(c.term));
   const tot=S.courses.filter(c=>termOf(c.term)&&counts(c)).reduce((a,c)=>a+c.credits,0);
-  return head('Four years','Drag a course to move it between terms. On a phone, tap a course and pick its term. A dashed outline means a prerequisite is not finished before that course.',`<span class="pill acc">${tot} of ${S.settings.totalCredits} credits placed</span>`)+
-  `<div class="termwrap"><div class="term" data-drop=""><header><b>Catalog</b><span class="mono small muted">${cat.reduce((a,c)=>a+c.credits,0)} cr</span></header><div class="small muted" style="margin:-2px 0 10px">Not in a term yet</div>${cat.map(gcard).join('')||'<div class="small muted" style="padding:14px 4px;text-align:center;border:1px dashed var(--line);border-radius:8px">Nothing waiting</div>'}</div>${cols}</div>`;
+  const laySeg=`<div class="seg" role="group" aria-label="Grid layout">${[['years','Years'],['timeline','Timeline']].map(([k,l])=>`<button type="button" class="${P.layout===k?'on':''}" data-a="plancfg" data-f="layout" data-v="${k}">${l}</button>`).join('')}</div>`;
+  const densSeg=`<div class="seg" role="group" aria-label="Card density">${[['auto','Auto'],['comfort','Comfort'],['compact','Compact'],['mini','Mini']].map(([k,l])=>`<button type="button" class="${P.density===k?'on':''}" data-a="plancfg" data-f="density" data-v="${k}">${l}</button>`).join('')}</div>`;
+  const colorSel=`<select class="sel-pill" data-c="plancfg" data-f="colorBy" aria-label="Color cards by">${[['status','Color: Status'],['cat','Color: Category'],['grade','Color: Grade']].map(([k,l])=>`<option value="${k}" ${P.colorBy===k?'selected':''}>${l}</option>`).join('')}</select>`;
+  const bar=`<div class="grid-bar"><div class="grid-bar-grp">${laySeg}${densSeg}${colorSel}<button type="button" class="btn sm ${P.collapseDone?'soft':''}" data-a="plancfg" data-f="collapseDone" data-v="${P.collapseDone?'0':'1'}">${P.collapseDone?'Show finished':'Collapse done'}</button></div><div class="grid-bar-grp"><button type="button" class="btn sm ${P.trayOpen?'soft':''}" data-a="toggletray">Catalog (${cat.length})</button><span class="pill acc">${tot} / ${S.settings.totalCredits} cr</span></div></div>`;
+  const mc=U.moveCourseId?getC(U.moveCourseId):null;
+  const mvBar=mc?`<div class="move-bar"><span>Moving <b>${esc(mc.code)}</b> — tap <b>Place</b> on a term</span><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="moveto" data-term="">Move to Catalog</button><button type="button" class="btn sm ghost" data-a="cancelmove">Cancel</button></div></div>`:'';
+  return bar+(P.layout==='timeline'?vGridTimeline(S.terms,cat,P):vGridYears(S.terms,cat,P))+mvBar;
 }

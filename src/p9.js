@@ -56,13 +56,15 @@ const WEB_HOST=IS_WEB?{
 const HOST=DESKTOP_HOST||WEB_HOST;
 
 const hostCanvasCard=()=>DESKTOP_HOST?`<div class="card" style="margin-bottom:16px"><h2>Sign in and sync</h2><p class="small muted" style="margin:-6px 0 12px">Atlas opens ${esc(HC.canvasUrl||'your Canvas')} in its own window. Sign in the way you normally do. Atlas then reads your courses, scores and due dates, and the window closes. Your password is never stored.</p><div class="row"><button class="btn primary" data-a="hostcanvas">${U.hostBusy==='canvas'?'Waiting for you to sign in…':'Sign in to Canvas'}</button></div></div>`:'';
-const hostCard=()=>`<div class="sec"><h2>This computer</h2><div class="card">
+const hostCard=()=>`<div class="sec"><h2>This computer &amp; server sync</h2><div class="card">
   <div class="small muted" style="margin-bottom:12px">Your plan is saved in a file on this computer, with a backup copy kept at most once an hour.<br><span class="mono">${esc(HC.dataPath||'')}</span></div>
   <div class="row" style="margin-bottom:18px"><button class="btn" data-a="hostfolder">Open the data folder</button></div>
-  <h3 style="margin-bottom:8px">Portals</h3>
-  <div class="fgrid"><label class="f"><span>Canvas address</span><input data-c="hostcfg" data-f="canvasUrl" value="${esc(HC.canvasUrl||'')}" placeholder="https://hulms.instructure.com"></label><label class="f"><span>PSCS address</span><input data-c="hostcfg" data-f="pscsUrl" value="${esc(HC.pscsUrl||'')}" placeholder="https://…"></label><label class="f"><span>Simple Syllabus address</span><input data-c="hostcfg" data-f="syllabusUrl" value="${esc(HC.syllabusUrl||'')}" placeholder="https://…"></label></div>
-  <div class="row" style="margin-top:12px;flex-wrap:wrap"><button class="btn" data-a="hostopen" data-v="pscs">Open PSCS</button><button class="btn" data-a="hostopen" data-v="syllabus">Open Simple Syllabus</button><button class="btn" data-a="hostreport" data-v="pscs">Save a PSCS page report</button><button class="btn" data-a="hostreport" data-v="syllabus">Save a Simple Syllabus page report</button></div>
-  <p class="small muted" style="margin:10px 0 0">A page report lists the headings, tables, buttons and fields on the page you have open in that window, plus the text on it. It is how new importers get written. It can contain your grades or name, so read it and remove anything private before sharing it.</p></div></div>`;
+  <h3 style="margin-bottom:8px">Starserver sync</h3>
+  <div class="fgrid" style="margin-bottom:12px"><label class="f"><span>Sync server URL</span><input data-c="hostcfg" data-f="serverUrl" value="${esc(HC.serverUrl||'')}" placeholder="https://starserver.tailbf777f.ts.net/atlas"></label></div>
+  <div class="row" style="margin-bottom:18px"><button class="btn soft" data-a="hostserversync">Sync with server now</button><span class="small muted">${HC.updatedAt?'Last server timestamp: '+esc(new Date(HC.updatedAt).toLocaleString()):'Optional — syncs desktop & phone automatically'}</span></div>
+  <h3 style="margin-bottom:8px">Portal page reports</h3>
+  <div class="row" style="margin-top:8px;flex-wrap:wrap"><button class="btn" data-a="hostopen" data-v="pscs">Open PSCS</button><button class="btn" data-a="hostopen" data-v="syllabus">Open Simple Syllabus</button><button class="btn" data-a="hostreport" data-v="pscs">Save a PSCS page report</button><button class="btn" data-a="hostreport" data-v="syllabus">Save a Simple Syllabus page report</button></div>
+  <p class="small muted" style="margin:10px 0 0">A page report lists the headings, tables, buttons and fields on the page you have open in that window, plus the text on it. Field values are excluded, though table text may show grades or names.</p></div></div>`;
 
 const fmtBackupOpt=b=>{
   const dt=b.mtimeMs?new Date(b.mtimeMs).toLocaleString():b.name;
@@ -85,17 +87,70 @@ const webServerCard=()=>{
 };
 
 if(DESKTOP_HOST){
+  const _origSave=DESKTOP_HOST.save.bind(DESKTOP_HOST);
+  DESKTOP_HOST.save=async function(text,force){
+    await _origSave(text);
+    if(HC.serverUrl&&DESKTOP_HOST.serverSync){
+      const r=await DESKTOP_HOST.serverSync({method:'POST',body:text,base:HC.updatedAt||0,force:!!force});
+      if(r&&r.conflict){
+        U.conflict={data:r.data,updatedAt:r.updatedAt};
+        setSync('Conflict — newer save on server');render();return false;
+      }
+      if(r&&r.ok&&r.updatedAt)HC.updatedAt=r.updatedAt;
+    }
+    return true;
+  };
   Object.assign(ACT2,{
     async hostcanvas(){if(U.hostBusy)return;U.hostBusy='canvas';U.cvErr='';render();
-      try{U.cvText=await DESKTOP_HOST.canvasExport();U.hostBusy='';ACT2.cvread()}
+      try{const raw=await DESKTOP_HOST.canvasExport();U.hostBusy='';handleIncomingImport(raw)}
       catch(e){U.hostBusy='';U.cvErr=String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,'');render()}},
+    async hostserversync(){
+      if(!HC.serverUrl)return toast('Set your server URL first');
+      try{
+        const j=await DESKTOP_HOST.serverSync({method:'GET'});
+        if(j&&j.ok&&j.data&&(!HC.updatedAt||j.updatedAt>HC.updatedAt)){
+          HC.updatedAt=j.updatedAt;
+          const o=JSON.parse(j.data);
+          if(o&&Array.isArray(o.terms)&&!o.sample){adopt(o);await _origSave(JSON.stringify(S));try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}render();return toast('Pulled newer plan from server')}
+        }
+        const p=await DESKTOP_HOST.serverSync({method:'POST',body:JSON.stringify(S),base:HC.updatedAt||0});
+        if(p&&p.conflict){U.conflict={data:p.data,updatedAt:p.updatedAt};setSync('Conflict — newer save on server');render();return}
+        if(p&&p.ok){HC.updatedAt=p.updatedAt||Date.now();setSync('Synced with server');toast('Synced with server')}
+        else toast((p&&p.error)||'Could not sync with server');
+      }catch(e){toast('Could not reach server')}
+    },
+    conflictTheirs(){
+      if(!U.conflict)return;
+      try{
+        const o=JSON.parse(U.conflict.data);
+        if(o&&Array.isArray(o.terms)){
+          HC.updatedAt=U.conflict.updatedAt||Date.now();U.conflict=null;adopt(o);
+          _origSave(JSON.stringify(S)).catch(()=>{});
+          try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+          setSync('Synced with server');render();toast('Loaded newer plan from server');
+        }
+      }catch(e){toast('Could not load server plan')}
+    },
+    async conflictMine(){
+      if(!U.conflict)return;
+      const ok=await DESKTOP_HOST.save(JSON.stringify(S),true);
+      if(ok){U.conflict=null;setSync('Synced with server');render();toast('Kept your changes and pushed to server')}
+    },
     hostopen(e,d){DESKTOP_HOST.openPortal(d.v).catch(x=>toast(String((x&&x.message)||x).replace(/^Error invoking remote method '[^']*': (Error: )?/,'')))},
     hostreport(e,d){DESKTOP_HOST.pageReport(d.v).then(r=>toast(r&&r.saved?'Report saved':'Nothing was saved'),x=>toast(String((x&&x.message)||x).replace(/^Error invoking remote method '[^']*': (Error: )?/,'')))},
     hostfolder(){DESKTOP_HOST.openDataFolder()},
   });
-  Object.assign(CHG2,{hostcfg(e,d,v){HC[d.f]=v.trim();DESKTOP_HOST.setConfig({[d.f]:v.trim()}).then(c=>{HC=c})}});
+  Object.assign(CHG2,{hostcfg(e,d,v){HC[d.f]=v.trim();DESKTOP_HOST.setConfig({[d.f]:v.trim()}).then(c=>{HC=c}).catch(err=>toast(err&&err.message||'Invalid URL'))}});
   window.addEventListener('beforeunload',()=>{if(U.touched&&DESKTOP_HOST.saveSync)try{DESKTOP_HOST.saveSync(JSON.stringify(S))}catch(e){}});
-  const _vs=vSettings;vSettings=function(){return _vs()+hostCard()};
+  setTimeout(async()=>{
+    if(HC.serverUrl&&DESKTOP_HOST.serverSync){
+      try{const j=await DESKTOP_HOST.serverSync({method:'GET'});if(j&&j.ok){if(!HC.updatedAt)HC.updatedAt=j.updatedAt||0;if(j.data&&j.updatedAt>HC.updatedAt&&!U.touched){const o=JSON.parse(j.data);if(o&&Array.isArray(o.terms)&&!o.sample){HC.updatedAt=j.updatedAt;adopt(o);await _origSave(JSON.stringify(S));render()}}}}catch(e){}
+    }
+    if(S.ui&&S.ui.modules&&S.ui.modules.canvas!==false&&DESKTOP_HOST.canvasSilent){
+      try{const r=await DESKTOP_HOST.canvasSilent();if(r&&r.ok&&r.data&&typeof cvAutoSync==='function')cvAutoSync(r.data)}catch(e){}
+    }
+  },2500);
+  const _vs=vSettings;vSettings=function(){return _vs()+((U.setTab==='data')?hostCard():'')};
 }else if(WEB_HOST){
   if(typeof navigator!=='undefined'&&'serviceWorker' in navigator){
     try{navigator.serviceWorker.register((WEB_BASE||'')+'/sw.js').catch(()=>{})}catch(e){}
@@ -160,5 +215,5 @@ if(DESKTOP_HOST){
     }catch(e){}
   });
   window.addEventListener('beforeunload',()=>{if(U.touched&&WEB_HOST.saveSync)try{WEB_HOST.saveSync(JSON.stringify(S))}catch(e){}});
-  const _vs=vSettings;vSettings=function(){return _vs()+webServerCard()};
+  const _vs=vSettings;vSettings=function(){return _vs()+((U.setTab==='data')?webServerCard():'')};
 }

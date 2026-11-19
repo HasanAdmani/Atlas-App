@@ -8,7 +8,9 @@ contextBridge.exposeInMainWorld('atlasHost', {
   setConfig: (patch) => ipcRenderer.invoke('cfg:set', patch),
   saveFile: (name, data) => ipcRenderer.invoke('file:save', name, data),
   openDataFolder: () => ipcRenderer.invoke('folder:open'),
-  openPortal: (source) => ipcRenderer.invoke('portal:open', source),
+  openPortal: (source, url) => ipcRenderer.invoke('portal:open', url ? { id: source, url } : source),
   canvasExport: () => ipcRenderer.invoke('canvas:export'),
+  canvasSilent: () => ipcRenderer.invoke('canvas:silent'),
+  serverSync: (opts) => ipcRenderer.invoke('server:sync', opts),
   pageReport: (source) => ipcRenderer.invoke('portal:report', source),
 });

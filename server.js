@@ -27,7 +27,47 @@ const MIME = {
   '.png': 'image/png',
   '.ico': 'image/x-icon',
   '.csv': 'text/csv; charset=utf-8',
+  '.ics': 'text/calendar; charset=utf-8',
 };
+
+function icsEsc(s) {
+  return String(s == null ? '' : s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n');
+}
+function buildCalendarIcs(S) {
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Atlas Degree Planner//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:Atlas (' + icsEsc((S.settings && S.settings.name) || 'Degree Plan') + ')',
+  ];
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z');
+  const termById = {};
+  (S.terms || []).forEach((t) => { termById[t.id] = t; });
+  (S.courses || []).forEach((c) => {
+    const t = termById[c.term];
+    if (t && t.status === 'done') return;
+    (c.assess || []).forEach((g) => {
+      (g.items || []).forEach((it) => {
+        const due = String(it.due || '').slice(0, 10);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(due)) return;
+        const dt = due.replace(/-/g, '');
+        const statusTxt = it.s != null ? `Scored ${it.s}/${it.m}` : (it.st || 'Upcoming');
+        lines.push(
+          'BEGIN:VEVENT',
+          'UID:atlas-due-' + (it.id || Math.random().toString(36).slice(2)) + '@atlas',
+          'DTSTAMP:' + stamp,
+          'DTSTART;VALUE=DATE:' + dt,
+          'SUMMARY:' + icsEsc(`${c.code}: ${it.n}`),
+          'DESCRIPTION:' + icsEsc(`${c.code} — ${c.title}\nGroup: ${g.n} (${g.w}%)\nStatus: ${statusTxt}`),
+          'END:VEVENT'
+        );
+      });
+    });
+  });
+  return lines.concat(['END:VCALENDAR']).join('\r\n') + '\r\n';
+}
 
 function writeAtomic(file, text) {
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -205,6 +245,20 @@ function handleApi(req, res, reqPath, query) {
       'Cache-Control': 'no-cache',
     });
     return res.end(csv);
+  }
+
+  if (req.method === 'GET' && reqPath === '/api/calendar.ics') {
+    let parsed = { settings: {}, terms: [], courses: [] };
+    if (fs.existsSync(DATA_FILE)) {
+      try { parsed = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); } catch (e) {}
+    }
+    const ics = buildCalendarIcs(parsed);
+    res.writeHead(200, {
+      'Content-Type': 'text/calendar; charset=utf-8',
+      'Content-Disposition': 'inline; filename="atlas-calendar.ics"',
+      'Cache-Control': 'no-cache',
+    });
+    return res.end(ics);
   }
 
   return sendJson(res, 404, { ok: false, error: 'API route not found' });
