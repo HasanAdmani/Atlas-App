@@ -411,17 +411,186 @@
     },
     {
       "id": "c0016",
-      "code": "CORE 2XX",
-      "title": "Natural Science Lab / Elective",
+      "code": "ENVS SDP 251",
+      "title": "Water: Science, Society, and Policy",
       "credits": 3,
       "term": "t3",
       "cat": "core",
       "prereqs": [],
       "coreqs": [],
       "grade": null,
-      "assess": [],
-      "notes": "Habib Liberal Core Natural Science requirement",
-      "instructor": ""
+      "assess": [
+        {
+          "id": "vws8nrz",
+          "n": "Water footprint journal",
+          "type": "Assignment",
+          "w": 15,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "r1nvge6",
+              "n": "Water footprint journal",
+              "s": null,
+              "m": 15,
+              "due": "2026-10-02",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "mkzw9jq",
+          "n": "Assignment",
+          "type": "Assignment",
+          "w": 10,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "918s763",
+              "n": "Word problem assignment",
+              "s": null,
+              "m": 10,
+              "due": "2026-11-15",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "hcab4mm",
+          "n": "Discussion groups",
+          "type": "Assignment",
+          "w": 20,
+          "cnt": 2,
+          "drop": 0,
+          "items": [
+            {
+              "id": "801l8xt",
+              "n": "Global water perspective (DG1)",
+              "s": null,
+              "m": 10,
+              "due": "2026-10-15",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "qdzwea0",
+              "n": "Current water issues (DG2)",
+              "s": null,
+              "m": 10,
+              "due": "2026-11-17",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "m2dnk0w",
+          "n": "Quizzes",
+          "type": "Quiz",
+          "w": 20,
+          "cnt": 4,
+          "drop": 0,
+          "items": [
+            {
+              "id": "x785erm",
+              "n": "Quiz 1",
+              "s": null,
+              "m": 5,
+              "due": "2026-09-10",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "gqtosec",
+              "n": "Quiz 2",
+              "s": null,
+              "m": 5,
+              "due": "2026-10-08",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "2ypxjua",
+              "n": "Quiz 3",
+              "s": null,
+              "m": 5,
+              "due": "2026-11-12",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "hpq6gs6",
+              "n": "Quiz 4",
+              "s": null,
+              "m": 5,
+              "due": "2026-11-26",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "0ygmi5u",
+          "n": "Lab day",
+          "type": "Lab",
+          "w": 5,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "pdvum20",
+              "n": "Lab day results",
+              "s": null,
+              "m": 5,
+              "due": "2026-09-21",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "gcokg1z",
+          "n": "Research project",
+          "type": "Project",
+          "w": 30,
+          "cnt": 3,
+          "drop": 0,
+          "items": [
+            {
+              "id": "kt83bte",
+              "n": "Proposal",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "7gwo5s5",
+              "n": "Mid semester presentation",
+              "s": null,
+              "m": 5,
+              "due": "2026-10-22",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "7gx0uxq",
+              "n": "Final presentation and report",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        }
+      ],
+      "notes": "Counts as the Natural Science elective in the Habib Liberal Core. No final exam. Late work loses 20% per day.",
+      "instructor": "Hadiqa Maqsood"
     },
     {
       "id": "c0017",
@@ -435,9 +604,141 @@
       ],
       "coreqs": [],
       "grade": null,
-      "assess": [],
-      "notes": "Systems Theory requirement (3-1)",
-      "instructor": ""
+      "assess": [
+        {
+          "id": "39wtal1",
+          "n": "Quizzes",
+          "type": "Quiz",
+          "w": 20,
+          "cnt": 4,
+          "drop": 0,
+          "items": [
+            {
+              "id": "o0jvsub",
+              "n": "Quiz 1",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-24",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "wp03ijm",
+              "n": "Quiz 2",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-05",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "k7cqjc4",
+              "n": "Quiz 3",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "dcq0t2d",
+              "n": "Quiz 4",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "9woo3g5",
+          "n": "Assignments",
+          "type": "Assignment",
+          "w": 10,
+          "cnt": 2,
+          "drop": 0,
+          "items": [
+            {
+              "id": "d1c6spv",
+              "n": "Homework 1",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-16",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "gtqxjkl",
+              "n": "Homework 2",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-27",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "ebkbp8j",
+          "n": "Midterm",
+          "type": "Midterm",
+          "w": 25,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "35ybhud",
+              "n": "Midterm",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "d06ruby",
+          "n": "Course project",
+          "type": "Project",
+          "w": 15,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "oxi3jw5",
+              "n": "Course project",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "gtxo2eo",
+          "n": "Final exam",
+          "type": "Final",
+          "w": 30,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "ptkmmvp",
+              "n": "Final exam",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        }
+      ],
+      "notes": "Late work loses 4% per day, and nothing is accepted after five days.",
+      "instructor": "Syed Arsalan Jawed"
     },
     {
       "id": "c0018",
@@ -451,9 +752,156 @@
         "EE 252"
       ],
       "grade": null,
-      "assess": [],
-      "notes": "Systems Theory lab",
-      "instructor": ""
+      "assess": [
+        {
+          "id": "jmpshcu",
+          "n": "Labs",
+          "type": "Lab",
+          "w": 60,
+          "cnt": 12,
+          "drop": 0,
+          "items": [
+            {
+              "id": "9qwejqk",
+              "n": "Lab 1",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-02",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "d52x2en",
+              "n": "Lab 2",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-09",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "8nag8x7",
+              "n": "Lab 3",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-16",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "msicbj5",
+              "n": "Lab 4",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-23",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "13akpr1",
+              "n": "Lab 5",
+              "s": null,
+              "m": 80,
+              "due": "2026-09-30",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "jqyd4gs",
+              "n": "Lab 6",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-07",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "zc61kgm",
+              "n": "Lab 7",
+              "s": null,
+              "m": 70,
+              "due": "2026-10-14",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "w76ti76",
+              "n": "Lab 8",
+              "s": null,
+              "m": 80,
+              "due": "2026-10-21",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "2apr8i1",
+              "n": "Lab 9",
+              "s": null,
+              "m": 80,
+              "due": "2026-10-22",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "lse6gtq",
+              "n": "Lab 10 part 1",
+              "s": null,
+              "m": 100,
+              "due": "2026-11-05",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "p0qzd14",
+              "n": "Lab 10 complete",
+              "s": null,
+              "m": 120,
+              "due": "2026-11-12",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "rjq4jg0",
+              "n": "Lab 11",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "oknp5pv",
+          "n": "Lab exams",
+          "type": "Final",
+          "w": 40,
+          "cnt": 2,
+          "drop": 0,
+          "items": [
+            {
+              "id": "b15mjf1",
+              "n": "Mid-lab exam",
+              "s": null,
+              "m": 50,
+              "due": "2026-10-29",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "06upgra",
+              "n": "Final lab exam",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        }
+      ],
+      "notes": "Labs 1 to 12 count 5% each. The lab exam is in week 14.",
+      "instructor": "Zareen Tabassum"
     },
     {
       "id": "c0019",
@@ -467,9 +915,159 @@
       ],
       "coreqs": [],
       "grade": null,
-      "assess": [],
-      "notes": "Digital Systems requirement (3-1)",
-      "instructor": ""
+      "assess": [
+        {
+          "id": "1l9n3uo",
+          "n": "Assignments",
+          "type": "Assignment",
+          "w": 20,
+          "cnt": 4,
+          "drop": 0,
+          "items": [
+            {
+              "id": "w96vrrn",
+              "n": "Assignment 1",
+              "s": null,
+              "m": 5,
+              "due": "2026-09-07",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "j5m414e",
+              "n": "Assignment 2",
+              "s": null,
+              "m": 5,
+              "due": "2026-09-28",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "9b3dqth",
+              "n": "Assignment 3",
+              "s": null,
+              "m": 5,
+              "due": "",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "p7mf97z",
+              "n": "Assignment 4",
+              "s": null,
+              "m": 5,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "5p0blc8",
+          "n": "Quizzes",
+          "type": "Quiz",
+          "w": 20,
+          "cnt": 4,
+          "drop": 0,
+          "items": [
+            {
+              "id": "n5hiqju",
+              "n": "Quiz 1",
+              "s": null,
+              "m": 5,
+              "due": "2026-09-07",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "mv81i9r",
+              "n": "Quiz 2",
+              "s": null,
+              "m": 5,
+              "due": "",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "ysrqa9b",
+              "n": "Quiz 3",
+              "s": null,
+              "m": 5,
+              "due": "2026-10-09",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "ibzwqpe",
+              "n": "Quiz 4",
+              "s": null,
+              "m": 5,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "1kwl2ut",
+          "n": "Course project",
+          "type": "Project",
+          "w": 10,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "kdxaowo",
+              "n": "Course project",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "cjioo6s",
+          "n": "Midterm",
+          "type": "Midterm",
+          "w": 25,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "w8k49hw",
+              "n": "Midterm",
+              "s": null,
+              "m": 25,
+              "due": "2026-10-16",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "rytrcql",
+          "n": "Final exam",
+          "type": "Final",
+          "w": 25,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "i4lt6im",
+              "n": "Final exam",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        }
+      ],
+      "notes": "Late work loses 20% per day.",
+      "instructor": "Sarah Faisal, Husain Parvez"
     },
     {
       "id": "c0020",
@@ -483,9 +1081,148 @@
         "EE 371"
       ],
       "grade": null,
-      "assess": [],
-      "notes": "Digital Systems lab",
-      "instructor": ""
+      "assess": [
+        {
+          "id": "bibj8qk",
+          "n": "Lab experiments",
+          "type": "Lab",
+          "w": 60,
+          "cnt": 10,
+          "drop": 0,
+          "items": [
+            {
+              "id": "kvyql1r",
+              "n": "Lab 1",
+              "s": null,
+              "m": 100,
+              "due": "2026-08-27",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "gfhq8q9",
+              "n": "Lab 2",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-03",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "par65q6",
+              "n": "Lab 3",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-10",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "g7lahjt",
+              "n": "Lab 4",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-17",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "eemm1t5",
+              "n": "Lab 5",
+              "s": null,
+              "m": 100,
+              "due": "2026-09-24",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "3lqcb3x",
+              "n": "Lab 6",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-01",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "ytzcduj",
+              "n": "Lab 7",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-08",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "8g9zmhg",
+              "n": "Lab 8",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-20",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "9b6npn4",
+              "n": "Lab 9",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-23",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "s0suznv",
+              "n": "Lab 10",
+              "s": null,
+              "m": 100,
+              "due": "2026-10-30",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "1k1asgu",
+          "n": "Open ended lab",
+          "type": "Lab",
+          "w": 10,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "is782qp",
+              "n": "Open ended lab",
+              "s": null,
+              "m": 100,
+              "due": "2026-11-12",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "vpmjiok",
+          "n": "Project",
+          "type": "Project",
+          "w": 30,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "9woc6md",
+              "n": "Project",
+              "s": null,
+              "m": 100,
+              "due": "2026-11-26",
+              "st": "",
+              "late": false
+            }
+          ]
+        }
+      ],
+      "notes": "Late work loses 5% per day. The project is in groups of 3.",
+      "instructor": "Hadia Mahmood"
     },
     {
       "id": "c0021",
@@ -499,9 +1236,196 @@
       ],
       "coreqs": [],
       "grade": null,
-      "assess": [],
-      "notes": "Engineering Sciences & Computing (3-0)",
-      "instructor": ""
+      "assess": [
+        {
+          "id": "dw4p5fd",
+          "n": "Homework",
+          "type": "Assignment",
+          "w": 15,
+          "cnt": 5,
+          "drop": 0,
+          "items": [
+            {
+              "id": "ye6aa78",
+              "n": "Homework 1",
+              "s": null,
+              "m": 20,
+              "due": "2026-09-30",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "2osld11",
+              "n": "Homework 2",
+              "s": null,
+              "m": 20,
+              "due": "2026-10-20",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "nyi2m1i",
+              "n": "Homework 3",
+              "s": null,
+              "m": 20,
+              "due": "2026-11-23",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "7r808ko",
+              "n": "Homework 4",
+              "s": null,
+              "m": 20,
+              "due": "",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "5ews31c",
+              "n": "Homework 5",
+              "s": null,
+              "m": 20,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "gkhqqar",
+          "n": "Quizzes",
+          "type": "Quiz",
+          "w": 20,
+          "cnt": 10,
+          "drop": 2,
+          "items": [
+            {
+              "id": "4j07zj1",
+              "n": "Quiz 1",
+              "s": null,
+              "m": 10,
+              "due": "2026-09-11",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "7waotgl",
+              "n": "Quiz 2",
+              "s": null,
+              "m": 10,
+              "due": "2026-09-18",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "z8it8fq",
+              "n": "Quiz 3",
+              "s": null,
+              "m": 10,
+              "due": "2026-10-02",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "uroow3g",
+          "n": "Class participation",
+          "type": "Participation",
+          "w": 5,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "gwil77o",
+              "n": "Class participation",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "osivall",
+          "n": "Project",
+          "type": "Project",
+          "w": 5,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "tx2crso",
+              "n": "Project",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "cyqrzji",
+          "n": "Tests",
+          "type": "Midterm",
+          "w": 30,
+          "cnt": 3,
+          "drop": 0,
+          "items": [
+            {
+              "id": "vh7e7pm",
+              "n": "Test 1",
+              "s": null,
+              "m": 30,
+              "due": "2026-10-10",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "44rg0qs",
+              "n": "Test 2",
+              "s": null,
+              "m": 30,
+              "due": "",
+              "st": "",
+              "late": false
+            },
+            {
+              "id": "pcolmtb",
+              "n": "Tests 3",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        },
+        {
+          "id": "6ik7w7x",
+          "n": "Final exam",
+          "type": "Final",
+          "w": 25,
+          "cnt": 1,
+          "drop": 0,
+          "items": [
+            {
+              "id": "3zsdpau",
+              "n": "Final exam",
+              "s": null,
+              "m": 100,
+              "due": "",
+              "st": "",
+              "late": false
+            }
+          ]
+        }
+      ],
+      "notes": "The best 8 quizzes count (n-2). Late work loses 10% per day.",
+      "instructor": "Rameez Ragheb"
     },
     {
       "id": "c0022",
