@@ -18,6 +18,7 @@ atlas-transcript.*
 
 # Historical archive and legacy reference folder
 _old/
+_Archive/
 
 # Operating system files
 .DS_Store

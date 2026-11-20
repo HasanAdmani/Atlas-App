@@ -63,11 +63,17 @@ Atlas-App/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or v20+ LTS recommended)
-- Windows (primary platform for portable builds)
+- [Node.js](https://nodejs.org/) (v18 or v20+ LTS recommended for running the desktop app)
+- Supported platforms: macOS, Windows, Linux
 
 ### Installation & Launch
 
+#### Method 1: Instant Offline Browser (Easiest — No Node.js Required)
+1. Download or clone this repository.
+2. Open the `app/` folder and double-click `index.html` in Safari, Chrome, or any browser.
+3. *On macOS*: In Safari, click **File → Add to Dock** to use it as a standalone desktop app in your Dock!
+
+#### Method 2: Native Desktop App (macOS & Windows via Electron)
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/HasanAdmani/Atlas-App.git
@@ -84,7 +90,7 @@ Atlas-App/
      ```bash
      npm start
      ```
-     *(Builds `app/index.html` from `src/` and launches Electron).*
+     *(Builds `app/index.html` from `src/` and launches a native desktop window on macOS or Windows).*
    - **Web / PWA Server (Phone & Browser Access)**:
      ```bash
      npm run serve
