@@ -113,6 +113,13 @@ The output file will be generated in `dist/` (e.g., `dist/Atlas 1.1.0.exe`).
 
 ## 🛠️ Usage Guide
 
+### Starter Plan (Habib University — EE Class of 2029)
+If you are an Electrical Engineering student (Class of 2029) at Habib University:
+1. Open Atlas (desktop or browser).
+2. Go to **Settings → Restore from a backup**.
+3. Select [`starter-ee-class-of-2029.json`](starter-ee-class-of-2029.json) from the repository root.
+4. Your complete 4-year curriculum (all 44 courses, 134 credits, prerequisites, corequisites, and Habib Liberal Core categories) will load instantly with a clean slate for you to enter your own grades and plan electives!
+
 ### Moving Data From Web Version / Backups
 - **Web to Desktop**: In the web version, go to **Settings → Download a backup**. In Atlas desktop, open **Settings → Restore from a backup** and select the `.json` file.
 - **Backup Locations**: Atlas automatically keeps rolling hourly backups under your operating system's `userData` folder. Click **Settings → This computer** to view or open the directory.
