@@ -8,7 +8,7 @@ let INNER=false;
 const cmdBtn=()=>`<button type="button" class="btn ghost sm cmd-trig" data-a="opencmd" title="Search & commands (Ctrl+K)">${ICONS.search}<span class="mono small">⌘K</span></button>`;
 const head=(t,sub,right)=>INNER
   ?`<div class="row between toolbar-inner" style="margin-bottom:14px;align-items:center;gap:10px">${sub?`<span class="small muted">${sub}</span>`:'<span></span>'}${right?`<div class="row" style="gap:8px">${right}</div>`:''}</div>`
-  :`<div class="head"><div class="head-left"><div class="row" style="gap:8px;align-items:center"><h1>${t}</h1>${sub?`<button type="button" class="btn ghost sm help-trig ${U.showHelp?'on':''}" data-a="togglehelp" title="About this page" aria-label="Page info">${ICONS.info}</button>`:''}</div>${U.route==='overview'&&sub?`<p class="sub">${sub}</p>`:''}</div><div class="row head-right" style="gap:8px">${right||''}${cmdBtn()}</div></div>${U.showHelp&&sub?`<div class="help-pop"><span>${sub}</span><button type="button" class="btn ghost sm" data-a="togglehelp" aria-label="Dismiss">✕</button></div>`:''}`;
+  :`<div class="head"><div class="head-left"><h1>${t}</h1>${(U.route==='overview'||U.route==='setup'||U.route==='tour')&&sub?`<p class="sub">${sub}</p>`:''}</div><div class="row head-right" style="gap:8px">${right||''}${cmdBtn()}</div></div>`;
 
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function dateBadge(iso,d){
@@ -82,81 +82,82 @@ function setupChecklist(onTour){
   </div>`;
 }
 function setupPanel(isGuide){
-  const y=new Date().getFullYear(),ds=getDossiers();
-  const fastTrack=`<div class="card kpi-card kpi-acc" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Fastest Start · Link Canvas Once</h2><span class="pill acc">Recommended</span></div>
-    <p class="sub" style="margin:0 0 14px">Don’t want to set up terms and courses by hand? Connect Canvas once and Atlas automatically creates your current term, courses, instructors, assignment groups, weights, and due dates.</p>
-    <div class="row" style="gap:8px;flex-wrap:wrap">
-      ${DESKTOP_HOST?`<button type="button" class="btn primary" data-a="quickcanvas">${U.hostBusy==='canvas'?'Waiting for Canvas sign-in…':'Sign in to Canvas & Build Plan'}</button>`:`<a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it once while signed into Canvas!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>`}
-      <a class="btn" href="#canvas">Open Sync &amp; Import</a>
-      <a class="btn soft" href="#tour">Interactive Tour →</a>
+  const y=new Date().getFullYear(),ds=getDossiers(),mode=U.welcomeMode||'';
+  const hero=!isGuide?`<div class="welcome-hero"><h1>Welcome to Atlas</h1><p>Pick one way to start — your grades, roadmap, and enrollment come together automatically.</p><div class="row" style="justify-content:center;margin-top:12px"><a class="btn sm soft" href="#tour">Take the 1-min Tour →</a></div></div>`:'';
+  const cards=`<div class="welcome-grid">
+    <div class="w-card featured">
+      <div><span class="pill acc">Recommended</span><h3>1-Click Portal Sync</h3><p class="small muted" style="margin:0">Sign in to Canvas &amp; PSCS normally, then let Atlas read your courses, scores, past grades, and live weekly schedule automatically (read-only, zero passwords).</p></div>
+      <div class="row" style="gap:6px">
+        ${DESKTOP_HOST?`<button type="button" class="btn primary sm" data-a="hostsyncall">${U.hostBusy?'Syncing portals…':'✦ Sync All (Canvas + PSCS)'}</button>`:`<a class="btn primary sm" href="#canvas">Set up 1-Click Sync →</a>`}
+        ${DESKTOP_HOST?`<button type="button" class="btn sm" data-a="quickcanvas">Canvas only</button>`:`<a class="btn sm" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it once on Canvas or PSCS!')">Bookmarklet</a>`}
+      </div>
+    </div>
+    <div class="w-card">
+      <div><span class="pill">4-year grid</span><h3>Load a Habib Dossier</h3><p class="small muted" style="margin:0">Start with an official EE or CS Class of 2029 curriculum grid with zero manual entry.</p></div>
+      <div class="row" style="gap:6px"><button type="button" class="btn ${mode==='dossier'?'primary':''} sm" data-a="welcomemode" data-v="${mode==='dossier'?'':'dossier'}">${mode==='dossier'?'Hide dossiers':'Choose dossier'}</button></div>
+    </div>
+    <div class="w-card">
+      <div><span class="pill">Any batch</span><h3>PSCS, Stellic, or Blank</h3><p class="small muted" style="margin:0">Paste your PSCS Course History, Stellic audit, or configure a custom degree for any university.</p></div>
+      <div class="row" style="gap:6px"><button type="button" class="btn ${mode==='import'?'primary':''} sm" data-a="welcomemode" data-v="${mode==='import'?'':'import'}">Paste export</button><button type="button" class="btn ghost sm" data-a="welcomemode" data-v="${mode==='custom'?'':'custom'}">Custom</button></div>
     </div>
   </div>`;
 
-  const pathA=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path A · Load from a University Dossier</h2><span class="pill">Full 4-year grid</span></div>
-    <p class="sub" style="margin:0 0 12px">Start with an official curriculum grid (no personal data or grades). Pick how many regular semesters you have already finished:</p>
-    <div class="row" style="margin-bottom:14px;gap:10px"><label class="f" style="max-width:220px"><span>Terms finished so far</span><input id="su-d-done" type="number" min="0" max="12" value="0"></label></div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
-      ${ds.map(d=>`<div class="card" style="margin:0;padding:14px;background:var(--bg-soft,var(--surface))">
-        <div class="row between" style="margin-bottom:6px"><b>${esc(d.short||d.program)}</b><span class="pill">${esc(d.credits)} cr</span></div>
-        <div class="small muted" style="margin-bottom:10px">${esc(d.school)} · ${esc(d.courses)} courses<br>${esc(d.notes||'')}</div>
+  const dossierBox=(mode==='dossier'||isGuide)?`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">University Dossiers</h2><label class="row small muted" style="gap:6px">Finished terms: <input id="su-d-done" type="number" min="0" max="12" value="0" style="width:62px;padding:4px 8px"></label></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+      ${ds.map(d=>`<div class="card" style="margin:0;padding:14px;background:var(--surface-2);box-shadow:none">
+        <div class="row between" style="margin-bottom:4px"><b>${esc(d.short||d.program)}</b><span class="meta-txt">${esc(d.credits)} cr</span></div>
+        <div class="small muted" style="margin-bottom:10px">${esc(d.school)} · ${esc(d.courses)} courses</div>
         <button type="button" class="btn primary sm" data-a="loaddossier" data-id="${esc(d.id)}">Load ${esc(d.short||'Dossier')}</button>
-      </div>`).join('')||'<div class="small muted">No bundled dossiers found. Run <code>npm run build:page</code> to bundle <code>dossiers/</code>.</div>'}
+      </div>`).join('')||'<div class="small muted">No bundled dossiers found.</div>'}
     </div>
-  </div>`;
+  </div>`:'';
 
-  const pathB=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path B · Import from PSCS, Simple Syllabus, or Stellic</h2><span class="pill acc">Any batch</span></div>
-    <p class="sub" style="margin:0 0 12px">The same <b>✦ Send to Atlas</b> bookmarklet works on <b>Canvas</b>, <b>PSCS</b> (Course History / Grades), <b>Simple Syllabus</b> (links + grading weights), and <b>Stellic</b> (Degree Audit). Click it on any portal or paste the export below.</p>
-    <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap">
-      <a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it while viewing Canvas, PSCS, Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>
-      <a class="btn" href="#canvas">Open Sync &amp; Import →</a>
-    </div>
-    <textarea id="su-portal-text" rows="3" placeholder="Paste a Canvas JSON, PSCS Course History, Simple Syllabus report, or Stellic Degree Audit here…"></textarea>
-    <div class="row" style="margin-top:10px"><button type="button" class="btn primary" data-a="suimport">Import &amp; Build</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div>
-  </div>`;
+  const importBox=(mode==='import')?`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Paste from PSCS, Canvas, Simple Syllabus, or Stellic</h2><a class="btn sm ghost" href="#canvas">Full Sync page →</a></div>
+    <textarea id="su-portal-text" rows="3" placeholder="Paste Canvas JSON, PSCS Course History, Simple Syllabus report, or Stellic audit here…"></textarea>
+    <div class="row" style="margin-top:10px"><button type="button" class="btn primary sm" data-a="suimport">Import &amp; Build</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div>
+  </div>`:'';
 
-  const pathC=`<details class="card"><summary>Path C · Build Custom Degree (Any University)</summary>
-    <p class="sub" style="margin:0 0 16px">Tell Atlas how your degree runs, pick a grading scale, and add courses manually or from syllabi.</p>
-    <div class="fgrid">
+  const customBox=(mode==='custom'||isGuide)?`<details class="card" ${mode==='custom'?'open':''} style="margin-bottom:16px"><summary>Build a custom degree (any university)</summary>
+    <div class="fgrid" style="margin-top:6px">
       <label class="f"><span>Programme</span><input id="su-prog" placeholder="B.S. Electrical Engineering"></label>
       <label class="f"><span>University</span><input id="su-school" placeholder="Your university"></label>
       <label class="f"><span>Grading scale</span><select id="su-scale"><option value="habib">Habib University (A+ 95, A 90, …)</option><option value="us">Standard US 4.0 (A 93, A- 90, …)</option></select></label>
       <label class="f"><span>First term</span><div class="row" style="gap:6px;flex-wrap:nowrap"><select id="su-season"><option>Fall</option><option>Spring</option></select><input id="su-year" type="number" value="${y-1}" style="width:86px"></div></label>
-      <label class="f"><span>Terms finished so far</span><input id="su-done" type="number" min="0" max="12" value="0"></label>
-      <label class="f"><span>Terms in the degree</span><input id="su-n" type="number" min="2" max="14" value="8"></label>
+      <label class="f"><span>Terms finished</span><input id="su-done" type="number" min="0" max="12" value="0"></label>
+      <label class="f"><span>Total terms</span><input id="su-n" type="number" min="2" max="14" value="8"></label>
       <label class="f"><span>Credits to graduate</span><input id="su-cr" type="number" value="134"></label>
     </div>
-    <div class="row" style="margin-top:18px"><button type="button" class="btn primary" data-a="setup">Create my terms</button>${isGuide&&S.terms.length?`<a class="btn" href="#overview">Back to Overview</a>`:''}</div>
-  </details>`;
+    <div class="row" style="margin-top:16px"><button type="button" class="btn primary" data-a="setup">Create my terms</button>${isGuide&&S.terms.length?`<a class="btn" href="#overview">Back to Home</a>`:''}</div>
+  </details>`:'';
 
-  return fastTrack+setupChecklist()+pathA+pathB+pathC;
+  return hero+cards+dossierBox+importBox+customBox+(isGuide?setupChecklist():'');
 }
 function vSetup(){
   return head('Setup Guide','Link Canvas once to auto-build your term, load a university dossier, or import from PSCS & Simple Syllabus.',`<a class="btn soft" href="#tour">Interactive Tour</a>`)+setupPanel(true);
 }
 const TOUR_STEPS=[
-  {k:'start',lbl:'Step 1',title:'One-Click Setup',badge:'Zero manual entry',
-    body:'New to Atlas? You don’t need to type your courses one by one. Link <b>Canvas</b> once and Atlas automatically builds your current term, courses, instructors, assignment weights, and due dates. Add a <b>Dossier</b> for a full 4-year roadmap or send <b>PSCS Course History</b> for past grades.',
-    tips:['Desktop app: click <b>Sign in to Canvas</b> — sign in normally and Atlas reads your courses privately.','Web / PWA: drag <b>✦ Send to Atlas</b> to your Bookmarks bar and click it once on Canvas.','Your passwords are never seen or stored by Atlas.'],
+  {k:'start',lbl:'Step 1',title:'1-Click Read-Only Setup',badge:'Zero manual entry',
+    body:'Sign in to <b>Canvas</b> and <b>PSCS</b> normally — Atlas never sees or stores your passwords and never modifies your portals. One click reads your Canvas courses, assignment weights, and due dates, plus PSCS Course History and your live weekly schedule.',
+    tips:['<b>Desktop app</b>: click <b>✦ Sync All (Canvas + PSCS)</b> — sign in normally and Atlas reads everything automatically.','<b>Chrome / Edge Web</b>: load the bundled <b>Atlas Companion</b> extension once, then click <b>✦ Sync All Portals</b> from the toolbar icon (no bookmarklet hopping!).','Or start from a <b>Habib Dossier</b> (EE/CS 2029) for a full 4-year grid immediately.'],
     cta:`<a class="btn primary" href="#setup">Go to Setup Guide</a><a class="btn" href="#canvas">Open Sync &amp; Import</a>`},
   {k:'quick',lbl:'Step 2',title:'Quick Course Actions',badge:'1-click grading & retakes',
     body:'Common actions are always 1 click away — no digging through drawers. Click the <b>⋮</b> button or <b>right-click</b> any course card, list row, table row, or 4-Year Grid card.',
-    tips:['<b>Set Final Grade</b> right from the popup pills (works for finished and current courses).','<b>Retake Course (Copy &amp; Link)</b> clones every detail without old scores, links it as a retake, and schedules it in your next term.','<b>Duplicate</b>, <b>Move to term</b>, or <b>Delete</b> with instant Undo (<code>Ctrl+Z</code>).'],
-    cta:`<a class="btn primary" href="#courses">Try on Courses</a><a class="btn" href="#gpa">Check GPA Lab</a>`},
+    tips:['<b>Set Final Grade</b> right from the popup pills (works for finished and current courses).','<b>Retake Course (Copy &amp; Link)</b> clones every detail without old scores, links it as a retake, and schedules it in your next term.','Log upcoming assignment scores directly from Home’s <b>Up next</b> card with 1 click.'],
+    cta:`<a class="btn primary" href="#courses">Try on Courses</a><a class="btn" href="#gpa">Check GPA</a>`},
   {k:'plan',lbl:'Step 3',title:'4-Year Plan & Roadmap',badge:'Drag, drop & prereqs',
     body:'Organize your entire degree in <b>Plan → Four years</b>. Drag courses between terms (or tap ⇄ on mobile) — Atlas highlights valid, warning, and prerequisite-conflict drops in real time.',
-    tips:['Click <b>+</b> on any term header to add a course straight into that semester.','Switch to <b>Roadmap</b> to trace prerequisite chains left-to-right and see which courses unlock the most later courses.','Track <b>Minors</b> and degree credit categories under <b>Requirements</b>.'],
+    tips:['Click <b>+</b> on any term header to pop open the inline Add Course modal pre-set to that semester.','Switch to <b>Roadmap</b> to trace prerequisite chains left-to-right and see which courses unlock the most later courses.','Track <b>Minors</b> and degree credit categories under <b>Requirements</b>.'],
     cta:`<a class="btn primary" href="#grid">Open Four-Year Plan</a><a class="btn" href="#roadmap">View Roadmap</a>`},
-  {k:'enroll',lbl:'Step 4',title:'Enrollment & Multi-Component Courses',badge:'Lectures + Seminars/Labs',
-    body:'Drop the registrar’s schedule spreadsheet (.csv or .xlsx) into <b>Plan → Enrollment</b> to build a clash-free weekly timetable and PSCS shopping cart.',
-    tips:['Courses with multiple components (like <b>Hikma</b> with Lecture <code>L1</code> + Seminar <code>S3</code>, or <b>Calculus</b> with <code>L</code> + <code>R</code>) automatically split into separate pickers so you can select both.','If a component has only one common section (like Hikma’s <code>L1</code>), picking your Seminar automatically selects the Lecture too.','Use <b>Auto-schedule</b> to generate clash-free combinations ranked by time, instructor, and seat reservations.'],
+  {k:'enroll',lbl:'Step 4',title:'Live Schedule vs. Future Enrollment',badge:'Lectures + Seminars/Labs',
+    body:'Home shows your real <b>This week</b> schedule synced from PSCS (including room changes and extra classes), while <b>Plan → Enrollment</b> lets you draft future semesters cleanly without confusing them with this week.',
+    tips:['Multi-component courses (like <b>Hikma</b> <code>L1</code> + <code>S3</code>, or <b>Calculus</b> <code>L</code> + <code>R</code>) split into separate pickers and auto-pair single common lectures.','Use the sticky right tabs (<b>Week · Cart · Backups · Auto · Search</b>) to compare clash-free combinations and copy PSCS class numbers.'],
     cta:`<a class="btn primary" href="#enroll">Open Enrollment</a>`},
-  {k:'sync',lbl:'Step 5',title:'Canvas, PSCS & Simple Syllabus',badge:'One universal bookmarklet',
-    body:'One single <b>✦ Send to Atlas</b> bookmarklet understands all four Habib portals automatically — no separate tools to juggle.',
-    tips:['<b>Canvas</b>: syncs live scores, weights, and upcoming due dates.','<b>PSCS</b>: reads Course History / Grades and updates or creates finished terms.','<b>Simple Syllabus</b>: grabs the exact syllabus URL, instructor, and grading breakdown and links them straight to your existing course.','<b>Stellic</b>: imports degree audit requirements for any batch.'],
-    cta:`<a class="btn primary" href="#canvas">Set up Bookmarklet</a><a class="btn" href="#overview">Go to Overview</a>`}
+  {k:'sync',lbl:'Step 5',title:'Canvas, PSCS & Simple Syllabus',badge:'100% read-only sync',
+    body:'Whether you use the <b>Desktop App</b>, the <b>Atlas Companion extension</b>, or the <b>✦ Send to Atlas</b> bookmarklet, everything stays read-only and private on your own device/server.',
+    tips:['<b>Canvas</b>: syncs active courses, weights, scores, and upcoming due dates.','<b>PSCS</b>: reads both Course History (past terms &amp; grades) and your live Weekly Schedule automatically in one click — no menu hunting!','<b>Simple Syllabus</b>: grabs the exact syllabus URL, instructor, and grading breakdown and links them straight to your existing course.'],
+    cta:`<a class="btn primary" href="#canvas">Open Sync &amp; Import</a><a class="btn" href="#overview">Go to Home</a>`}
 ];
 function vTour(){
   const idx=Math.max(0,Math.min(TOUR_STEPS.length-1,U.tourStep||0));
@@ -183,6 +184,20 @@ function vTour(){
 
 /* ---------- views & customizable widgets ---------- */
 const WIDGETS={
+  summary:{title:'Overview strip',render(){
+    const cum=cumulative(),tg=S.settings.targetGpa,d=cum.gpa==null?null:cum.gpa-tg;
+    const cur=curCourses(),cg=gpaOf(cur,true),curCr=cur.reduce((a,c)=>a+c.credits,0),ct=S.terms.find(t=>t.status==='current');
+    const er=earnedCredits(),tot=S.settings.totalCredits||1,pct=Math.round(Math.min(100,er/tot*100));
+    const p=typeof termPlan==='function'?termPlan():null;
+    const tVal=!p?'–':p.state==='secured'?'Safe':p.state==='out'?fmt(p.best):fmt(p.need);
+    const tSub=!p?'Add current courses':p.state==='secured'?`Target ${fmt(tg)} secured`:p.state==='out'?`Max term ${fmt(p.best)} (need ${fmt(p.need)})`:`Need this term for ${fmt(tg)}`;
+    return`<div class="stats-strip">
+      <div class="stat-cell"><span class="lbl">Cumulative GPA</span><div class="stat-val">${fmt(cum.gpa)}${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)}</span>`:''}</div><span class="stat-sub">${cum.cr?`${cum.cr} graded cr · target ${fmt(tg)}`:'Add finished grades'}</span></div>
+      <div class="stat-cell"><span class="lbl">${esc(ct?ct.name:'This term')}</span><div class="stat-val">${fmt(cg.gpa)}</div><span class="stat-sub">${cur.length} courses · ${curCr} cr</span></div>
+      <div class="stat-cell"><span class="lbl">Credits earned</span><div class="stat-val">${er}<span class="muted" style="font-size:16px">/ ${tot}</span></div><span class="stat-sub">${pct}% complete · ${curCr} in progress</span></div>
+      <div class="stat-cell"><span class="lbl">Target pace</span><div class="stat-val">${tVal}${p&&p.state==='secured'?'<span class="pill good">on track</span>':''}</div><span class="stat-sub">${tSub}</span></div>
+    </div>`;
+  }},
   gpa:{title:'Cumulative GPA',render(){
     const cum=cumulative(),tg=S.settings.targetGpa,d=cum.gpa==null?null:cum.gpa-tg;
     return`<div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}">
@@ -223,26 +238,53 @@ const WIDGETS={
   }},
   inprog:{title:'In progress',render(){
     const cur=curCourses();
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div class="row" style="gap:6px;flex:none"><div style="text-align:right"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(c.grade||st.letter)}</div><button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0;flex:1"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(220px,100%);height:5px"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div class="row" style="gap:6px;flex:none"><div style="text-align:right"><div class="mono small" style="margin-bottom:3px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(c.grade||st.letter)}</div><button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
   }},
-  duenext:{title:'Due next',render(){
+  duenext:{title:'Up next',render(){
     const dl=deadlines().slice(0,5);
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Due next</h2></div>${dl.length?`<div class="list">${dl.map(x=>`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div><div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="pill acc">${fmt(x.a.w,0)}%</span></div></div>`).join('')}</div>`:'<div class="empty">Nothing dated yet. Add due dates in a course or sync Canvas.</div>'}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Up next</h2><span class="meta-txt">${dl.length?dl.length+' upcoming':''}</span></div>${dl.length?`<div class="list">${dl.map(x=>{
+      const key=x.c.id+':'+x.gid+':'+x.iid,editing=U.dueEdit===key;
+      const right=editing
+        ?`<span class="due-score"><input id="due-in" type="number" step="any" placeholder="Score" aria-label="Score for ${esc(x.a.n)}"><span class="meta-txt">/ ${x.max}</span><button type="button" class="btn primary sm" data-a="duesave" data-id="${x.c.id}" data-gid="${x.gid}" data-iid="${x.iid}">Save</button><button type="button" class="btn ghost sm" data-a="duecancel" aria-label="Cancel">✕</button></span>`
+        :`<div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="meta-txt">${fmt(x.a.w,0)}%</span><button type="button" class="btn ghost sm" data-a="dueedit" data-k="${esc(key)}" title="Log score right here">Log</button></div>`;
+      return`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div>${right}</div>`;
+    }).join('')}</div>`:'<div class="empty" style="padding:20px">Nothing dated yet. Add due dates in a course or sync Canvas.</div>'}</div>`;
   }},
-  week:{title:'This week',render(){
+  week:{title:'Weekly schedule',render(){
+    const live=typeof liveScheduleList==='function'?liveScheduleList():[];
     const pk=typeof picked==='function'?picked():[];
-    if(!pk.length){
-      const srv=typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft sm" data-a="loadsrvsched">Load Spring 2027</button>`:'';
-      return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Enrollment ›</a></div><div class="empty" style="padding:20px 14px">No sections picked yet.<div class="row" style="justify-content:center;margin-top:10px"><a class="btn sm" href="#enroll">Pick sections</a>${srv}</div></div></div>`;
+    const pkTerm=typeof pickedTermInfo==='function'?pickedTermInfo():null;
+    const isFuturePlan=!!(pkTerm&&pkTerm.status==='planned');
+    const hasLive=live.length>0,hasPk=pk.length>0;
+    if(!hasLive&&!hasPk){
+      if(!U.dashEdit){
+        return`<div class="card" style="padding:14px 18px"><div class="row between" style="gap:10px;flex-wrap:wrap"><div><h2 style="margin:0 0 3px">Weekly schedule</h2><span class="small muted">Sync your live schedule from PSCS, or draft a future term in Enrollment.</span></div><div class="row" style="gap:6px"><a class="btn soft sm" href="#canvas">Sync PSCS</a><a class="btn sm" href="#enroll">Plan enrollment</a></div></div></div>`;
+      }
+      return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Weekly schedule</h2><a class="btn ghost sm" href="#enroll">Enrollment ›</a></div><div class="empty" style="padding:20px 14px">No schedule synced or planned yet.</div></div>`;
     }
-    const bad=clashes(pk);
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Edit ›</a></div>${weekGrid(pk,bad)}</div>`;
+    const mode=(hasLive&&hasPk)?(U.weekMode||'live'):(hasLive?'live':'plan');
+    const showLive=mode==='live';
+    const list=showLive?live:pk;
+    const bad=clashes(list);
+    const planLbl=pkTerm?esc(pkTerm.name):'Planned';
+    const title=showLive?'This week':(isFuturePlan?`Planned · ${planLbl}`:`This week · ${planLbl}`);
+    const badge=showLive
+      ?`<span class="pill good" title="${S.schedule&&S.schedule.at?'Synced '+esc(new Date(S.schedule.at).toLocaleString()):''}">Live PSCS</span>`
+      :(isFuturePlan?`<span class="pill">Future term</span>`:'');
+    const sw=(hasLive&&hasPk)
+      ?`<div class="seg" style="padding:2px"><button type="button" style="padding:3px 7px;font-size:11px" class="${showLive?'on':''}" data-a="weekmode" data-v="live">This week</button><button type="button" style="padding:3px 7px;font-size:11px" class="${!showLive?'on':''}" data-a="weekmode" data-v="plan">${planLbl}</button></div>`
+      :'';
+    const rightAction=showLive
+      ?`<a class="btn ghost sm" href="#canvas">Sync ›</a>`
+      :`<a class="btn ghost sm" href="#enroll">Edit ›</a>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px;gap:8px;flex-wrap:wrap"><div class="row" style="gap:8px"><h2 style="margin:0">${title}</h2>${badge}</div><div class="row" style="gap:6px">${sw}${rightAction}</div></div>${weekGrid(list,bad)}${!showLive&&isFuturePlan&&!hasLive?`<div class="small muted" style="margin-top:8px">Showing your planned <b>${planLbl}</b> sections. <a href="#canvas">Sync PSCS</a> to show your real current-term weekly schedule instead.</div>`:''}</div>`;
   }},
   trend:{title:'GPA by term',render(){
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">GPA by term</h2><a class="btn ghost sm" href="#gpa">GPA lab ›</a></div>${spark(trend())}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">GPA by term</h2><a class="btn ghost sm" href="#gpa">GPA ›</a></div>${spark(trend())}</div>`;
   }},
   attention:{title:'Worth a look',render(){
     const att=attention().slice(0,5);
+    if(!att.length&&!U.dashEdit)return'';
     return`<div class="card"><h2 style="margin-bottom:8px">Worth a look</h2>${att.length?`<div class="list">${att.map(a=>`<div class="li click" ${a.course?`data-a="open" data-id="${a.course}"`:`data-a="go" data-v="${a.to}"`}><span class="row" style="flex-wrap:nowrap;gap:10px"><span class="pill ${a.t}" style="flex:none">${a.t==='bad'?'grade':a.t==='warn'?'plan':'note'}</span><span class="small">${a.x}</span></span><span class="muted" style="font-size:18px;line-height:1">›</span></div>`).join('')}</div>`:'<div class="empty" style="padding:20px">Nothing needs attention right now.</div>'}</div>`;
   }},
   reqs:{title:'Requirements',render(){
@@ -259,7 +301,7 @@ const WIDGETS={
   }}
 };
 function vOverview(){
-  if(!S.terms.length)return head('Atlas','One place for your grades, your roadmap and your four years.')+setupPanel();
+  if(!S.terms.length)return setupPanel(false);
   const ct=S.terms.find(t=>t.status==='current'),mods=(S.ui&&S.ui.modules)||{};
   const isMob=typeof window!=='undefined'&&window.innerWidth<=860;
   const devMode=U.dashEdit?(U.dashEditMode||(isMob?'mobile':'desktop')):(isMob?'mobile':'desktop');
@@ -270,14 +312,15 @@ function vOverview(){
     if(x.w==='portals'&&mods.portals===false)return false;
     return U.dashEdit||x.on!==false;
   });
-  const editBtn=`<button type="button" class="btn sm ${U.dashEdit?'primary':''}" data-a="dashedit">${U.dashEdit?'Done':'Customize'}</button>`;
+  const editBtn=`<button type="button" class="btn ghost sm ${U.dashEdit?'primary':''}" data-a="dashedit">${U.dashEdit?'Done':'Customize'}</button>`;
   const editBar=U.dashEdit?`<div class="dash-edit-bar"><div class="row" style="gap:8px"><b class="small">Editing layout:</b><div class="seg"><button type="button" class="${devMode==='desktop'?'on':''}" data-a="dashmode" data-v="desktop">Desktop</button><button type="button" class="${devMode==='mobile'?'on':''}" data-a="dashmode" data-v="mobile">Mobile</button></div></div><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="dashreset">Reset default</button><button type="button" class="btn sm primary" data-a="dashedit">Done</button></div></div>`:'';
   const cards=visible.map((x,i)=>{
-    const w=WIDGETS[x.w],sz=x.size||'m';
+    const w=WIDGETS[x.w],sz=x.size||'m',html=w.render();
+    if(!html&&!U.dashEdit)return'';
     const ctrl=U.dashEdit?`<div class="w-ctrl"><button type="button" class="btn sm ${x.on!==false?'soft':'ghost'}" data-a="wvis" data-w="${x.w}">${x.on!==false?'Shown':'Hidden'}</button><div class="seg">${['s','m','l'].map(s=>`<button type="button" class="${sz===s?'on':''}" data-a="wsize" data-w="${x.w}" data-v="${s}">${s.toUpperCase()}</button>`).join('')}</div><div class="row" style="gap:3px"><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="-1" ${i===0?'disabled':''} aria-label="Move earlier">←</button><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="1" ${i===visible.length-1?'disabled':''} aria-label="Move later">→</button></div></div>`:'';
-    return`<div class="dash-w w-${sz}${x.on===false?' w-off':''}">${ctrl}${w.render()}</div>`;
+    return`<div class="dash-w w-${sz}${x.on===false?' w-off':''}">${ctrl}${html}</div>`;
   }).join('');
-  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+'now in '+esc(ct.name):''),editBtn)+editBar+`<div class="dash-grid">${cards}</div>`;
+  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+esc(ct.name):''),editBtn)+editBar+`<div class="dash-grid">${cards}</div>`;
 }
 
 const canvasPortalUrl=()=>{const p=(S.settings.portals||[]).find(x=>x.id==='canvas'||x.kind==='canvas');return((p&&p.url)||'https://hulms.instructure.com').replace(/\/+$/,'')};
@@ -296,8 +339,8 @@ function courseTableRow(c){
   return`<tr class="click" data-a="open" data-id="${c.id}" data-cid="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r" style="white-space:nowrap">${stand} <button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></td></tr>`;
 }
 function vCourses(){
-  const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
-  const syncBtn=mods.canvas!==false?`<button class="btn" data-a="go" data-v="canvas">Sync Canvas</button>`:'';
+  const add=`<button type="button" class="btn primary sm" data-a="openadd">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
+  const syncBtn=mods.canvas!==false?`<button type="button" class="btn sm" data-a="go" data-v="canvas">Sync</button>`:'';
   if(!S.courses.length)return head('Courses','Every course with its grading breakdown.',add)+'<div class="empty">No courses yet. Add one from a syllabus or by hand.</div>';
   const T=S.terms,ci=T.findIndex(t=>t.status==='current');
   const ni=T.findIndex((t,i)=>t.status==='planned'&&i>ci);
@@ -319,45 +362,45 @@ function vCourses(){
     const blocks=`<div class="cols" style="margin-top:4px">`+shown.map(t=>{
       const cs=S.courses.filter(c=>c.term===t.id&&match(c)),g=termGpa(t);
       const stBadge=`<span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>`;
-      return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><div class="row" style="gap:6px"><span class="pill">${cs.reduce((a,c)=>a+c.credits,0)} cr</span>${g.gpa!=null?`<span class="pill acc">GPA ${fmt(g.gpa)}</span>`:''}</div></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">No matching courses</div>'}</div>`;
+      return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><span class="meta-txt">${cs.reduce((a,c)=>a+c.credits,0)} cr${g.gpa!=null?' · GPA '+fmt(g.gpa):''}</span></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">No matching courses</div>'}</div>`;
     }).join('')+`</div>`;
     body=blocks+(cat.length&&(view==='now'||view==='all')?`<div class="sec" style="margin-top:26px"><h2>Not in a term yet</h2><div class="card list" style="padding:4px 16px">${cat.map(courseRow).join('')}</div></div>`:'');
   }
-  return head('Courses','Your current term, the next one and the last one you finished. Pick any term below to focus on it or enter final grades.',add+syncBtn)+strip+ctrl+body;
+  return head('Courses','',add+syncBtn)+strip+ctrl+body;
 }
 
 const gradeOpts=c=>{const t=termOf(c.term);return t&&t.cr?['','CR','NC']:['',...S.settings.scale.map(x=>x.l),'W']};
-const STOPT=[['','No flag'],['submitted','Submitted'],['missing','Missing'],['excused','Excused']];
+const STOPT=[['','Flag'],['submitted','Submitted'],['missing','Missing'],['excused','Excused']];
+const FLAG_NEXT={'':'submitted',submitted:'missing',missing:'excused',excused:''};
 function groupCard(c,g){
-  const gs=gstat(g),A=`data-id="${c.id}" data-gid="${g.id}"`;
+  const gs=gstat(g),A=`data-id="${c.id}" data-gid="${g.id}"`,openMeta=!!(U.openGrps&&U.openGrps[g.id]);
   const rows=(g.items||[]).map(it=>{const p=ipct(it),B=`${A} data-iid="${it.id}"`;
-    const fcls=it.st==='submitted'?'acc':it.st==='missing'?'bad':it.st==='excused'?'warn':'';
-    return`<div class="ir"><input class="nm" data-c="it" data-f="n" ${B} value="${esc(it.n)}" aria-label="Item name"><input type="number" step="any" data-c="it" data-f="s" ${B} value="${it.s==null?'':it.s}" placeholder="–" aria-label="Score"><input type="number" step="any" data-c="it" data-f="m" ${B} value="${it.m==null?'':it.m}" aria-label="Out of"><span class="mono small muted">${p==null?'':fmt(p,0)+'%'}</span><input type="date" data-c="it" data-f="due" ${B} value="${esc((it.due||'').slice(0,10))}" aria-label="Due date"><select class="sel-pill ${fcls}" data-c="it" data-f="st" ${B} aria-label="Flag">${STOPT.map(o=>`<option value="${o[0]}" ${(it.st||'')===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><button class="btn ghost danger" data-a="delitem" ${B} aria-label="Remove item">✕</button></div>`}).join('');
-  return`<div class="gc"><div class="gh"><input data-c="gr" data-f="n" ${A} value="${esc(g.n)}" aria-label="Group name" style="flex:1 1 150px;font-weight:600"><select class="sel-pill" data-c="gr" data-f="type" ${A} aria-label="Type">${ATYPES.map(t=>`<option ${g.type===t?'selected':''}>${t}</option>`).join('')}</select><button class="btn ghost danger" data-a="delgroup" ${A} aria-label="Remove group">✕</button></div>
-  <div class="gh small muted"><label class="row" style="gap:6px">Weight <input class="w" type="number" step="any" data-c="gr" data-f="w" ${A} value="${g.w}" style="width:64px"> %</label><label class="row" style="gap:6px">Items <input class="w" type="number" min="1" data-c="gr" data-f="cnt" ${A} value="${gs.n}" style="width:54px"></label><label class="row" style="gap:6px">Drop lowest <input class="w" type="number" min="0" data-c="gr" data-f="drop" ${A} value="${g.drop||0}" style="width:54px"></label></div>
-  <div class="ir ih"><span>Item</span><span>Score</span><span>Out of</span><span></span><span>Due</span><span>Flag</span><span></span></div>${rows}
-  <div class="row between" style="margin-top:10px"><button class="btn sm" data-a="additem" ${A}>+ Add item</button><span class="small muted">${gs.used?`<b>${fmt(gs.mean,0)}%</b> across best ${gs.used} · `:'No scores yet · '}counts ${gs.k} of ${gs.n}</span></div></div>`;
+    const fl=it.st||'';const fLbl=fl?fl[0].toUpperCase()+fl.slice(1):'·';
+    return`<div class="ir-clean"><input class="nm" data-c="it" data-f="n" ${B} value="${esc(it.n)}" aria-label="Item name"><input type="number" step="any" data-c="it" data-f="s" ${B} value="${it.s==null?'':it.s}" placeholder="–" aria-label="Score"><span class="ir-slash">/</span><input type="number" step="any" data-c="it" data-f="m" ${B} value="${it.m==null?'':it.m}" aria-label="Out of"><span class="mono small muted ir-pct">${p==null?'':fmt(p,0)+'%'}</span><input type="date" data-c="it" data-f="due" ${B} value="${esc((it.due||'').slice(0,10))}" aria-label="Due date"><span class="row" style="gap:3px;flex-wrap:nowrap;justify-content:flex-end"><button type="button" class="flag-btn ${fl}" data-a="cycleflag" ${B} title="Cycle status: none / submitted / missing / excused">${fLbl}</button><button type="button" class="btn ghost danger sm" data-a="delitem" ${B} aria-label="Remove item" style="padding:3px 5px">✕</button></span></div>`}).join('');
+  const metaBar=openMeta?`<div class="g-meta-bar"><label class="row" style="gap:5px">Type <select class="sel-pill" data-c="gr" data-f="type" ${A} aria-label="Type">${ATYPES.map(t=>`<option ${g.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="row" style="gap:5px">Items <input class="w" type="number" min="1" data-c="gr" data-f="cnt" ${A} value="${gs.n}" style="width:52px;padding:4px 6px"></label><label class="row" style="gap:5px">Drop lowest <input class="w" type="number" min="0" data-c="gr" data-f="drop" ${A} value="${g.drop||0}" style="width:52px;padding:4px 6px"></label></div>`:'';
+  return`<div class="gc"><div class="gh"><input data-c="gr" data-f="n" ${A} value="${esc(g.n)}" aria-label="Group name" style="flex:1 1 140px;font-weight:600;padding:5px 9px"><label class="row small muted" style="gap:4px"><input class="w" type="number" step="any" data-c="gr" data-f="w" ${A} value="${g.w}" style="width:58px;padding:5px 7px;text-align:right">%</label><button type="button" class="btn ghost sm ${openMeta?'soft':''}" data-a="togglegrp" data-gid="${g.id}" title="Group settings (type, count, drop lowest)">⚙</button><button type="button" class="btn ghost danger sm" data-a="delgroup" ${A} aria-label="Remove group">✕</button></div>${metaBar}
+  ${rows?`<div class="ir-clean ih"><span>Item</span><span>Score</span><span></span><span>Max</span><span></span><span>Due</span><span></span></div>${rows}`:'<div class="small muted" style="padding:4px 2px 8px">No items yet.</div>'}
+  <div class="row between" style="margin-top:8px"><button type="button" class="btn ghost sm" data-a="additem" ${A}>+ Add item</button><span class="meta-txt">${esc(g.type)} · ${gs.used?`<b>${fmt(gs.mean,0)}%</b> avg · `:''}best ${gs.k} of ${gs.n}</span></div></div>`;
 }
 function gradesTab(c,st){
   const sc=S.settings.scale,tgt=sc.filter(x=>x.p>0);
   const needRows=tgt.map(x=>{const n=needed(c,x.min);let v,cl='';
     if(n==null)v='–';else if(n<=0){v='secured';cl='good'}else if(n>100){v='out of reach';cl='bad'}else{v=fmt(n,1)+'%';cl=n>90?'warn':''}
     return`<div class="kv"><span>To finish with ${lpill(x.l)} <span class="muted small">(${x.min}%)</span></span><span class="mono" style="font-weight:600;${cl?`color:var(--${cl})`:''}">${v}</span></div>`}).join('');
-  const goalPills=`<div class="opt-pills compact" style="margin-top:6px"><button type="button" class="opt-pill ${!c.goal?'on subtle':''}" data-a="pickgoal" data-id="${c.id}" data-v="">None</button>${sc.map(x=>`<button type="button" class="opt-pill ${c.goal===x.l?'on':''}" data-a="pickgoal" data-id="${c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}</div>`;
+  const goalSel=`<select class="sel-pill ${c.goal?'acc':''}" data-c="goal" data-id="${c.id}" aria-label="Goal grade"><option value="">Goal: Auto</option>${sc.map(x=>`<option value="${esc(x.l)}" ${c.goal===x.l?'selected':''}>Goal: ${esc(x.l)}</option>`).join('')}</select>`;
   const gOpts=gradeOpts(c);
-  const gradePills=`<div class="opt-pills compact" style="margin-top:6px">${gOpts.map(l=>{const on=(c.grade||'')===l;const cl=l?gradeCls(l):'subtle';return`<button type="button" class="opt-pill ${on?'on '+cl:''}" data-a="pickgrade" data-id="${c.id}" data-v="${esc(l)}">${l===''?'Unset':esc(l)}</button>`}).join('')}</div>`;
-  return`<div class="grid g2" style="margin-bottom:22px">
-    <div class="card"><div class="lbl">Standing now</div><div class="row" style="gap:12px;margin-top:10px"><span class="num" style="font-size:52px">${st.pct==null?'–':fmt(st.pct,1)}<span class="muted" style="font-size:24px">%</span></span>${lpill(st.letter)}</div>
-    <div class="bar" style="margin:12px 0 8px"><i class="d" style="width:${st.W?Math.min(100,st.gw/st.W*100):0}%"></i></div>
-    <div class="small muted">${fmt(st.gw,0)} of ${fmt(st.W,0)}% marked${st.W?` · Final between <b class="mono">${fmt(st.floor,1)}%</b> and <b class="mono">${fmt(st.ceil,1)}%</b>`:'.'}</div></div>
-    <div class="card" style="display:flex;flex-direction:column;gap:14px">
-      <div><div class="lbl">Goal grade</div>${goalPills}</div>
-      <div style="border-top:1px solid var(--line);padding-top:12px"><div class="lbl">Final grade</div>${gradePills}<div class="small muted" style="margin-top:8px">Set once posted by the registrar. Feeds your GPA.</div></div>
+  const finalSel=`<select class="sel-pill ${gradeCls(c.grade)}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade">${gOpts.map(l=>`<option value="${esc(l)}" ${(c.grade||'')===l?'selected':''}>${l===''?'Final: Unset':'Final: '+l}</option>`).join('')}</select>`;
+  return`<div class="dr-summary">
+    <div class="dr-sum-top">
+      <div><div class="lbl">Standing now</div><div class="row" style="gap:10px;margin-top:6px"><span class="num" style="font-size:44px">${st.pct==null?'–':fmt(st.pct,1)}<span class="muted" style="font-size:20px">%</span></span>${lpill(st.letter)}</div></div>
+      <div style="text-align:right"><div class="meta-txt">${fmt(st.gw,0)} of ${fmt(st.W,0)}% marked</div>${st.W?`<div class="small muted" style="margin-top:3px">Range <b class="mono">${fmt(st.floor,1)}%</b> – <b class="mono">${fmt(st.ceil,1)}%</b></div>`:''}</div>
     </div>
+    <div class="bar" style="height:5px"><i class="d" style="width:${st.W?Math.min(100,st.gw/st.W*100):0}%"></i></div>
+    <div class="dr-sum-controls">${goalSel}${finalSel}<span class="meta-txt" style="margin-left:auto">Total weight ${fmt(st.W,0)}%</span></div>
   </div>
-  <h2>Grading breakdown</h2>${(c.assess||[]).map(g=>groupCard(c,g)).join('')||'<div class="empty">No grading groups yet. Add one, or read a syllabus.</div>'}
-  <div class="row between" style="margin:8px 0 26px"><button class="btn" data-a="addgroup" data-id="${c.id}">+ Add a group</button><span class="pill ${Math.abs(st.W-100)>0.01&&st.W?'warn':'good'}">Total weight ${fmt(st.W,0)}%</span></div>
-  <h2>What you need on the rest</h2>${st.rem>0&&st.W?`<div class="card" style="padding:4px 16px">${needRows}</div><p class="small muted">Average needed across the ${fmt(st.rem,0)}% still to be marked.</p>`:'<div class="empty">Everything is marked, or no weights are set.</div>'}`;
+  <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Grading breakdown</h2><button type="button" class="btn sm" data-a="addgroup" data-id="${c.id}">+ Add group</button></div>
+  ${(c.assess||[]).map(g=>groupCard(c,g)).join('')||'<div class="empty">No grading groups yet. Add one above or import a syllabus.</div>'}
+  ${st.rem>0&&st.W?`<details class="card" style="margin-top:18px;padding:14px 16px"><summary>What you need on the remaining ${fmt(st.rem,0)}%</summary>${needRows}</details>`:''}`;
 }
 
 /* ---------- course drawer ---------- */

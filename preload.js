@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('atlasHost', {
   openPortal: (source, url) => ipcRenderer.invoke('portal:open', url ? { id: source, url } : source),
   canvasExport: () => ipcRenderer.invoke('canvas:export'),
   canvasSilent: () => ipcRenderer.invoke('canvas:silent'),
+  pscsExport: () => ipcRenderer.invoke('pscs:export'),
   serverSync: (opts) => ipcRenderer.invoke('server:sync', opts),
   pageReport: (source) => ipcRenderer.invoke('portal:report', source),
 });

@@ -55,7 +55,7 @@ const WEB_HOST=IS_WEB?{
 
 const HOST=DESKTOP_HOST||WEB_HOST;
 
-const hostCanvasCard=()=>DESKTOP_HOST?`<div class="card" style="margin-bottom:16px"><h2>Sign in and sync</h2><p class="small muted" style="margin:-6px 0 12px">Atlas opens ${esc(HC.canvasUrl||'your Canvas')} in its own window. Sign in the way you normally do. Atlas then reads your courses, scores and due dates, and the window closes. Your password is never stored.</p><div class="row"><button class="btn primary" data-a="hostcanvas">${U.hostBusy==='canvas'?'Waiting for you to sign in…':'Sign in to Canvas'}</button></div></div>`:'';
+const hostCanvasCard=()=>DESKTOP_HOST?`<div class="card kpi-card kpi-acc" style="margin-bottom:16px"><h2>One-click Portal Sync (Read-only)</h2><p class="small muted" style="margin:-6px 0 12px">Atlas opens your university portals in isolated windows where you sign in normally. Once signed in, Atlas reads your Canvas courses/scores and automatically reads PSCS Course History + Live Weekly Schedule in one pass. Passwords are never stored and no changes are ever made to your portals.</p><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-a="hostsyncall" ${U.hostBusy?'disabled':''}>${U.hostBusy==='all'?'Syncing Canvas & PSCS…':'✦ Sync All (Canvas + PSCS)'}</button><button type="button" class="btn" data-a="hostcanvas" ${U.hostBusy?'disabled':''}>${U.hostBusy==='canvas'?'Waiting for Canvas…':'Canvas only'}</button><button type="button" class="btn" data-a="hostpscs" ${U.hostBusy?'disabled':''}>${U.hostBusy==='pscs'?'Reading PSCS…':'PSCS (Grades + Live Schedule)'}</button></div></div>`:'';
 const hostCard=()=>`<div class="sec"><h2>This computer &amp; server sync</h2><div class="card">
   <div class="small muted" style="margin-bottom:12px">Your plan is saved in a file on this computer, with a backup copy kept at most once an hour.<br><span class="mono">${esc(HC.dataPath||'')}</span></div>
   <div class="row" style="margin-bottom:18px"><button class="btn" data-a="hostfolder">Open the data folder</button></div>
@@ -104,6 +104,20 @@ if(DESKTOP_HOST){
     async hostcanvas(){if(U.hostBusy)return;U.hostBusy='canvas';U.cvErr='';render();
       try{const raw=await DESKTOP_HOST.canvasExport();U.hostBusy='';handleIncomingImport(raw)}
       catch(e){U.hostBusy='';U.cvErr=String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,'');render()}},
+    async hostpscs(){if(U.hostBusy)return;if(!DESKTOP_HOST.pscsExport)return toast('Update desktop app to use PSCS auto-sync');U.hostBusy='pscs';U.cvErr='';render();
+      try{const raw=await DESKTOP_HOST.pscsExport();U.hostBusy='';handleIncomingImport(raw)}
+      catch(e){U.hostBusy='';U.cvErr=String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,'');render()}},
+    async hostsyncall(){if(U.hostBusy)return;U.hostBusy='all';U.cvErr='';render();
+      const errs=[];let gotCv=false,gotPscs=false;
+      try{const rawCv=await DESKTOP_HOST.canvasExport();if(rawCv){const j=JSON.parse(rawCv);if(j&&Array.isArray(j.courses)){U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)||'__new__'}));gotCv=true}}}catch(e){errs.push('Canvas: '+String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,''))}
+      if(DESKTOP_HOST.pscsExport){
+        try{const rawPs=await DESKTOP_HOST.pscsExport();if(rawPs){const j=JSON.parse(rawPs);const diffs=parsePscsGrades(j.history||j);const sched=parsePscsSchedule(j.schedule||j);if(diffs.length)U.pscsDiff=diffs;if(sched&&sched.items&&sched.items.length){U.pscsSched=sched;U.pscsApplySched=true}if(diffs.length||(sched&&sched.items.length))gotPscs=true}}catch(e){errs.push('PSCS: '+String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,''))}
+      }
+      U.hostBusy='';
+      if(errs.length)U.cvErr=errs.join(' · ');
+      location.hash='canvas';render();
+      if(gotCv||gotPscs)toast('Portals read — review & apply below');
+    },
     async hostserversync(){
       if(!HC.serverUrl)return toast('Set your server URL first');
       try{

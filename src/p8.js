@@ -33,36 +33,35 @@ function termPlanSection(){
   const rowsH=p.rows.map(r=>{
     const lim=r.has?`max <b>${esc(r.ceL)}</b>`:'no breakdown';
     const nd=r.need==null?'–':r.need<=0?'<span style="color:var(--good)">secured</span>':r.need>100?'<span style="color:var(--bad)">out of reach</span>':`<b>${fmt(r.need,0)}%</b> on ${fmt(r.st.rem,0)}%`;
-    const goalPills=`<div class="opt-pills compact"><button type="button" class="opt-pill ${!r.goal?'on subtle':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="">Auto</button>${scPass.map(x=>`<button type="button" class="opt-pill ${r.goal===x.l?'on':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}</div>`;
-    return`<tr><td style="min-width:170px"><a href="#" data-a="open" data-id="${r.c.id}" style="text-decoration:none;color:inherit"><b>${esc(r.c.code)}</b> <span class="muted small">${r.c.credits} cr${r.st.pct!=null?' · '+fmt(r.st.pct,0)+'%':''}</span><div class="small muted">${esc(r.c.title)}</div></a></td><td class="small muted" style="white-space:nowrap">${lim}</td><td>${lpill(r.aim)}</td><td>${goalPills}</td><td class="small r" style="white-space:nowrap">${nd}</td></tr>`}).join('');
-  return`<div class="sec"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 10px">${head1}</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Reach</th><th>Aim</th><th>Your goal</th><th class="r">Needed</th></tr></thead><tbody>${rowsH}</tbody></table></div>
-  <div class="row between" style="padding-top:12px;border-top:1px solid var(--line);margin-top:6px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals, or the aim where you have none</span><div class="row" style="gap:6px"><span class="pill">Term ${fmt(p.proj)}</span><span class="pill acc">Overall ${fmt(p.after)}</span></div></div></div></div>`;
+    const goalSel=`<select class="sel-pill ${r.goal?'acc':''}" data-c="goal" data-id="${r.c.id}" aria-label="Goal for ${esc(r.c.code)}"><option value="">Auto (${esc(r.aim)})</option>${scPass.map(x=>`<option value="${esc(x.l)}" ${r.goal===x.l?'selected':''}>${esc(x.l)}</option>`).join('')}</select>`;
+    return`<tr><td style="min-width:170px"><a href="#" data-a="open" data-id="${r.c.id}" style="text-decoration:none;color:inherit"><b>${esc(r.c.code)}</b> <span class="meta-txt">${r.c.credits} cr${r.st.pct!=null?' · '+fmt(r.st.pct,0)+'%':''}</span><div class="small muted">${esc(r.c.title)}</div></a></td><td class="small muted" style="white-space:nowrap">${lim}</td><td>${lpill(r.aim)}</td><td>${goalSel}</td><td class="small r" style="white-space:nowrap">${nd}</td></tr>`}).join('');
+  return`<div class="sec" style="margin-top:0"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 10px">${head1}</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Reach</th><th>Aim</th><th>Your goal</th><th class="r">Needed</th></tr></thead><tbody>${rowsH}</tbody></table></div>
+  <div class="row between" style="padding-top:12px;border-top:1px solid var(--line);margin-top:6px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals (or the aim where set to Auto)</span><div class="row" style="gap:6px"><span class="pill">Term ${fmt(p.proj)}</span><span class="pill acc">Overall ${fmt(p.after)}</span></div></div></div></div>`;
 }
 
 /* ---------- what if, one term at a time ---------- */
 function whatIf(cum){
   const over=U.whatif,terms=S.terms.filter(t=>t.status!=='done'&&S.courses.some(c=>c.term===t.id));
-  if(!terms.length)return`<div class="sec"><h2>What if</h2><div class="empty">Schedule current or planned courses to try grades on them.</div></div>`;
+  if(!terms.length)return`<div class="empty">Schedule current or planned courses to try grades on them.</div>`;
   let sel=U.wiTerm;if(sel!=='all'&&!terms.some(t=>t.id===sel))sel=(terms.find(t=>t.status==='current')||terms[0]).id;
   const shown=sel==='all'?terms:terms.filter(t=>t.id===sel),lab=S.courses.filter(c=>terms.some(t=>t.id===c.term));
   const pr=gpaOf(doneCourses().concat(lab),true,over);
-  const quickGrades=S.settings.scale.filter(x=>x.p>=2.67).slice(0,5);
-  const allQuick=S.settings.scale.filter(x=>x.p>=2).slice(0,6);
-  const opts=v=>['<option value="">–</option>'].concat(S.settings.scale.map(x=>`<option ${v===x.l?'selected':''}>${esc(x.l)}</option>`)).join('');
+  const quickGrades=S.settings.scale.filter(x=>x.p>=3).slice(0,4);
+  const opts=v=>['<option value="">Auto</option>'].concat(S.settings.scale.map(x=>`<option ${v===x.l?'selected':''}>${esc(x.l)}</option>`)).join('');
   const row=c=>{
     const run=c.grade||standing(c).letter,cur=over[c.id]||'';
     const qp=quickGrades.map(x=>`<button type="button" class="opt-pill ${cur===x.l?'on '+gradeCls(x.l):''}" data-a="wiset" data-id="${c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('');
-    return`<div class="li" style="flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr${status(c)==='current'&&run?' · now '+esc(run):''}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end"><div class="opt-pills compact">${qp}</div><select class="sel-pill ${cur?gradeCls(cur):''}" data-c="wi" data-id="${c.id}" aria-label="Grade for ${esc(c.code)}">${opts(cur)}</select></div></div>`;
+    return`<div class="li" style="flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr${status(c)==='current'&&run?' · now '+esc(run):''}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;flex-wrap:nowrap;justify-content:flex-end"><div class="opt-pills compact">${qp}</div><select class="sel-pill ${cur?gradeCls(cur):''}" data-c="wi" data-id="${c.id}" aria-label="Grade for ${esc(c.code)}">${opts(cur)}</select></div></div>`;
   };
-  const strip=`<div class="tabs">${terms.map(t=>`<a href="#" data-a="witerm" data-v="${t.id}" ${sel===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="witerm" data-v="all" ${sel==='all'?'aria-current="page"':''}>All terms</a></div>`;
+  const strip=`<div class="tabs" style="margin-bottom:14px">${terms.map(t=>`<a href="#" data-a="witerm" data-v="${t.id}" ${sel===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="witerm" data-v="all" ${sel==='all'?'aria-current="page"':''}>All terms</a></div>`;
   const block=t=>{const cs=S.courses.filter(c=>c.term===t.id),tg=gpaOf(cs,t.status==='current',over);
-    return`<div><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">${esc(t.name)}</h3><span class="pill ${tg.gpa!=null?'acc':''}">term GPA ${tg.gpa==null?'–':fmt(tg.gpa)}</span></div><div class="card" style="padding:4px 16px">${cs.map(row).join('')}</div></div>`};
+    return`<div><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">${esc(t.name)}</h3><span class="meta-txt">term GPA <b>${tg.gpa==null?'–':fmt(tg.gpa)}</b></span></div><div class="card" style="padding:4px 16px">${cs.map(row).join('')}</div></div>`};
   const single=shown.length===1?gpaOf(S.courses.filter(c=>c.term===shown[0].id),shown[0].status==='current',over):null;
   const delta=(cum.gpa!=null&&pr.gpa!=null)?pr.gpa-cum.gpa:null;
-  const setAllBar=`<div class="opt-pills compact"><span class="lbl" style="margin-right:2px">Set all:</span>${allQuick.map(x=>`<button type="button" class="opt-pill" data-a="wisetall" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}<select class="sel-pill" data-c="wiall" aria-label="Set the whole term to"><option value="">Other</option>${S.settings.scale.map(x=>`<option>${esc(x.l)}</option>`).join('')}</select><button class="btn sm" data-a="wireset">Reset</button></div>`;
-  return`<div class="sec"><div class="row between" style="margin-bottom:14px"><h2 style="margin:0">What if</h2>${setAllBar}</div>${strip}
-  <div class="grid g2" style="align-items:start;margin-top:4px"><div style="display:flex;flex-direction:column;gap:16px">${shown.map(block).join('')}</div>
-  <div class="card kpi-card ${delta==null?'kpi-acc':delta>=0?'kpi-good':'kpi-warn'}" style="position:sticky;top:20px"><div class="row between"><div class="lbl">Projected cumulative</div>${delta!=null?`<span class="pill ${delta>=0?'good':'bad'}">${delta>=0?'+':''}${fmt(delta)} from today</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(pr.gpa)}</div><div class="small muted">${pr.cr} credits counted.${single?` This term alone: <b class="mono">${single.gpa==null?'–':fmt(single.gpa)}</b>.`:''} Pick a grade for any course or set the whole term at once. Unset courses use their running grade.</div></div></div></div>`;
+  const setAllBar=`<div class="row" style="gap:6px"><select class="sel-pill" data-c="wiall" aria-label="Set the whole term to"><option value="">Set all to…</option>${S.settings.scale.map(x=>`<option>${esc(x.l)}</option>`).join('')}</select><button type="button" class="btn ghost sm" data-a="wireset">Reset</button></div>`;
+  return`<div class="row between" style="margin-bottom:10px;gap:10px;flex-wrap:wrap">${strip}${setAllBar}</div>
+  <div class="grid g2" style="align-items:start"><div style="display:flex;flex-direction:column;gap:16px">${shown.map(block).join('')}</div>
+  <div class="card" style="position:sticky;top:20px"><div class="row between"><div class="lbl">Projected cumulative</div>${delta!=null?`<span class="pill ${delta>=0?'good':'bad'}">${delta>=0?'+':''}${fmt(delta)}</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(pr.gpa)}</div><div class="small muted">${pr.cr} credits counted.${single?` This term alone: <b class="mono">${single.gpa==null?'–':fmt(single.gpa)}</b>.`:''} Unset courses use their running grade.</div></div></div>`;
 }
 Object.assign(ACT2,{witerm(e,d){U.wiTerm=d.v;render()}});
 Object.assign(CHG2,{goal(e,d,v){const c=getC(d.id);if(c)c.goal=v||null}});
@@ -225,6 +224,17 @@ function clashes(list){
   const out=[];
   for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)list[i].s.meets.forEach(a=>list[j].s.meets.forEach(b=>{if(a.d===b.d&&a.s<b.e&&b.s<a.e)out.push({a:list[i],b:list[j],d:a.d,at:Math.max(a.s,b.s)})}));
   return out;
+}
+function liveScheduleList(){
+  const sch=S.schedule;
+  if(!sch||!Array.isArray(sch.items)||!sch.items.length)return[];
+  return sch.items.map((it,i)=>({c:{id:'live-'+i,code:it.code||'',title:it.title||''},s:{k:'live-'+i,sec:it.sec||'',meets:it.meets||[]}}));
+}
+function pickedTermInfo(){
+  const pk=picked();if(!pk.length)return null;
+  const tid=pk[0].c&&pk[0].c.term;
+  const t=tid?termOf(tid):enrollTerm();
+  return t||null;
 }
 function weekGrid(list,bad){
   const ms=[];list.forEach(x=>x.s.meets.forEach(m=>ms.push(m)));if(!ms.length)return'';
@@ -394,12 +404,12 @@ function backupSection(){
     const alts=all.map(s=>{
       const ok=!others.some(o=>o.s.meets.some(a=>s.meets.some(b=>a.d===b.d&&a.s<b.e&&b.s<a.e)));
       const rb=resBadge(s);
-      return`<div class="small" style="padding:4px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(fmtIns(s.ins,1))} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
+      return`<div class="small" style="padding:3px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(fmtIns(s.ins,1))} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
     }).join('');
-    return`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.c.code)}</b> <span class="muted">if ${esc(x.s.sec)} is full:</span>${alts}</div>`;
+    return`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.c.code)}</b> <span class="muted small">if ${esc(x.s.sec)} is full:</span>${alts}</div>`;
   }).filter(Boolean).join('');
   if(!rows)return'';
-  return`<div class="sec"><h2>Backup sections</h2><div class="card" style="padding:4px 16px">${rows}</div><p class="small muted">Sections marked "fits" do not clash with the rest of your schedule. Sections crossed out would create a clash.</p></div>`;
+  return`<div>${rows}</div><p class="small muted" style="margin:10px 0 0">Sections marked “fits” do not clash with your rest of week.</p>`;
 }
 
 /* ---------- auto-schedule UI ---------- */
@@ -408,72 +418,86 @@ function autoScheduleSection(){
   const t=enrollTerm();if(!t)return'';
   const cs=S.courses.filter(c=>c.term===t.id);
   const courseList=enrollSlots(cs);
-  if(courseList.length<2)return''; /* need at least 2 slots to auto-schedule */
+  if(courseList.length<2)return'';
   const uniqueCourses=new Set(courseList.map(x=>x.c.id)).size;
 
   const prefs=U.enrPrefs||{};
-  const timeSeg=[['','Any time'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].map(([k,l])=>`<button type="button" class="${(prefs.time||'')===k?'on':''}" data-a="enrtime" data-v="${k}">${l}</button>`).join('');
-  const prefsUI=`<div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:12px">Preferences</h3>
-  <div class="f" style="margin-bottom:12px"><span class="lbl" style="display:block;margin-bottom:5px">Preferred times</span><div class="seg">${timeSeg}</div></div>
-  <div class="fgrid" style="align-items:end">
-    <label class="f"><span>Preferred instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
+  const timeSeg=[['','Any'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].map(([k,l])=>`<button type="button" class="${(prefs.time||'')===k?'on':''}" data-a="enrtime" data-v="${k}">${l}</button>`).join('');
+  const prefsUI=`<div style="margin-bottom:12px">
+  <div class="f" style="margin-bottom:10px"><span class="lbl">Preferred times</span><div class="seg">${timeSeg}</div></div>
+  <div class="fgrid" style="gap:10px">
+    <label class="f"><span>Prefer instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
     <label class="f"><span>Avoid instructor</span><input data-c="enrpref" data-f="avoidInstructor" value="${esc(prefs.avoidInstructor||'')}" placeholder="Partial name"></label>
   </div></div>`;
 
-  if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${uniqueCourses} course${uniqueCourses===1?'':'s'} (${courseList.length} section component${courseList.length===1?'':'s'}) with offered times. Atlas generates clash-free combinations ranked by your preferences and seat reservations.</p></div>`;
+  if(!U.showAutoSched)return`${prefsUI}<button type="button" class="btn primary sm" data-a="autosched">Find clash-free schedules</button><p class="small muted" style="margin:8px 0 0">${uniqueCourses} course${uniqueCourses===1?'':'s'} (${courseList.length} section component${courseList.length===1?'':'s'}) ready.</p>`;
 
   const scheds=findSchedules();
-  if(!scheds.length)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<div class="card"><div class="empty">No clash-free combination found. Try reducing courses or adding sections with different times.</div></div><button class="btn" data-a="autosched" style="margin-top:12px">Try again</button></div>`;
+  if(!scheds.length)return`${prefsUI}<div class="empty" style="padding:16px">No clash-free combination found.</div><button type="button" class="btn sm" data-a="autosched" style="margin-top:10px">Try again</button>`;
 
-  const rows=scheds.map((sch,idx)=>{
-    const bad=clashes(sch.items);
-    return`<div class="card kpi-card kpi-acc" style="margin-bottom:14px"><div class="row between" style="margin-bottom:10px"><h3 style="margin:0">Option ${idx+1} <span class="pill acc">score ${sch.score}</span></h3><button class="btn primary sm" data-a="applysched" data-v="${idx}">Use this</button></div>
-    <div class="small" style="margin-bottom:10px;line-height:1.6">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
-    ${weekGrid(sch.items,bad)}</div>`;
-  }).join('');
+  const rows=scheds.slice(0,5).map((sch,idx)=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="row between" style="margin-bottom:6px"><b>Option ${idx+1} <span class="meta-txt">score ${sch.score}</span></b><button type="button" class="btn primary sm" data-a="applysched" data-v="${idx}">Use this</button></div>
+    <div class="small" style="line-height:1.55">${sch.items.map(x=>`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))} · #${esc(x.s.k)}`).join('<br>')}</div></div>`).join('');
 
-  return`<div class="sec"><h2>Auto-schedule · ${scheds.length} option${scheds.length>1?'s':''}</h2>${prefsUI}${rows}<button class="btn" data-a="autosched">Refresh</button></div>`;
+  return`${prefsUI}<div class="row between" style="margin-bottom:8px"><span class="meta-txt">${scheds.length} clash-free options</span><button type="button" class="btn ghost sm" data-a="autosched">Refresh</button></div>${rows}`;
 }
 
 /* ---------- main enrollment view ---------- */
+function renderSectionPicker(c,g,cur){
+  const selSec=g.sections.find(s=>s.k===cur),key=c.id+':'+g.comp;
+  const many=g.sections.length>4,showChips=!many||!!(U.enrExpand&&U.enrExpand[key]);
+  const ctl=many?`<div class="row" style="gap:6px;flex-wrap:nowrap;max-width:100%"><select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="${esc(g.label)} for ${esc(c.code)}"><option value="">Choose ${esc(g.label)} (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select><button type="button" class="btn ghost sm" data-a="enrexpand" data-k="${esc(key)}" style="flex:none">${showChips?'Hide':'All '+g.sections.length}</button></div>`:'';
+  const chips=showChips?`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`:'';
+  return{ctl,chips,selSec};
+}
 function vEnroll(){
   const E=S.enroll,t=enrollTerm(),eTermLabel=E?fmtEnrollTerm(E.term):'';
-  const srvBtn=typeof location!=='undefined'&&/^https?:$/i.test(location.protocol)?`<div class="row" style="margin-top:12px"><button class="btn soft sm" data-a="loadsrvsched">Load Spring 2027 schedule from server</button></div>`:'';
-  const up=`<div class="card"><h3 style="margin-bottom:6px">${E?'Update the offerings':'Import the course offerings'}</h3><p class="small muted" style="margin:0 0 14px">When the registrar publishes the schedule of classes for a term, drop the spreadsheet here (.xlsx or .csv). Atlas finds your planned courses in it, lets you pick sections, and warns you about clashes.</p>
-  <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">${E?`Loaded: ${esc(eTermLabel)} (${E.sections.length} sections)`:'Choose schedule spreadsheet'}</span><span class="dz-sub">${E?'Click to replace with a newer .xlsx or .csv file':'Supports .xlsx, .xls, and .csv exports from PSCS'}</span></label>${srvBtn}
-  ${U.enrMsg?`<div class="small" style="color:var(--bad);margin-top:10px">${esc(U.enrMsg)}</div>`:''}</div>`;
-  if(!E)return up;
+  const isWeb=typeof location!=='undefined'&&/^https?:$/i.test(location.protocol);
+  if(!E){
+    const srvBtn=isWeb?`<div class="row" style="margin-top:12px"><button type="button" class="btn soft sm" data-a="loadsrvsched">Load Spring 2027 schedule from server</button></div>`:'';
+    return`<div class="card"><h3 style="margin-bottom:6px">Import course offerings</h3><p class="small muted" style="margin:0 0 14px">Drop the registrar’s schedule spreadsheet (.xlsx or .csv). Atlas matches your planned courses, splits multi-component Lectures &amp; Seminars, and checks for clashes.</p>
+    <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">Choose schedule spreadsheet</span><span class="dz-sub">Supports .xlsx, .xls, and .csv exports from PSCS</span></label>${srvBtn}
+    ${U.enrMsg?`<div class="small" style="color:var(--bad);margin-top:10px">${esc(U.enrMsg)}</div>`:''}</div>`;
+  }
+  const topBar=`<div class="enr-bar"><div class="row" style="gap:8px"><span class="small"><b>${esc(eTermLabel)}</b> offerings</span><span class="meta-txt">${E.sections.length} sections</span><select class="sel-pill" data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div><div class="row" style="gap:6px"><label class="btn sm" style="cursor:pointer">Replace file<input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" hidden></label>${isWeb?`<button type="button" class="btn ghost sm" data-a="loadsrvsched">Reload Spring 2027</button>`:''}</div></div>${U.enrMsg?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border);color:var(--bad)">${esc(U.enrMsg)}</div>`:''}`;
   const cs=t?S.courses.filter(c=>c.term===t.id):[];
   const pk=picked(),bad=clashes(pk);
   const rowsH=cs.map(c=>{
     const ss=offered(c),comps=secComponents(ss),pmap=getCoursePickMap(c.id);
     if(!ss.length){
-      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div><span class="pill warn">not offered in this file</span></div></div></div>`;
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><span class="meta-txt">Not offered</span></div></div>`;
     }
     if(comps.length===1){
-      const g=comps[0],cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
-      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
-      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
-      const resH=selSec?resDetail(selSec):'';
-      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div style="min-width:0;max-width:100%">${ctl}</div></div>${chips}${resH}${selSec&&selSec.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(selSec.meets))} · ${esc(selSec.meets[0].r)}</div>`:''}</div>`;
+      const g=comps[0],cur=pmap[g.comp]||'',p=renderSectionPicker(c,g,cur);
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div style="min-width:0;max-width:100%">${p.ctl}</div></div>${p.chips}${p.selSec?resDetail(p.selSec):''}${p.selSec&&p.selSec.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(p.selSec.meets))} · ${esc(p.selSec.meets[0].r)}</div>`:''}</div>`;
     }
     const pickedCnt=comps.filter(g=>!!pmap[g.comp]).length;
     const statusPill=pickedCnt===comps.length?`<span class="pill good">${pickedCnt}/${comps.length} picked</span>`:`<span class="pill warn">Pick ${comps.map(g=>g.label).join(' + ')} (${pickedCnt}/${comps.length})</span>`;
     const compBlocks=comps.map(g=>{
-      const cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
-      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="${esc(g.label)} for ${esc(c.code)}"><option value="">Choose ${esc(g.label)} (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
-      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
-      return`<div class="comp-box"><div class="comp-head"><span class="comp-title">${esc(g.label)}${g.sections.length===1?' · required common section':''}</span>${ctl}</div>${chips}${selSec?resDetail(selSec):''}</div>`;
+      const cur=pmap[g.comp]||'',p=renderSectionPicker(c,g,cur);
+      return`<div class="comp-box"><div class="comp-head"><span class="comp-title">${esc(g.label)}${g.sections.length===1?' · common':''}</span>${p.ctl}</div>${p.chips}${p.selSec?resDetail(p.selSec):''}</div>`;
     }).join('');
-    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${statusPill}</div></div>${compBlocks}</div>`;
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div>${statusPill}</div>${compBlocks}</div>`;
   }).join('');
-  const clashH=bad.length?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft);margin-bottom:16px"><b style="color:var(--bad)">Schedule Clashes</b><div class="small" style="margin-top:6px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} and ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap on ${DAYL[x.d]} around ${hm(x.at)}`).join('<br>')}</div></div>`:'';
-  const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
+  const clashH=bad.length?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft);margin-bottom:14px;padding:12px 14px"><b style="color:var(--bad)">Schedule Clashes</b><div class="small" style="margin-top:4px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} &amp; ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap ${DAYL[x.d]} ${hm(x.at)}`).join('<br>')}</div></div>`:'';
+
+  const tab=U.enrTab||'week';
+  const rTabs=[['week','Week'],['cart','Cart'+(pk.length?' ('+pk.length+')':'')],['backups','Backups'],['auto','Auto'],['search','Search']];
+  let rightBody='';
+  if(tab==='week'){
+    rightBody=pk.length?weekGrid(pk,bad):'<div class="empty">Pick sections on the left to see your weekly timetable.</div>';
+  }else if(tab==='cart'){
+    rightBody=pk.length?`<div style="margin:-4px 0">${pk.map(x=>{const rb=resBadge(x.s);return`<div class="kv"><span title="${esc(cleanInsList(x.s.ins).join('; '))}"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))}</span><span class="row" style="gap:8px;flex:none">${rb}<span class="mono" style="min-width:44px;text-align:right;font-weight:600">${esc(x.s.k)}</span></span></div>`}).join('')}</div><div class="row between" style="padding-top:12px;border-top:1px solid var(--line);margin-top:10px"><div><div class="lbl">PSCS class numbers</div><div class="mono small" style="margin-top:4px;user-select:all">${pk.map(x=>x.s.k).join(', ')}</div></div><button type="button" class="btn primary sm" data-a="copycart">Copy</button></div>`:'<div class="empty">Pick sections to fill your PSCS shopping cart.</div>';
+  }else if(tab==='backups'){
+    rightBody=backupSection()||'<div class="empty">Pick sections first to see clash-free backup alternatives.</div>';
+  }else if(tab==='auto'){
+    rightBody=autoScheduleSection()||'<div class="empty">Add at least 2 offered courses to generate clash-free schedules.</div>';
+  }else{
+    const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
+    rightBody=`<input id="enr-q" data-c="enrq" placeholder="Search code, title, instructor, or program…" value="${esc(U.enrQ||'')}" style="width:100%;margin-bottom:10px">${found.length?found.map(s=>`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="meta-txt">${esc(s.sec)}</span></span><span class="meta-txt">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')}</span></div>`).join(''):`<div class="small muted" style="padding:8px 0">${q.length>1?'Nothing matched.':'Type at least two letters to search all '+E.sections.length+' sections.'}</div>`}`;
+  }
   const open=[];S.minors.forEach(mn=>minorStat(mn).open.forEach(r=>{const opts=(r.sl.opts||[]);const hits=opts.map(o=>({o,n:E.sections.filter(s=>aliases(o).some(a=>aliases(s.code).indexOf(a)>=0)).length}));open.push({mn,r,hits})}));
-  const minorH=open.filter(x=>x.hits.length).length?`<div class="sec"><h2>Minor courses on offer</h2><div class="card" style="padding:4px 16px">${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">✓ means a section is in the file you loaded.</div></div></div>`:'';
-  return up+`<div class="sec"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Choose sections for ${esc(t?t.name:'')}</h2><select class="sel-pill" data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>${clashH}
-  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px;min-width:0">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:10px 0">Offerings loaded for <b>${esc(eTermLabel)}</b>. Pick the term your courses sit in, then choose sections.</div></div><div class="card" style="position:sticky;top:20px;min-width:0">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
-  <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
+  const minorH=open.filter(x=>x.hits.length).length?`<details class="card" style="margin-top:16px"><summary>Minor courses on offer</summary>${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}</details>`:'';
+  return topBar+clashH+`<div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px;min-width:0">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}</div><div class="card" style="position:sticky;top:20px;min-width:0"><div class="enr-pane-tabs">${rTabs.map(([k,l])=>`<button type="button" class="${tab===k?'on':''}" data-a="enrtab" data-v="${k}">${l}</button>`).join('')}</div>${rightBody}</div></div>${minorH}`;
 }
 
 function resDetail(section){
@@ -485,7 +509,9 @@ Object.assign(ACT2,{
   copycart(){const pk=picked();if(!pk.length)return;const txt=pk.map(x=>x.s.k).join(', ');
     if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Class numbers copied'),()=>toast('Could not copy'));else toast('Select and copy: '+txt)},
   autosched(){U.showAutoSched=true;render()},
-  applysched(e,d){applySchedule(+d.v);U.showAutoSched=false},
+  applysched(e,d){applySchedule(+d.v);U.showAutoSched=false;U.enrTab='week';toast('Schedule applied');render()},
+  enrtab(e,d){U.enrTab=d.v;render()},
+  enrexpand(e,d){U.enrExpand=U.enrExpand||{};U.enrExpand[d.k]=!U.enrExpand[d.k];render()},
   enrtime(e,d){U.enrPrefs=U.enrPrefs||{};U.enrPrefs.time=d.v;render()},
   picksec(e,d){const comp=d.comp||'SEC',cur=getCoursePickMap(d.id)[comp]||'';setCoursePick(d.id,comp,cur===d.v?'':d.v);persist();render()},
   async loadsrvsched(){U.enrMsg='';try{const b=(typeof WEB_BASE==='string'?WEB_BASE:'');const r=await fetch(b+'/api/offerings/default');if(!r.ok)throw new Error('HTTP '+r.status);const rows=parseCsvRows(await r.text());const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);o.picks=preserveEnrollPicks(keep,o.sections);S.enroll=o;persist();toast('Loaded '+fmtEnrollTerm(o.term)+' ('+o.sections.length+' sections)')}catch(err){U.enrMsg='Could not load server schedule ('+(err&&err.message||'error')+')'}render()},

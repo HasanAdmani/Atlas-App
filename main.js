@@ -187,6 +187,39 @@ ipcMain.handle('canvas:silent', async () => {
   return { ok: false };
 });
 
+/* ---------- PSCS: wait for your sign-in, then read Course History + Weekly Schedule (read-only) ---------- */
+ipcMain.handle('pscs:export', async () => {
+  const url = portalUrl('pscs'), host = new URL(url).hostname;
+  const w = portalWindow('pscs', false);
+  await w.loadURL(url).catch(() => {});
+  const started = Date.now();
+  let shown = false;
+  while (Date.now() - started < 5 * 60e3) {
+    if (w.isDestroyed()) throw new Error('The PSCS window was closed');
+    let curUrl = '';
+    try { curUrl = w.webContents.getURL(); } catch (x) {}
+    let onPscs = false;
+    try { onPscs = new URL(curUrl).hostname === host; } catch (x) {}
+    let signedIn = false;
+    if (onPscs && /\/(psc|psp)\//i.test(curUrl) && !/cmd=login|signin/i.test(curUrl)) {
+      signedIn = await w.webContents.executeJavaScript(
+        "!document.querySelector('input[type=\"password\"]') && /homepage|student|academic|classes|schedule|peoplesoft/i.test(document.title + ' ' + ((document.body && document.body.innerText) || '').slice(0, 1500))"
+      ).catch(() => false);
+    }
+    if (signedIn) {
+      await sleep(800);
+      const script = fs.readFileSync(path.join(__dirname, 'connectors', 'pscs.js'), 'utf8');
+      const json = await w.webContents.executeJavaScript(script);
+      if (!w.isDestroyed()) w.close();
+      return json;
+    }
+    if (!shown && Date.now() - started > 2500) { w.show(); shown = true; }
+    await sleep(1500);
+  }
+  if (!w.isDestroyed()) w.close();
+  throw new Error('Timed out waiting for you to sign in to PSCS');
+});
+
 /* ---------- Starserver sync bridge ---------- */
 ipcMain.handle('server:sync', async (e, payload) => {
   const srv = (config().serverUrl || '').trim().replace(/\/+$/, '');

@@ -26,12 +26,15 @@ function defUi(){
   return{
     dash:{
       desktop:[
-        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
-        {w:'inprog',size:'m',on:true},{w:'duenext',size:'m',on:true},{w:'week',size:'m',on:true},{w:'trend',size:'m',on:true},
-        {w:'attention',size:'m',on:true},{w:'reqs',size:'m',on:true},{w:'portals',size:'s',on:false},{w:'note',size:'s',on:false}
+        {w:'summary',size:'l',on:true},
+        {w:'inprog',size:'m',on:true},{w:'duenext',size:'m',on:true},
+        {w:'week',size:'m',on:true},{w:'attention',size:'m',on:true},
+        {w:'trend',size:'m',on:false},{w:'reqs',size:'m',on:false},
+        {w:'gpa',size:'s',on:false},{w:'term',size:'s',on:false},{w:'credits',size:'s',on:false},{w:'target',size:'s',on:false},
+        {w:'portals',size:'s',on:false},{w:'note',size:'s',on:false}
       ],
       mobile:[
-        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
+        {w:'summary',size:'l',on:true},
         {w:'duenext',size:'m',on:true},{w:'inprog',size:'m',on:true},{w:'week',size:'m',on:true},{w:'attention',size:'m',on:true}
       ],
       note:''
@@ -43,7 +46,7 @@ function defUi(){
   };
 }
 
-function blank(){return{v:5,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30,color:CAT_COLORS[0]},{k:'major',n:'Major',req:60,color:CAT_COLORS[1]},{k:'gened',n:'General education',req:15,color:CAT_COLORS[2]},{k:'free',n:'Free electives',req:15,color:CAT_COLORS[3]}],portals:DEF_PORTALS.map(x=>Object.assign({},x))},terms:[],courses:[],minors:[],ui:defUi(),links:{canvas:{at:0,map:{}},pscs:{at:0}}}}
+function blank(){return{v:6,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30,color:CAT_COLORS[0]},{k:'major',n:'Major',req:60,color:CAT_COLORS[1]},{k:'gened',n:'General education',req:15,color:CAT_COLORS[2]},{k:'free',n:'Free electives',req:15,color:CAT_COLORS[3]}],portals:DEF_PORTALS.map(x=>Object.assign({},x))},terms:[],courses:[],minors:[],schedule:null,ui:defUi(),links:{canvas:{at:0,map:{}},pscs:{at:0}}}}
 
 /* Dossier loader: clean degree templates bundled from dossiers/ at build time (zero personal data). */
 const HABIB_SCALE=[['A+',4,95],['A',4,90],['A-',3.67,85],['B+',3.33,80],['B',3,75],['B-',2.67,70],['C+',2.33,67],['C',2,63],['C-',1.67,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
@@ -69,7 +72,7 @@ function loadDossier(id,doneCount){
 }
 
 let S=blank();
-const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:'',toastUndo:false,canUndo:false,conflict:null};
+const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:'',toastUndo:false,canUndo:false,conflict:null,addOpen:false,addTab:'quick',gpaTab:'target',enrTab:'week',viewPop:false,openGrps:{},enrExpand:{},dueEdit:null,welcomeMode:''};
 const UNDO=[];
 function pushUndo(label){try{const snap=JSON.stringify(S);if(UNDO.length&&UNDO[UNDO.length-1].state===snap)return;UNDO.push({label:label||'Change',state:snap});if(UNDO.length>30)UNDO.shift();U.canUndo=UNDO.length>0}catch(e){}}
 let persist=function(){};
@@ -167,7 +170,7 @@ function deadlines(){
   const out=[];
   curCourses().forEach(c=>(c.assess||[]).forEach(g=>{
     const k=Math.max(1,Math.max(+g.cnt||0,(g.items||[]).length,1)-(+g.drop||0));
-    (g.items||[]).forEach(it=>{if(it.due&&(it.s==null||it.s==='')&&!it.st){const d=daysUntil(it.due.slice(0,10));if(d>=0)out.push({c,a:{n:it.n,w:(+g.w||0)/k,due:it.due.slice(0,10)},d})}});
+    (g.items||[]).forEach(it=>{if(it.due&&(it.s==null||it.s==='')&&!it.st){const d=daysUntil(it.due.slice(0,10));if(d>=0)out.push({c,gid:g.id,iid:it.id,max:it.m==null?100:it.m,a:{n:it.n,w:(+g.w||0)/k,due:it.due.slice(0,10)},d})}});
   }));
   return out.sort((x,y)=>x.d-y.d);
 }

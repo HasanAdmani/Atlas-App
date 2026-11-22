@@ -4,22 +4,43 @@
   <meta charset="utf-8">
   <title>Atlas Companion</title>
   <style>
-    body { margin: 0; padding: 14px; width: 320px; font: 13.5px/1.45 system-ui, -apple-system, sans-serif; background: #f3f4f1; color: #111715; }
-    h1 { font-size: 16px; margin: 0 0 4px; }
+    body { margin: 0; padding: 14px; width: 330px; font: 13.5px/1.45 system-ui, -apple-system, sans-serif; background: #f3f4f1; color: #111715; }
+    h1 { font-size: 16px; margin: 0 0 2px; }
     .muted { color: #63706a; font-size: 12px; }
     .card { background: #fff; border: 1px solid #e1e5df; border-radius: 10px; padding: 12px; margin-top: 10px; }
-    label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #63706a; margin-bottom: 4px; }
+    label { display: block; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: #63706a; margin-bottom: 4px; }
     input[type="text"] { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #cbd2c8; border-radius: 7px; font-size: 12.5px; }
     button { width: 100%; margin-top: 8px; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd2c8; background: #fff; color: #111715; font-weight: 600; font-size: 13px; cursor: pointer; }
+    button:hover:not(:disabled) { background: #f9faf8; }
     button.primary { background: #2945b8; border-color: #2945b8; color: #fff; }
+    button.primary:hover:not(:disabled) { background: #1e3594; }
     button:disabled { opacity: .6; cursor: default; }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 12.5px; }
-    #status { margin-top: 10px; font-size: 12.5px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 8px; font-size: 12.5px; }
+    .row button { margin-top: 0; flex: 1; font-size: 12px; padding: 6px 8px; }
+    #status { margin-top: 10px; font-size: 12px; line-height: 1.4; }
+    .links { display: flex; gap: 6px; margin-top: 8px; font-size: 11.5px; }
+    .links a { color: #2945b8; text-decoration: none; font-weight: 500; }
+    .links a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <h1>Atlas Companion</h1>
-  <div class="muted">Background Canvas sync &amp; portal importer</div>
+  <div class="muted">1-click read-only sync for Canvas &amp; PSCS</div>
+
+  <div class="card">
+    <button id="sync-all" class="primary" style="margin-top:0">✦ Sync All Portals (Canvas + PSCS)</button>
+    <div class="row">
+      <button id="sync-cv">Canvas only</button>
+      <button id="sync-pscs">PSCS only</button>
+    </div>
+    <button id="send-tab">Send Current Tab (Simple Syllabus / Page)</button>
+    <div id="status" class="muted">Ready. Sign in to Canvas or PSCS once, then click Sync All.</div>
+    <div class="links">
+      <a href="https://hulms.instructure.com" target="_blank">Open Canvas</a> ·
+      <a href="https://pscs.habib.edu.pk/psc/CSPROD/EMPLOYEE/SA/c/NUI_FRAMEWORK.PT_LANDINGPAGE.GBL" target="_blank">Open PSCS</a> ·
+      <a href="https://habib.simplesyllabus.com" target="_blank">Simple Syllabus</a>
+    </div>
+  </div>
 
   <div class="card">
     <label for="srv">Atlas Server URL</label>
@@ -28,13 +49,7 @@
       <span>Auto-sync on Canvas visit</span>
       <input id="auto" type="checkbox" checked>
     </div>
-  </div>
-
-  <div class="card">
-    <button id="sync-cv" class="primary">Sync Canvas Now</button>
-    <button id="send-tab">Send Current Tab (PSCS / Syllabus)</button>
     <button id="open-atlas">Open Atlas</button>
-    <div id="status" class="muted">Ready.</div>
   </div>
 
   <script src="popup.js"></script>

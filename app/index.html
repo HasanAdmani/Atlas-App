@@ -99,23 +99,28 @@ details>summary::after{content:'+';font-size:15px;font-weight:500;color:var(--mu
 details[open]>summary::after{content:'−'}
 
 /* Shell & Navigation */
-.shell{display:grid;grid-template-columns:232px minmax(0,1fr);gap:28px;max-width:1540px;margin:0 auto;padding-block:20px 80px;transition:grid-template-columns .18s ease}
-.shell.rail-c{grid-template-columns:66px minmax(0,1fr);gap:20px}
-.side{position:sticky;top:20px;align-self:start;display:flex;flex-direction:column;gap:14px;min-width:0}
-.side-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 12px;box-shadow:var(--sh-sm);display:flex;flex-direction:column;gap:14px}
-.shell.rail-c .side-card{padding:14px 8px;align-items:center}
+.shell{display:grid;grid-template-columns:216px minmax(0,1fr);gap:26px;max-width:1520px;margin:0 auto;padding-block:20px 80px;transition:grid-template-columns .18s ease}
+.shell.rail-c{grid-template-columns:64px minmax(0,1fr);gap:18px}
+.side{position:sticky;top:20px;align-self:start;display:flex;flex-direction:column;gap:12px;min-width:0}
+.side-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 10px;box-shadow:var(--sh-xs);display:flex;flex-direction:column;gap:12px}
+.shell.rail-c .side-card{padding:12px 7px;align-items:center}
 .brand{padding:0 4px;width:100%}
 .brand-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .shell.rail-c .brand-top{flex-direction:column;gap:8px}
-.brand-row{display:flex;align-items:center;gap:10px}
+.brand-row{display:flex;align-items:center;gap:9px}
 .mob-util{display:none;align-items:center;gap:6px}
-.rail-btn{width:28px;height:28px;padding:0;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;flex:none}
+.rail-btn{width:26px;height:26px;padding:0;border-radius:7px;border:1px solid transparent;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;flex:none}
 .rail-btn:hover{background:var(--sunk);color:var(--ink)}
 .rail-btn svg{width:15px;height:15px}
-.brand-mark{width:28px;height:28px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:400 19px/1 var(--f-display);font-style:italic;box-shadow:var(--sh-xs);flex:none}
-.brand-name{font:400 26px/1 var(--f-display);letter-spacing:-.015em;color:var(--ink)}
-.brand small{display:block;margin-top:6px;font:500 10px/1.35 var(--f-mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav{display:flex;flex-direction:column;gap:3px;width:100%}
+.brand-mark{width:26px;height:26px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:400 18px/1 var(--f-display);font-style:italic;flex:none}
+.brand-name{font:400 24px/1 var(--f-display);letter-spacing:-.015em;color:var(--ink)}
+.brand small{display:block;margin-top:5px;font:500 10px/1.3 var(--f-mono);color:var(--muted);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side-cta{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:8px 10px;border-radius:9px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);font-size:13.5px;font-weight:600;cursor:pointer;transition:background-color .14s,transform .12s;box-shadow:var(--sh-xs)}
+.side-cta:hover{background:var(--accent-hover);border-color:var(--accent-hover);transform:translateY(-0.5px)}
+.side-cta svg{width:15px;height:15px;flex:none}
+.shell.rail-c .side-cta{width:38px;height:36px;padding:0}
+.shell.rail-c .side-cta span{display:none}
+.nav{display:flex;flex-direction:column;gap:2px;width:100%}
 .nav a,.nav button.nav-more{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--muted);padding:8px 10px;border-radius:8px;font-weight:500;font-size:14px;transition:all .14s ease;border:0;background:transparent;cursor:pointer;text-align:left;width:100%}
 .nav button.nav-more{display:none}
 .nav a svg,.nav button.nav-more svg{width:16px;height:16px;flex:none;opacity:.72;transition:opacity .14s ease}
@@ -124,35 +129,31 @@ details[open]>summary::after{content:'−'}
 .nav a[aria-current="page"],.nav button.nav-more.on{color:var(--accent);background:var(--accent-soft);font-weight:600}
 .nav a[aria-current="page"] svg,.nav button.nav-more.on svg{opacity:1;stroke:var(--accent)}
 .shell.rail-c .nav a{justify-content:center;padding:9px 6px}
-.shell.rail-c .brand-name,.shell.rail-c .brand small,.shell.rail-c .nav a span,.shell.rail-c .side-lbl,.shell.rail-c .side-btn span,.shell.rail-c .dock-name,.shell.rail-c .dock-act,.shell.rail-c .theme-seg,.shell.rail-c .sidefoot span:not(.sync-dot){display:none}
+.shell.rail-c .brand-name,.shell.rail-c .brand small,.shell.rail-c .nav a span,.shell.rail-c .side-lbl,.shell.rail-c .side-util-txt,.shell.rail-c .sidefoot span:not(.sync-dot){display:none}
 
-/* Portal Dock */
-.side-dock{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:4px;width:100%}
-.dock-row{display:flex;align-items:center;gap:4px;width:100%}
-.dock-btn{flex:1;min-width:0;display:flex;align-items:center;gap:9px;padding:5px 6px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--ink-2);font-size:13px;font-weight:500;cursor:pointer;text-align:left;transition:all .14s ease}
-.dock-btn:hover{background:var(--surface-2);border-color:var(--line);color:var(--ink)}
-.shell.rail-c .dock-row{justify-content:center}
-.shell.rail-c .dock-btn{flex:none;padding:4px}
-.p-tile{width:24px;height:24px;border-radius:7px;background:var(--pc,#2945B8);color:#fff;display:grid;place-items:center;font:600 10.5px/1 var(--f-mono);letter-spacing:.02em;flex:none;box-shadow:var(--sh-xs)}
-.dock-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dock-act{width:24px;height:24px;padding:0;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;flex:none}
-.dock-act:hover{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-border)}
-.dock-act svg{width:13px;height:13px}
-
-.side-quick{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px;width:100%}
-.side-lbl{font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 6px 3px}
-.side-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);font-size:13px;font-weight:500;text-decoration:none;cursor:pointer;transition:all .14s ease}
-.side-btn svg{width:14px;height:14px;flex:none;opacity:.75}
-.side-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
-.side-btn[aria-current="page"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);font-weight:600}
-.shell.rail-c .side-btn{justify-content:center;padding:8px 6px}
-.side-foot{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px;width:100%}
-.shell.rail-c .side-foot{align-items:center;padding-top:10px}
+/* Compact Portal Strip & Calm Footer */
+.side-dock{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:6px;width:100%}
+.portal-strip{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:0 2px}
+.shell.rail-c .portal-strip{flex-direction:column;padding:0}
+.p-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 8px 4px 4px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink-2);font-size:12px;font-weight:500;cursor:pointer;transition:all .13s ease}
+.p-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.shell.rail-c .p-chip{padding:3px;border-color:transparent;background:transparent}
+.shell.rail-c .p-chip span:not(.p-tile){display:none}
+.p-tile{width:22px;height:22px;border-radius:6px;background:var(--pc,#2945B8);color:#fff;display:grid;place-items:center;font:600 10px/1 var(--f-mono);letter-spacing:.02em;flex:none}
+.side-lbl{font:500 10px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 4px}
+.side-foot{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px;width:100%}
+.side-util{display:flex;align-items:center;gap:3px;width:100%}
+.shell.rail-c .side-util{flex-direction:column;gap:4px}
+.util-btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:6px 6px;border-radius:7px;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:500;text-decoration:none;cursor:pointer;transition:all .12s ease;position:relative}
+.util-btn:hover,.util-btn[aria-current="page"]{background:var(--sunk);color:var(--ink)}
+.util-btn svg{width:14px;height:14px;flex:none}
+.util-dot{position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.shell.rail-c .util-btn{width:34px;height:32px;flex:none;padding:0}
 .theme-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--sunk);padding:3px;border-radius:8px;border:1px solid var(--line)}
 .theme-seg button{border:0;background:transparent;color:var(--muted);padding:5px 4px;border-radius:6px;font:500 11px/1.2 var(--f-mono);cursor:pointer;transition:all .14s ease}
 .theme-seg button:hover{color:var(--ink)}
 .theme-seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--sh-xs)}
-.sidefoot{font:400 11px/1.4 var(--f-mono);color:var(--muted);padding:0 4px;display:flex;align-items:center;gap:6px}
+.sidefoot{font:400 10.5px/1.3 var(--f-mono);color:var(--muted);padding:0 4px;display:flex;align-items:center;gap:6px}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--good);flex:none;box-shadow:0 0 0 2px var(--good-soft)}
 .sync-dot.warn{background:var(--warn);box-shadow:0 0 0 2px var(--warn-soft)}
 .sync-dot.bad{background:var(--bad);box-shadow:0 0 0 2px var(--bad-soft)}
@@ -480,7 +481,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
   .side{position:static;gap:0}
   .side-card{padding:10px 12px;gap:0;border-radius:12px}
   .brand{padding:0}
-  .brand small,.side-dock,.side-quick,.side-foot,.rail-btn,.cmd-trig{display:none!important}
+  .brand small,.side-cta,.side-dock,.side-foot,.rail-btn,.cmd-trig{display:none!important}
   .mob-util{display:flex}
   .head{margin-bottom:14px;padding-bottom:10px}
   h1{font-size:clamp(24px,6.2vw,32px);overflow-wrap:anywhere}
@@ -497,7 +498,7 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
     box-shadow:0 -2px 10px rgba(0,0,0,.06);
   }
   .nav a,.nav button.nav-more{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;font-size:10.5px;padding:6px 2px;text-align:center;border-radius:8px;white-space:nowrap;min-width:0;overflow:hidden}
-  .nav a.nav-settings{display:none!important}
+  .nav a.nav-desk-only{display:none!important}
   .nav a span,.nav button.nav-more span{display:block!important;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .nav a svg,.nav button.nav-more svg{width:18px;height:18px}
   .toast{bottom:calc(78px + env(safe-area-inset-bottom,0px))}
@@ -557,6 +558,72 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 .check-mark{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:600 11px var(--f-mono);flex:none;background:var(--sunk);color:var(--muted);border:1px solid var(--line-strong)}
 .check-row.done .check-mark{background:var(--good);color:#fff;border-color:var(--good)}
 .check-row.next .check-mark{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* Unified Home Stats Strip */
+.stats-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:var(--surface);border:1px solid var(--line);border-radius:13px;box-shadow:var(--sh-xs);overflow:hidden}
+.stats-strip.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.stat-cell{padding:16px 18px;display:flex;flex-direction:column;gap:4px;position:relative;min-width:0}
+.stat-cell+.stat-cell{border-left:1px solid var(--line)}
+.stat-val{font:400 clamp(26px,2.8vw,34px)/1.05 var(--f-display);letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.stat-sub{font-size:12px;color:var(--muted);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:860px){
+  .stats-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats-strip.cols-3{grid-template-columns:1fr}
+  .stats-strip.cols-3 .stat-cell+.stat-cell{border-left:0;border-top:1px solid var(--line)}
+  .stat-cell{padding:13px 14px}
+  .stat-cell:nth-child(3){border-left:0;border-top:1px solid var(--line)}
+  .stat-cell:nth-child(4){border-top:1px solid var(--line)}
+}
+
+/* Inline Add Course Modal & View Popover */
+.modal-veil{position:fixed;inset:0;background:rgba(10,14,12,.45);backdrop-filter:blur(3px);z-index:45;display:flex;align-items:center;justify-content:center;padding:18px}
+.modal-box{width:min(620px,100%);max-height:min(88vh,760px);overflow-y:auto;background:var(--surface);border:1px solid var(--line-strong);border-radius:16px;box-shadow:var(--sh-md);padding:20px 22px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.modal-head h2{font:400 26px/1.05 var(--f-display);text-transform:none;letter-spacing:-.015em;color:var(--ink);margin:0}
+.pop-wrap{position:relative;display:inline-flex}
+.pop-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:52;width:272px;max-width:calc(100vw - 24px);background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;box-shadow:var(--sh-md);padding:12px;display:flex;flex-direction:column;gap:11px}
+.pop-menu select{width:100%;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.pop-menu .seg{flex-wrap:nowrap;width:100%}
+.pop-menu .seg button{flex:1;padding:5px 4px;font-size:11.5px;text-align:center}
+
+/* Course Drawer Summary & Airy Assessment Rows */
+.dr-summary{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px}
+.dr-sum-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.dr-sum-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--line)}
+.ir-clean{display:grid;grid-template-columns:minmax(90px,1fr) 58px 10px 58px 40px 124px auto;gap:5px;align-items:center;margin-bottom:6px}
+.ir-clean input{width:100%;padding:5px 7px;font-size:13px;border-radius:7px}
+.ir-clean .ir-slash{text-align:center;color:var(--muted);font:500 12px var(--f-mono)}
+.ir-clean.ih{font:500 10px var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.g-meta-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;margin-bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:8px;font-size:12.5px}
+.flag-btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);border-radius:6px;padding:3px 7px;font:500 10.5px var(--f-mono);cursor:pointer;white-space:nowrap}
+.flag-btn:hover{border-color:var(--accent);color:var(--accent)}
+.flag-btn.submitted{background:var(--accent-soft);border-color:var(--accent-border);color:var(--accent)}
+.flag-btn.missing{background:var(--bad-soft);border-color:var(--bad-border);color:var(--bad)}
+.flag-btn.excused{background:var(--warn-soft);border-color:var(--warn-border);color:var(--warn)}
+@media (max-width:640px){.ir-clean{grid-template-columns:1fr 56px 10px 56px auto}.ir-clean>.nm{grid-column:1/-1}.ir-clean.ih,.ir-clean>.ir-pct{display:none}}
+
+/* Inline Score Entry on Home Up Next */
+.due-score{display:inline-flex;align-items:center;gap:4px}
+.due-score input{width:54px;padding:3px 6px;font:500 12px var(--f-mono);text-align:right;border-radius:6px}
+
+/* Compact Enrollment Bar & Tabbed Right Pane */
+.enr-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:11px;margin-bottom:16px}
+.enr-pane-tabs{display:flex;gap:3px;background:var(--sunk);padding:3px;border-radius:9px;border:1px solid var(--line);margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.enr-pane-tabs::-webkit-scrollbar{display:none}
+.enr-pane-tabs button{flex:1 1 auto;border:0;background:transparent;color:var(--muted);padding:6px 8px;border-radius:6px;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .13s}
+.enr-pane-tabs button:hover{color:var(--ink)}
+.enr-pane-tabs button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--sh-xs)}
+
+/* Calm Welcome / First-Run Hub */
+.welcome-hero{text-align:center;max-width:620px;margin:8px auto 22px}
+.welcome-hero h1{font-size:clamp(30px,4vw,42px);margin-bottom:8px}
+.welcome-hero p{color:var(--muted);font-size:15px;margin:0}
+.welcome-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-bottom:18px}
+.w-card{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;transition:border-color .15s,box-shadow .15s}
+.w-card:hover{border-color:var(--line-strong);box-shadow:var(--sh-sm)}
+.w-card.featured{border-color:var(--accent-border);background:linear-gradient(180deg,color-mix(in srgb,var(--accent-soft) 45%,var(--surface)),var(--surface))}
+.w-card h3{font-size:16px;margin:6px 0 4px}
+.meta-txt{font:400 12px var(--f-mono);color:var(--muted)}
 @media (max-width:860px){.cc .ctx-btn{opacity:1}}
 </style>
 <div id="app"></div><script>
@@ -587,12 +654,15 @@ function defUi(){
   return{
     dash:{
       desktop:[
-        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
-        {w:'inprog',size:'m',on:true},{w:'duenext',size:'m',on:true},{w:'week',size:'m',on:true},{w:'trend',size:'m',on:true},
-        {w:'attention',size:'m',on:true},{w:'reqs',size:'m',on:true},{w:'portals',size:'s',on:false},{w:'note',size:'s',on:false}
+        {w:'summary',size:'l',on:true},
+        {w:'inprog',size:'m',on:true},{w:'duenext',size:'m',on:true},
+        {w:'week',size:'m',on:true},{w:'attention',size:'m',on:true},
+        {w:'trend',size:'m',on:false},{w:'reqs',size:'m',on:false},
+        {w:'gpa',size:'s',on:false},{w:'term',size:'s',on:false},{w:'credits',size:'s',on:false},{w:'target',size:'s',on:false},
+        {w:'portals',size:'s',on:false},{w:'note',size:'s',on:false}
       ],
       mobile:[
-        {w:'gpa',size:'s',on:true},{w:'term',size:'s',on:true},{w:'credits',size:'s',on:true},{w:'target',size:'s',on:true},
+        {w:'summary',size:'l',on:true},
         {w:'duenext',size:'m',on:true},{w:'inprog',size:'m',on:true},{w:'week',size:'m',on:true},{w:'attention',size:'m',on:true}
       ],
       note:''
@@ -604,7 +674,7 @@ function defUi(){
   };
 }
 
-function blank(){return{v:5,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30,color:CAT_COLORS[0]},{k:'major',n:'Major',req:60,color:CAT_COLORS[1]},{k:'gened',n:'General education',req:15,color:CAT_COLORS[2]},{k:'free',n:'Free electives',req:15,color:CAT_COLORS[3]}],portals:DEF_PORTALS.map(x=>Object.assign({},x))},terms:[],courses:[],minors:[],ui:defUi(),links:{canvas:{at:0,map:{}},pscs:{at:0}}}}
+function blank(){return{v:6,sample:false,settings:{program:'',school:'',totalCredits:120,maxLoad:18,targetGpa:3.5,scale:DEF_SCALE.map(x=>Object.assign({},x)),cats:[{k:'core',n:'Core and foundation',req:30,color:CAT_COLORS[0]},{k:'major',n:'Major',req:60,color:CAT_COLORS[1]},{k:'gened',n:'General education',req:15,color:CAT_COLORS[2]},{k:'free',n:'Free electives',req:15,color:CAT_COLORS[3]}],portals:DEF_PORTALS.map(x=>Object.assign({},x))},terms:[],courses:[],minors:[],schedule:null,ui:defUi(),links:{canvas:{at:0,map:{}},pscs:{at:0}}}}
 
 /* Dossier loader: clean degree templates bundled from dossiers/ at build time (zero personal data). */
 const HABIB_SCALE=[['A+',4,95],['A',4,90],['A-',3.67,85],['B+',3.33,80],['B',3,75],['B-',2.67,70],['C+',2.33,67],['C',2,63],['C-',1.67,60],['F',0,0]].map(x=>({l:x[0],p:x[1],min:x[2]}));
@@ -630,7 +700,7 @@ function loadDossier(id,doneCount){
 }
 
 let S=blank();
-const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:'',toastUndo:false,canUndo:false,conflict:null};
+const U={route:'overview',course:null,tab:'assess',whatif:{},sel:null,busy:false,syl:{text:'',files:[],out:null,err:'',loading:false,term:''},toast:'',toastUndo:false,canUndo:false,conflict:null,addOpen:false,addTab:'quick',gpaTab:'target',enrTab:'week',viewPop:false,openGrps:{},enrExpand:{},dueEdit:null,welcomeMode:''};
 const UNDO=[];
 function pushUndo(label){try{const snap=JSON.stringify(S);if(UNDO.length&&UNDO[UNDO.length-1].state===snap)return;UNDO.push({label:label||'Change',state:snap});if(UNDO.length>30)UNDO.shift();U.canUndo=UNDO.length>0}catch(e){}}
 let persist=function(){};
@@ -728,7 +798,7 @@ function deadlines(){
   const out=[];
   curCourses().forEach(c=>(c.assess||[]).forEach(g=>{
     const k=Math.max(1,Math.max(+g.cnt||0,(g.items||[]).length,1)-(+g.drop||0));
-    (g.items||[]).forEach(it=>{if(it.due&&(it.s==null||it.s==='')&&!it.st){const d=daysUntil(it.due.slice(0,10));if(d>=0)out.push({c,a:{n:it.n,w:(+g.w||0)/k,due:it.due.slice(0,10)},d})}});
+    (g.items||[]).forEach(it=>{if(it.due&&(it.s==null||it.s==='')&&!it.st){const d=daysUntil(it.due.slice(0,10));if(d>=0)out.push({c,gid:g.id,iid:it.id,max:it.m==null?100:it.m,a:{n:it.n,w:(+g.w||0)/k,due:it.due.slice(0,10)},d})}});
   }));
   return out.sort((x,y)=>x.d-y.d);
 }
@@ -743,7 +813,7 @@ let INNER=false;
 const cmdBtn=()=>`<button type="button" class="btn ghost sm cmd-trig" data-a="opencmd" title="Search & commands (Ctrl+K)">${ICONS.search}<span class="mono small">⌘K</span></button>`;
 const head=(t,sub,right)=>INNER
   ?`<div class="row between toolbar-inner" style="margin-bottom:14px;align-items:center;gap:10px">${sub?`<span class="small muted">${sub}</span>`:'<span></span>'}${right?`<div class="row" style="gap:8px">${right}</div>`:''}</div>`
-  :`<div class="head"><div class="head-left"><div class="row" style="gap:8px;align-items:center"><h1>${t}</h1>${sub?`<button type="button" class="btn ghost sm help-trig ${U.showHelp?'on':''}" data-a="togglehelp" title="About this page" aria-label="Page info">${ICONS.info}</button>`:''}</div>${U.route==='overview'&&sub?`<p class="sub">${sub}</p>`:''}</div><div class="row head-right" style="gap:8px">${right||''}${cmdBtn()}</div></div>${U.showHelp&&sub?`<div class="help-pop"><span>${sub}</span><button type="button" class="btn ghost sm" data-a="togglehelp" aria-label="Dismiss">✕</button></div>`:''}`;
+  :`<div class="head"><div class="head-left"><h1>${t}</h1>${(U.route==='overview'||U.route==='setup'||U.route==='tour')&&sub?`<p class="sub">${sub}</p>`:''}</div><div class="row head-right" style="gap:8px">${right||''}${cmdBtn()}</div></div>`;
 
 const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function dateBadge(iso,d){
@@ -817,81 +887,82 @@ function setupChecklist(onTour){
   </div>`;
 }
 function setupPanel(isGuide){
-  const y=new Date().getFullYear(),ds=getDossiers();
-  const fastTrack=`<div class="card kpi-card kpi-acc" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Fastest Start · Link Canvas Once</h2><span class="pill acc">Recommended</span></div>
-    <p class="sub" style="margin:0 0 14px">Don’t want to set up terms and courses by hand? Connect Canvas once and Atlas automatically creates your current term, courses, instructors, assignment groups, weights, and due dates.</p>
-    <div class="row" style="gap:8px;flex-wrap:wrap">
-      ${DESKTOP_HOST?`<button type="button" class="btn primary" data-a="quickcanvas">${U.hostBusy==='canvas'?'Waiting for Canvas sign-in…':'Sign in to Canvas & Build Plan'}</button>`:`<a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it once while signed into Canvas!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>`}
-      <a class="btn" href="#canvas">Open Sync &amp; Import</a>
-      <a class="btn soft" href="#tour">Interactive Tour →</a>
+  const y=new Date().getFullYear(),ds=getDossiers(),mode=U.welcomeMode||'';
+  const hero=!isGuide?`<div class="welcome-hero"><h1>Welcome to Atlas</h1><p>Pick one way to start — your grades, roadmap, and enrollment come together automatically.</p><div class="row" style="justify-content:center;margin-top:12px"><a class="btn sm soft" href="#tour">Take the 1-min Tour →</a></div></div>`:'';
+  const cards=`<div class="welcome-grid">
+    <div class="w-card featured">
+      <div><span class="pill acc">Recommended</span><h3>1-Click Portal Sync</h3><p class="small muted" style="margin:0">Sign in to Canvas &amp; PSCS normally, then let Atlas read your courses, scores, past grades, and live weekly schedule automatically (read-only, zero passwords).</p></div>
+      <div class="row" style="gap:6px">
+        ${DESKTOP_HOST?`<button type="button" class="btn primary sm" data-a="hostsyncall">${U.hostBusy?'Syncing portals…':'✦ Sync All (Canvas + PSCS)'}</button>`:`<a class="btn primary sm" href="#canvas">Set up 1-Click Sync →</a>`}
+        ${DESKTOP_HOST?`<button type="button" class="btn sm" data-a="quickcanvas">Canvas only</button>`:`<a class="btn sm" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it once on Canvas or PSCS!')">Bookmarklet</a>`}
+      </div>
+    </div>
+    <div class="w-card">
+      <div><span class="pill">4-year grid</span><h3>Load a Habib Dossier</h3><p class="small muted" style="margin:0">Start with an official EE or CS Class of 2029 curriculum grid with zero manual entry.</p></div>
+      <div class="row" style="gap:6px"><button type="button" class="btn ${mode==='dossier'?'primary':''} sm" data-a="welcomemode" data-v="${mode==='dossier'?'':'dossier'}">${mode==='dossier'?'Hide dossiers':'Choose dossier'}</button></div>
+    </div>
+    <div class="w-card">
+      <div><span class="pill">Any batch</span><h3>PSCS, Stellic, or Blank</h3><p class="small muted" style="margin:0">Paste your PSCS Course History, Stellic audit, or configure a custom degree for any university.</p></div>
+      <div class="row" style="gap:6px"><button type="button" class="btn ${mode==='import'?'primary':''} sm" data-a="welcomemode" data-v="${mode==='import'?'':'import'}">Paste export</button><button type="button" class="btn ghost sm" data-a="welcomemode" data-v="${mode==='custom'?'':'custom'}">Custom</button></div>
     </div>
   </div>`;
 
-  const pathA=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path A · Load from a University Dossier</h2><span class="pill">Full 4-year grid</span></div>
-    <p class="sub" style="margin:0 0 12px">Start with an official curriculum grid (no personal data or grades). Pick how many regular semesters you have already finished:</p>
-    <div class="row" style="margin-bottom:14px;gap:10px"><label class="f" style="max-width:220px"><span>Terms finished so far</span><input id="su-d-done" type="number" min="0" max="12" value="0"></label></div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
-      ${ds.map(d=>`<div class="card" style="margin:0;padding:14px;background:var(--bg-soft,var(--surface))">
-        <div class="row between" style="margin-bottom:6px"><b>${esc(d.short||d.program)}</b><span class="pill">${esc(d.credits)} cr</span></div>
-        <div class="small muted" style="margin-bottom:10px">${esc(d.school)} · ${esc(d.courses)} courses<br>${esc(d.notes||'')}</div>
+  const dossierBox=(mode==='dossier'||isGuide)?`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">University Dossiers</h2><label class="row small muted" style="gap:6px">Finished terms: <input id="su-d-done" type="number" min="0" max="12" value="0" style="width:62px;padding:4px 8px"></label></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+      ${ds.map(d=>`<div class="card" style="margin:0;padding:14px;background:var(--surface-2);box-shadow:none">
+        <div class="row between" style="margin-bottom:4px"><b>${esc(d.short||d.program)}</b><span class="meta-txt">${esc(d.credits)} cr</span></div>
+        <div class="small muted" style="margin-bottom:10px">${esc(d.school)} · ${esc(d.courses)} courses</div>
         <button type="button" class="btn primary sm" data-a="loaddossier" data-id="${esc(d.id)}">Load ${esc(d.short||'Dossier')}</button>
-      </div>`).join('')||'<div class="small muted">No bundled dossiers found. Run <code>npm run build:page</code> to bundle <code>dossiers/</code>.</div>'}
+      </div>`).join('')||'<div class="small muted">No bundled dossiers found.</div>'}
     </div>
-  </div>`;
+  </div>`:'';
 
-  const pathB=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path B · Import from PSCS, Simple Syllabus, or Stellic</h2><span class="pill acc">Any batch</span></div>
-    <p class="sub" style="margin:0 0 12px">The same <b>✦ Send to Atlas</b> bookmarklet works on <b>Canvas</b>, <b>PSCS</b> (Course History / Grades), <b>Simple Syllabus</b> (links + grading weights), and <b>Stellic</b> (Degree Audit). Click it on any portal or paste the export below.</p>
-    <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap">
-      <a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it while viewing Canvas, PSCS, Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>
-      <a class="btn" href="#canvas">Open Sync &amp; Import →</a>
-    </div>
-    <textarea id="su-portal-text" rows="3" placeholder="Paste a Canvas JSON, PSCS Course History, Simple Syllabus report, or Stellic Degree Audit here…"></textarea>
-    <div class="row" style="margin-top:10px"><button type="button" class="btn primary" data-a="suimport">Import &amp; Build</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div>
-  </div>`;
+  const importBox=(mode==='import')?`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Paste from PSCS, Canvas, Simple Syllabus, or Stellic</h2><a class="btn sm ghost" href="#canvas">Full Sync page →</a></div>
+    <textarea id="su-portal-text" rows="3" placeholder="Paste Canvas JSON, PSCS Course History, Simple Syllabus report, or Stellic audit here…"></textarea>
+    <div class="row" style="margin-top:10px"><button type="button" class="btn primary sm" data-a="suimport">Import &amp; Build</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div>
+  </div>`:'';
 
-  const pathC=`<details class="card"><summary>Path C · Build Custom Degree (Any University)</summary>
-    <p class="sub" style="margin:0 0 16px">Tell Atlas how your degree runs, pick a grading scale, and add courses manually or from syllabi.</p>
-    <div class="fgrid">
+  const customBox=(mode==='custom'||isGuide)?`<details class="card" ${mode==='custom'?'open':''} style="margin-bottom:16px"><summary>Build a custom degree (any university)</summary>
+    <div class="fgrid" style="margin-top:6px">
       <label class="f"><span>Programme</span><input id="su-prog" placeholder="B.S. Electrical Engineering"></label>
       <label class="f"><span>University</span><input id="su-school" placeholder="Your university"></label>
       <label class="f"><span>Grading scale</span><select id="su-scale"><option value="habib">Habib University (A+ 95, A 90, …)</option><option value="us">Standard US 4.0 (A 93, A- 90, …)</option></select></label>
       <label class="f"><span>First term</span><div class="row" style="gap:6px;flex-wrap:nowrap"><select id="su-season"><option>Fall</option><option>Spring</option></select><input id="su-year" type="number" value="${y-1}" style="width:86px"></div></label>
-      <label class="f"><span>Terms finished so far</span><input id="su-done" type="number" min="0" max="12" value="0"></label>
-      <label class="f"><span>Terms in the degree</span><input id="su-n" type="number" min="2" max="14" value="8"></label>
+      <label class="f"><span>Terms finished</span><input id="su-done" type="number" min="0" max="12" value="0"></label>
+      <label class="f"><span>Total terms</span><input id="su-n" type="number" min="2" max="14" value="8"></label>
       <label class="f"><span>Credits to graduate</span><input id="su-cr" type="number" value="134"></label>
     </div>
-    <div class="row" style="margin-top:18px"><button type="button" class="btn primary" data-a="setup">Create my terms</button>${isGuide&&S.terms.length?`<a class="btn" href="#overview">Back to Overview</a>`:''}</div>
-  </details>`;
+    <div class="row" style="margin-top:16px"><button type="button" class="btn primary" data-a="setup">Create my terms</button>${isGuide&&S.terms.length?`<a class="btn" href="#overview">Back to Home</a>`:''}</div>
+  </details>`:'';
 
-  return fastTrack+setupChecklist()+pathA+pathB+pathC;
+  return hero+cards+dossierBox+importBox+customBox+(isGuide?setupChecklist():'');
 }
 function vSetup(){
   return head('Setup Guide','Link Canvas once to auto-build your term, load a university dossier, or import from PSCS & Simple Syllabus.',`<a class="btn soft" href="#tour">Interactive Tour</a>`)+setupPanel(true);
 }
 const TOUR_STEPS=[
-  {k:'start',lbl:'Step 1',title:'One-Click Setup',badge:'Zero manual entry',
-    body:'New to Atlas? You don’t need to type your courses one by one. Link <b>Canvas</b> once and Atlas automatically builds your current term, courses, instructors, assignment weights, and due dates. Add a <b>Dossier</b> for a full 4-year roadmap or send <b>PSCS Course History</b> for past grades.',
-    tips:['Desktop app: click <b>Sign in to Canvas</b> — sign in normally and Atlas reads your courses privately.','Web / PWA: drag <b>✦ Send to Atlas</b> to your Bookmarks bar and click it once on Canvas.','Your passwords are never seen or stored by Atlas.'],
+  {k:'start',lbl:'Step 1',title:'1-Click Read-Only Setup',badge:'Zero manual entry',
+    body:'Sign in to <b>Canvas</b> and <b>PSCS</b> normally — Atlas never sees or stores your passwords and never modifies your portals. One click reads your Canvas courses, assignment weights, and due dates, plus PSCS Course History and your live weekly schedule.',
+    tips:['<b>Desktop app</b>: click <b>✦ Sync All (Canvas + PSCS)</b> — sign in normally and Atlas reads everything automatically.','<b>Chrome / Edge Web</b>: load the bundled <b>Atlas Companion</b> extension once, then click <b>✦ Sync All Portals</b> from the toolbar icon (no bookmarklet hopping!).','Or start from a <b>Habib Dossier</b> (EE/CS 2029) for a full 4-year grid immediately.'],
     cta:`<a class="btn primary" href="#setup">Go to Setup Guide</a><a class="btn" href="#canvas">Open Sync &amp; Import</a>`},
   {k:'quick',lbl:'Step 2',title:'Quick Course Actions',badge:'1-click grading & retakes',
     body:'Common actions are always 1 click away — no digging through drawers. Click the <b>⋮</b> button or <b>right-click</b> any course card, list row, table row, or 4-Year Grid card.',
-    tips:['<b>Set Final Grade</b> right from the popup pills (works for finished and current courses).','<b>Retake Course (Copy &amp; Link)</b> clones every detail without old scores, links it as a retake, and schedules it in your next term.','<b>Duplicate</b>, <b>Move to term</b>, or <b>Delete</b> with instant Undo (<code>Ctrl+Z</code>).'],
-    cta:`<a class="btn primary" href="#courses">Try on Courses</a><a class="btn" href="#gpa">Check GPA Lab</a>`},
+    tips:['<b>Set Final Grade</b> right from the popup pills (works for finished and current courses).','<b>Retake Course (Copy &amp; Link)</b> clones every detail without old scores, links it as a retake, and schedules it in your next term.','Log upcoming assignment scores directly from Home’s <b>Up next</b> card with 1 click.'],
+    cta:`<a class="btn primary" href="#courses">Try on Courses</a><a class="btn" href="#gpa">Check GPA</a>`},
   {k:'plan',lbl:'Step 3',title:'4-Year Plan & Roadmap',badge:'Drag, drop & prereqs',
     body:'Organize your entire degree in <b>Plan → Four years</b>. Drag courses between terms (or tap ⇄ on mobile) — Atlas highlights valid, warning, and prerequisite-conflict drops in real time.',
-    tips:['Click <b>+</b> on any term header to add a course straight into that semester.','Switch to <b>Roadmap</b> to trace prerequisite chains left-to-right and see which courses unlock the most later courses.','Track <b>Minors</b> and degree credit categories under <b>Requirements</b>.'],
+    tips:['Click <b>+</b> on any term header to pop open the inline Add Course modal pre-set to that semester.','Switch to <b>Roadmap</b> to trace prerequisite chains left-to-right and see which courses unlock the most later courses.','Track <b>Minors</b> and degree credit categories under <b>Requirements</b>.'],
     cta:`<a class="btn primary" href="#grid">Open Four-Year Plan</a><a class="btn" href="#roadmap">View Roadmap</a>`},
-  {k:'enroll',lbl:'Step 4',title:'Enrollment & Multi-Component Courses',badge:'Lectures + Seminars/Labs',
-    body:'Drop the registrar’s schedule spreadsheet (.csv or .xlsx) into <b>Plan → Enrollment</b> to build a clash-free weekly timetable and PSCS shopping cart.',
-    tips:['Courses with multiple components (like <b>Hikma</b> with Lecture <code>L1</code> + Seminar <code>S3</code>, or <b>Calculus</b> with <code>L</code> + <code>R</code>) automatically split into separate pickers so you can select both.','If a component has only one common section (like Hikma’s <code>L1</code>), picking your Seminar automatically selects the Lecture too.','Use <b>Auto-schedule</b> to generate clash-free combinations ranked by time, instructor, and seat reservations.'],
+  {k:'enroll',lbl:'Step 4',title:'Live Schedule vs. Future Enrollment',badge:'Lectures + Seminars/Labs',
+    body:'Home shows your real <b>This week</b> schedule synced from PSCS (including room changes and extra classes), while <b>Plan → Enrollment</b> lets you draft future semesters cleanly without confusing them with this week.',
+    tips:['Multi-component courses (like <b>Hikma</b> <code>L1</code> + <code>S3</code>, or <b>Calculus</b> <code>L</code> + <code>R</code>) split into separate pickers and auto-pair single common lectures.','Use the sticky right tabs (<b>Week · Cart · Backups · Auto · Search</b>) to compare clash-free combinations and copy PSCS class numbers.'],
     cta:`<a class="btn primary" href="#enroll">Open Enrollment</a>`},
-  {k:'sync',lbl:'Step 5',title:'Canvas, PSCS & Simple Syllabus',badge:'One universal bookmarklet',
-    body:'One single <b>✦ Send to Atlas</b> bookmarklet understands all four Habib portals automatically — no separate tools to juggle.',
-    tips:['<b>Canvas</b>: syncs live scores, weights, and upcoming due dates.','<b>PSCS</b>: reads Course History / Grades and updates or creates finished terms.','<b>Simple Syllabus</b>: grabs the exact syllabus URL, instructor, and grading breakdown and links them straight to your existing course.','<b>Stellic</b>: imports degree audit requirements for any batch.'],
-    cta:`<a class="btn primary" href="#canvas">Set up Bookmarklet</a><a class="btn" href="#overview">Go to Overview</a>`}
+  {k:'sync',lbl:'Step 5',title:'Canvas, PSCS & Simple Syllabus',badge:'100% read-only sync',
+    body:'Whether you use the <b>Desktop App</b>, the <b>Atlas Companion extension</b>, or the <b>✦ Send to Atlas</b> bookmarklet, everything stays read-only and private on your own device/server.',
+    tips:['<b>Canvas</b>: syncs active courses, weights, scores, and upcoming due dates.','<b>PSCS</b>: reads both Course History (past terms &amp; grades) and your live Weekly Schedule automatically in one click — no menu hunting!','<b>Simple Syllabus</b>: grabs the exact syllabus URL, instructor, and grading breakdown and links them straight to your existing course.'],
+    cta:`<a class="btn primary" href="#canvas">Open Sync &amp; Import</a><a class="btn" href="#overview">Go to Home</a>`}
 ];
 function vTour(){
   const idx=Math.max(0,Math.min(TOUR_STEPS.length-1,U.tourStep||0));
@@ -918,6 +989,20 @@ function vTour(){
 
 /* ---------- views & customizable widgets ---------- */
 const WIDGETS={
+  summary:{title:'Overview strip',render(){
+    const cum=cumulative(),tg=S.settings.targetGpa,d=cum.gpa==null?null:cum.gpa-tg;
+    const cur=curCourses(),cg=gpaOf(cur,true),curCr=cur.reduce((a,c)=>a+c.credits,0),ct=S.terms.find(t=>t.status==='current');
+    const er=earnedCredits(),tot=S.settings.totalCredits||1,pct=Math.round(Math.min(100,er/tot*100));
+    const p=typeof termPlan==='function'?termPlan():null;
+    const tVal=!p?'–':p.state==='secured'?'Safe':p.state==='out'?fmt(p.best):fmt(p.need);
+    const tSub=!p?'Add current courses':p.state==='secured'?`Target ${fmt(tg)} secured`:p.state==='out'?`Max term ${fmt(p.best)} (need ${fmt(p.need)})`:`Need this term for ${fmt(tg)}`;
+    return`<div class="stats-strip">
+      <div class="stat-cell"><span class="lbl">Cumulative GPA</span><div class="stat-val">${fmt(cum.gpa)}${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)}</span>`:''}</div><span class="stat-sub">${cum.cr?`${cum.cr} graded cr · target ${fmt(tg)}`:'Add finished grades'}</span></div>
+      <div class="stat-cell"><span class="lbl">${esc(ct?ct.name:'This term')}</span><div class="stat-val">${fmt(cg.gpa)}</div><span class="stat-sub">${cur.length} courses · ${curCr} cr</span></div>
+      <div class="stat-cell"><span class="lbl">Credits earned</span><div class="stat-val">${er}<span class="muted" style="font-size:16px">/ ${tot}</span></div><span class="stat-sub">${pct}% complete · ${curCr} in progress</span></div>
+      <div class="stat-cell"><span class="lbl">Target pace</span><div class="stat-val">${tVal}${p&&p.state==='secured'?'<span class="pill good">on track</span>':''}</div><span class="stat-sub">${tSub}</span></div>
+    </div>`;
+  }},
   gpa:{title:'Cumulative GPA',render(){
     const cum=cumulative(),tg=S.settings.targetGpa,d=cum.gpa==null?null:cum.gpa-tg;
     return`<div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}">
@@ -958,26 +1043,53 @@ const WIDGETS={
   }},
   inprog:{title:'In progress',render(){
     const cur=curCourses();
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div class="row" style="gap:6px;flex:none"><div style="text-align:right"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(c.grade||st.letter)}</div><button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0;flex:1"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(220px,100%);height:5px"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div class="row" style="gap:6px;flex:none"><div style="text-align:right"><div class="mono small" style="margin-bottom:3px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(c.grade||st.letter)}</div><button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
   }},
-  duenext:{title:'Due next',render(){
+  duenext:{title:'Up next',render(){
     const dl=deadlines().slice(0,5);
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Due next</h2></div>${dl.length?`<div class="list">${dl.map(x=>`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div><div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="pill acc">${fmt(x.a.w,0)}%</span></div></div>`).join('')}</div>`:'<div class="empty">Nothing dated yet. Add due dates in a course or sync Canvas.</div>'}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Up next</h2><span class="meta-txt">${dl.length?dl.length+' upcoming':''}</span></div>${dl.length?`<div class="list">${dl.map(x=>{
+      const key=x.c.id+':'+x.gid+':'+x.iid,editing=U.dueEdit===key;
+      const right=editing
+        ?`<span class="due-score"><input id="due-in" type="number" step="any" placeholder="Score" aria-label="Score for ${esc(x.a.n)}"><span class="meta-txt">/ ${x.max}</span><button type="button" class="btn primary sm" data-a="duesave" data-id="${x.c.id}" data-gid="${x.gid}" data-iid="${x.iid}">Save</button><button type="button" class="btn ghost sm" data-a="duecancel" aria-label="Cancel">✕</button></span>`
+        :`<div class="row" style="gap:6px;justify-content:flex-end;flex:none"><span class="pill ${x.d<0?'bad':x.d<=3?'warn':''}">${x.d<0?Math.abs(x.d)+'d late':x.d===0?'today':'in '+x.d+'d'}</span><span class="meta-txt">${fmt(x.a.w,0)}%</span><button type="button" class="btn ghost sm" data-a="dueedit" data-k="${esc(key)}" title="Log score right here">Log</button></div>`;
+      return`<div class="li click" data-a="open" data-id="${x.c.id}"><div class="row" style="flex-wrap:nowrap;gap:12px;min-width:0">${dateBadge(x.a.due,x.d)}<div style="min-width:0"><span class="code">${esc(x.c.code)}</span><h3>${esc(x.a.n)}</h3></div></div>${right}</div>`;
+    }).join('')}</div>`:'<div class="empty" style="padding:20px">Nothing dated yet. Add due dates in a course or sync Canvas.</div>'}</div>`;
   }},
-  week:{title:'This week',render(){
+  week:{title:'Weekly schedule',render(){
+    const live=typeof liveScheduleList==='function'?liveScheduleList():[];
     const pk=typeof picked==='function'?picked():[];
-    if(!pk.length){
-      const srv=typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft sm" data-a="loadsrvsched">Load Spring 2027</button>`:'';
-      return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Enrollment ›</a></div><div class="empty" style="padding:20px 14px">No sections picked yet.<div class="row" style="justify-content:center;margin-top:10px"><a class="btn sm" href="#enroll">Pick sections</a>${srv}</div></div></div>`;
+    const pkTerm=typeof pickedTermInfo==='function'?pickedTermInfo():null;
+    const isFuturePlan=!!(pkTerm&&pkTerm.status==='planned');
+    const hasLive=live.length>0,hasPk=pk.length>0;
+    if(!hasLive&&!hasPk){
+      if(!U.dashEdit){
+        return`<div class="card" style="padding:14px 18px"><div class="row between" style="gap:10px;flex-wrap:wrap"><div><h2 style="margin:0 0 3px">Weekly schedule</h2><span class="small muted">Sync your live schedule from PSCS, or draft a future term in Enrollment.</span></div><div class="row" style="gap:6px"><a class="btn soft sm" href="#canvas">Sync PSCS</a><a class="btn sm" href="#enroll">Plan enrollment</a></div></div></div>`;
+      }
+      return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Weekly schedule</h2><a class="btn ghost sm" href="#enroll">Enrollment ›</a></div><div class="empty" style="padding:20px 14px">No schedule synced or planned yet.</div></div>`;
     }
-    const bad=clashes(pk);
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">This week</h2><a class="btn ghost sm" href="#enroll">Edit ›</a></div>${weekGrid(pk,bad)}</div>`;
+    const mode=(hasLive&&hasPk)?(U.weekMode||'live'):(hasLive?'live':'plan');
+    const showLive=mode==='live';
+    const list=showLive?live:pk;
+    const bad=clashes(list);
+    const planLbl=pkTerm?esc(pkTerm.name):'Planned';
+    const title=showLive?'This week':(isFuturePlan?`Planned · ${planLbl}`:`This week · ${planLbl}`);
+    const badge=showLive
+      ?`<span class="pill good" title="${S.schedule&&S.schedule.at?'Synced '+esc(new Date(S.schedule.at).toLocaleString()):''}">Live PSCS</span>`
+      :(isFuturePlan?`<span class="pill">Future term</span>`:'');
+    const sw=(hasLive&&hasPk)
+      ?`<div class="seg" style="padding:2px"><button type="button" style="padding:3px 7px;font-size:11px" class="${showLive?'on':''}" data-a="weekmode" data-v="live">This week</button><button type="button" style="padding:3px 7px;font-size:11px" class="${!showLive?'on':''}" data-a="weekmode" data-v="plan">${planLbl}</button></div>`
+      :'';
+    const rightAction=showLive
+      ?`<a class="btn ghost sm" href="#canvas">Sync ›</a>`
+      :`<a class="btn ghost sm" href="#enroll">Edit ›</a>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px;gap:8px;flex-wrap:wrap"><div class="row" style="gap:8px"><h2 style="margin:0">${title}</h2>${badge}</div><div class="row" style="gap:6px">${sw}${rightAction}</div></div>${weekGrid(list,bad)}${!showLive&&isFuturePlan&&!hasLive?`<div class="small muted" style="margin-top:8px">Showing your planned <b>${planLbl}</b> sections. <a href="#canvas">Sync PSCS</a> to show your real current-term weekly schedule instead.</div>`:''}</div>`;
   }},
   trend:{title:'GPA by term',render(){
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">GPA by term</h2><a class="btn ghost sm" href="#gpa">GPA lab ›</a></div>${spark(trend())}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">GPA by term</h2><a class="btn ghost sm" href="#gpa">GPA ›</a></div>${spark(trend())}</div>`;
   }},
   attention:{title:'Worth a look',render(){
     const att=attention().slice(0,5);
+    if(!att.length&&!U.dashEdit)return'';
     return`<div class="card"><h2 style="margin-bottom:8px">Worth a look</h2>${att.length?`<div class="list">${att.map(a=>`<div class="li click" ${a.course?`data-a="open" data-id="${a.course}"`:`data-a="go" data-v="${a.to}"`}><span class="row" style="flex-wrap:nowrap;gap:10px"><span class="pill ${a.t}" style="flex:none">${a.t==='bad'?'grade':a.t==='warn'?'plan':'note'}</span><span class="small">${a.x}</span></span><span class="muted" style="font-size:18px;line-height:1">›</span></div>`).join('')}</div>`:'<div class="empty" style="padding:20px">Nothing needs attention right now.</div>'}</div>`;
   }},
   reqs:{title:'Requirements',render(){
@@ -994,7 +1106,7 @@ const WIDGETS={
   }}
 };
 function vOverview(){
-  if(!S.terms.length)return head('Atlas','One place for your grades, your roadmap and your four years.')+setupPanel();
+  if(!S.terms.length)return setupPanel(false);
   const ct=S.terms.find(t=>t.status==='current'),mods=(S.ui&&S.ui.modules)||{};
   const isMob=typeof window!=='undefined'&&window.innerWidth<=860;
   const devMode=U.dashEdit?(U.dashEditMode||(isMob?'mobile':'desktop')):(isMob?'mobile':'desktop');
@@ -1005,14 +1117,15 @@ function vOverview(){
     if(x.w==='portals'&&mods.portals===false)return false;
     return U.dashEdit||x.on!==false;
   });
-  const editBtn=`<button type="button" class="btn sm ${U.dashEdit?'primary':''}" data-a="dashedit">${U.dashEdit?'Done':'Customize'}</button>`;
+  const editBtn=`<button type="button" class="btn ghost sm ${U.dashEdit?'primary':''}" data-a="dashedit">${U.dashEdit?'Done':'Customize'}</button>`;
   const editBar=U.dashEdit?`<div class="dash-edit-bar"><div class="row" style="gap:8px"><b class="small">Editing layout:</b><div class="seg"><button type="button" class="${devMode==='desktop'?'on':''}" data-a="dashmode" data-v="desktop">Desktop</button><button type="button" class="${devMode==='mobile'?'on':''}" data-a="dashmode" data-v="mobile">Mobile</button></div></div><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="dashreset">Reset default</button><button type="button" class="btn sm primary" data-a="dashedit">Done</button></div></div>`:'';
   const cards=visible.map((x,i)=>{
-    const w=WIDGETS[x.w],sz=x.size||'m';
+    const w=WIDGETS[x.w],sz=x.size||'m',html=w.render();
+    if(!html&&!U.dashEdit)return'';
     const ctrl=U.dashEdit?`<div class="w-ctrl"><button type="button" class="btn sm ${x.on!==false?'soft':'ghost'}" data-a="wvis" data-w="${x.w}">${x.on!==false?'Shown':'Hidden'}</button><div class="seg">${['s','m','l'].map(s=>`<button type="button" class="${sz===s?'on':''}" data-a="wsize" data-w="${x.w}" data-v="${s}">${s.toUpperCase()}</button>`).join('')}</div><div class="row" style="gap:3px"><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="-1" ${i===0?'disabled':''} aria-label="Move earlier">←</button><button type="button" class="btn sm ghost" data-a="wmove" data-w="${x.w}" data-dir="1" ${i===visible.length-1?'disabled':''} aria-label="Move later">→</button></div></div>`:'';
-    return`<div class="dash-w w-${sz}${x.on===false?' w-off':''}">${ctrl}${w.render()}</div>`;
+    return`<div class="dash-w w-${sz}${x.on===false?' w-off':''}">${ctrl}${html}</div>`;
   }).join('');
-  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+'now in '+esc(ct.name):''),editBtn)+editBar+`<div class="dash-grid">${cards}</div>`;
+  return head(esc(S.settings.program||'Your degree'),esc(S.settings.school||'')+(ct?(S.settings.school?' · ':'')+esc(ct.name):''),editBtn)+editBar+`<div class="dash-grid">${cards}</div>`;
 }
 
 const canvasPortalUrl=()=>{const p=(S.settings.portals||[]).find(x=>x.id==='canvas'||x.kind==='canvas');return((p&&p.url)||'https://hulms.instructure.com').replace(/\/+$/,'')};
@@ -1031,8 +1144,8 @@ function courseTableRow(c){
   return`<tr class="click" data-a="open" data-id="${c.id}" data-cid="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r" style="white-space:nowrap">${stand} <button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></td></tr>`;
 }
 function vCourses(){
-  const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
-  const syncBtn=mods.canvas!==false?`<button class="btn" data-a="go" data-v="canvas">Sync Canvas</button>`:'';
+  const add=`<button type="button" class="btn primary sm" data-a="openadd">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
+  const syncBtn=mods.canvas!==false?`<button type="button" class="btn sm" data-a="go" data-v="canvas">Sync</button>`:'';
   if(!S.courses.length)return head('Courses','Every course with its grading breakdown.',add)+'<div class="empty">No courses yet. Add one from a syllabus or by hand.</div>';
   const T=S.terms,ci=T.findIndex(t=>t.status==='current');
   const ni=T.findIndex((t,i)=>t.status==='planned'&&i>ci);
@@ -1054,45 +1167,45 @@ function vCourses(){
     const blocks=`<div class="cols" style="margin-top:4px">`+shown.map(t=>{
       const cs=S.courses.filter(c=>c.term===t.id&&match(c)),g=termGpa(t);
       const stBadge=`<span class="pill ${t.status==='done'?'good':t.status==='current'?'acc':''}">${t.status==='done'?'finished':t.status==='current'?'current':'planned'}</span>`;
-      return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><div class="row" style="gap:6px"><span class="pill">${cs.reduce((a,c)=>a+c.credits,0)} cr</span>${g.gpa!=null?`<span class="pill acc">GPA ${fmt(g.gpa)}</span>`:''}</div></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">No matching courses</div>'}</div>`;
+      return`<div class="sec"><div class="row between" style="margin-bottom:10px"><div class="row" style="gap:8px"><h2 style="margin:0;font-size:13px;color:var(--ink)">${esc(t.name)}</h2>${stBadge}</div><span class="meta-txt">${cs.reduce((a,c)=>a+c.credits,0)} cr${g.gpa!=null?' · GPA '+fmt(g.gpa):''}</span></div>${cs.length?`<div class="card list" style="padding:4px 16px">${cs.map(courseRow).join('')}</div>`:'<div class="empty">No matching courses</div>'}</div>`;
     }).join('')+`</div>`;
     body=blocks+(cat.length&&(view==='now'||view==='all')?`<div class="sec" style="margin-top:26px"><h2>Not in a term yet</h2><div class="card list" style="padding:4px 16px">${cat.map(courseRow).join('')}</div></div>`:'');
   }
-  return head('Courses','Your current term, the next one and the last one you finished. Pick any term below to focus on it or enter final grades.',add+syncBtn)+strip+ctrl+body;
+  return head('Courses','',add+syncBtn)+strip+ctrl+body;
 }
 
 const gradeOpts=c=>{const t=termOf(c.term);return t&&t.cr?['','CR','NC']:['',...S.settings.scale.map(x=>x.l),'W']};
-const STOPT=[['','No flag'],['submitted','Submitted'],['missing','Missing'],['excused','Excused']];
+const STOPT=[['','Flag'],['submitted','Submitted'],['missing','Missing'],['excused','Excused']];
+const FLAG_NEXT={'':'submitted',submitted:'missing',missing:'excused',excused:''};
 function groupCard(c,g){
-  const gs=gstat(g),A=`data-id="${c.id}" data-gid="${g.id}"`;
+  const gs=gstat(g),A=`data-id="${c.id}" data-gid="${g.id}"`,openMeta=!!(U.openGrps&&U.openGrps[g.id]);
   const rows=(g.items||[]).map(it=>{const p=ipct(it),B=`${A} data-iid="${it.id}"`;
-    const fcls=it.st==='submitted'?'acc':it.st==='missing'?'bad':it.st==='excused'?'warn':'';
-    return`<div class="ir"><input class="nm" data-c="it" data-f="n" ${B} value="${esc(it.n)}" aria-label="Item name"><input type="number" step="any" data-c="it" data-f="s" ${B} value="${it.s==null?'':it.s}" placeholder="–" aria-label="Score"><input type="number" step="any" data-c="it" data-f="m" ${B} value="${it.m==null?'':it.m}" aria-label="Out of"><span class="mono small muted">${p==null?'':fmt(p,0)+'%'}</span><input type="date" data-c="it" data-f="due" ${B} value="${esc((it.due||'').slice(0,10))}" aria-label="Due date"><select class="sel-pill ${fcls}" data-c="it" data-f="st" ${B} aria-label="Flag">${STOPT.map(o=>`<option value="${o[0]}" ${(it.st||'')===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><button class="btn ghost danger" data-a="delitem" ${B} aria-label="Remove item">✕</button></div>`}).join('');
-  return`<div class="gc"><div class="gh"><input data-c="gr" data-f="n" ${A} value="${esc(g.n)}" aria-label="Group name" style="flex:1 1 150px;font-weight:600"><select class="sel-pill" data-c="gr" data-f="type" ${A} aria-label="Type">${ATYPES.map(t=>`<option ${g.type===t?'selected':''}>${t}</option>`).join('')}</select><button class="btn ghost danger" data-a="delgroup" ${A} aria-label="Remove group">✕</button></div>
-  <div class="gh small muted"><label class="row" style="gap:6px">Weight <input class="w" type="number" step="any" data-c="gr" data-f="w" ${A} value="${g.w}" style="width:64px"> %</label><label class="row" style="gap:6px">Items <input class="w" type="number" min="1" data-c="gr" data-f="cnt" ${A} value="${gs.n}" style="width:54px"></label><label class="row" style="gap:6px">Drop lowest <input class="w" type="number" min="0" data-c="gr" data-f="drop" ${A} value="${g.drop||0}" style="width:54px"></label></div>
-  <div class="ir ih"><span>Item</span><span>Score</span><span>Out of</span><span></span><span>Due</span><span>Flag</span><span></span></div>${rows}
-  <div class="row between" style="margin-top:10px"><button class="btn sm" data-a="additem" ${A}>+ Add item</button><span class="small muted">${gs.used?`<b>${fmt(gs.mean,0)}%</b> across best ${gs.used} · `:'No scores yet · '}counts ${gs.k} of ${gs.n}</span></div></div>`;
+    const fl=it.st||'';const fLbl=fl?fl[0].toUpperCase()+fl.slice(1):'·';
+    return`<div class="ir-clean"><input class="nm" data-c="it" data-f="n" ${B} value="${esc(it.n)}" aria-label="Item name"><input type="number" step="any" data-c="it" data-f="s" ${B} value="${it.s==null?'':it.s}" placeholder="–" aria-label="Score"><span class="ir-slash">/</span><input type="number" step="any" data-c="it" data-f="m" ${B} value="${it.m==null?'':it.m}" aria-label="Out of"><span class="mono small muted ir-pct">${p==null?'':fmt(p,0)+'%'}</span><input type="date" data-c="it" data-f="due" ${B} value="${esc((it.due||'').slice(0,10))}" aria-label="Due date"><span class="row" style="gap:3px;flex-wrap:nowrap;justify-content:flex-end"><button type="button" class="flag-btn ${fl}" data-a="cycleflag" ${B} title="Cycle status: none / submitted / missing / excused">${fLbl}</button><button type="button" class="btn ghost danger sm" data-a="delitem" ${B} aria-label="Remove item" style="padding:3px 5px">✕</button></span></div>`}).join('');
+  const metaBar=openMeta?`<div class="g-meta-bar"><label class="row" style="gap:5px">Type <select class="sel-pill" data-c="gr" data-f="type" ${A} aria-label="Type">${ATYPES.map(t=>`<option ${g.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="row" style="gap:5px">Items <input class="w" type="number" min="1" data-c="gr" data-f="cnt" ${A} value="${gs.n}" style="width:52px;padding:4px 6px"></label><label class="row" style="gap:5px">Drop lowest <input class="w" type="number" min="0" data-c="gr" data-f="drop" ${A} value="${g.drop||0}" style="width:52px;padding:4px 6px"></label></div>`:'';
+  return`<div class="gc"><div class="gh"><input data-c="gr" data-f="n" ${A} value="${esc(g.n)}" aria-label="Group name" style="flex:1 1 140px;font-weight:600;padding:5px 9px"><label class="row small muted" style="gap:4px"><input class="w" type="number" step="any" data-c="gr" data-f="w" ${A} value="${g.w}" style="width:58px;padding:5px 7px;text-align:right">%</label><button type="button" class="btn ghost sm ${openMeta?'soft':''}" data-a="togglegrp" data-gid="${g.id}" title="Group settings (type, count, drop lowest)">⚙</button><button type="button" class="btn ghost danger sm" data-a="delgroup" ${A} aria-label="Remove group">✕</button></div>${metaBar}
+  ${rows?`<div class="ir-clean ih"><span>Item</span><span>Score</span><span></span><span>Max</span><span></span><span>Due</span><span></span></div>${rows}`:'<div class="small muted" style="padding:4px 2px 8px">No items yet.</div>'}
+  <div class="row between" style="margin-top:8px"><button type="button" class="btn ghost sm" data-a="additem" ${A}>+ Add item</button><span class="meta-txt">${esc(g.type)} · ${gs.used?`<b>${fmt(gs.mean,0)}%</b> avg · `:''}best ${gs.k} of ${gs.n}</span></div></div>`;
 }
 function gradesTab(c,st){
   const sc=S.settings.scale,tgt=sc.filter(x=>x.p>0);
   const needRows=tgt.map(x=>{const n=needed(c,x.min);let v,cl='';
     if(n==null)v='–';else if(n<=0){v='secured';cl='good'}else if(n>100){v='out of reach';cl='bad'}else{v=fmt(n,1)+'%';cl=n>90?'warn':''}
     return`<div class="kv"><span>To finish with ${lpill(x.l)} <span class="muted small">(${x.min}%)</span></span><span class="mono" style="font-weight:600;${cl?`color:var(--${cl})`:''}">${v}</span></div>`}).join('');
-  const goalPills=`<div class="opt-pills compact" style="margin-top:6px"><button type="button" class="opt-pill ${!c.goal?'on subtle':''}" data-a="pickgoal" data-id="${c.id}" data-v="">None</button>${sc.map(x=>`<button type="button" class="opt-pill ${c.goal===x.l?'on':''}" data-a="pickgoal" data-id="${c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}</div>`;
+  const goalSel=`<select class="sel-pill ${c.goal?'acc':''}" data-c="goal" data-id="${c.id}" aria-label="Goal grade"><option value="">Goal: Auto</option>${sc.map(x=>`<option value="${esc(x.l)}" ${c.goal===x.l?'selected':''}>Goal: ${esc(x.l)}</option>`).join('')}</select>`;
   const gOpts=gradeOpts(c);
-  const gradePills=`<div class="opt-pills compact" style="margin-top:6px">${gOpts.map(l=>{const on=(c.grade||'')===l;const cl=l?gradeCls(l):'subtle';return`<button type="button" class="opt-pill ${on?'on '+cl:''}" data-a="pickgrade" data-id="${c.id}" data-v="${esc(l)}">${l===''?'Unset':esc(l)}</button>`}).join('')}</div>`;
-  return`<div class="grid g2" style="margin-bottom:22px">
-    <div class="card"><div class="lbl">Standing now</div><div class="row" style="gap:12px;margin-top:10px"><span class="num" style="font-size:52px">${st.pct==null?'–':fmt(st.pct,1)}<span class="muted" style="font-size:24px">%</span></span>${lpill(st.letter)}</div>
-    <div class="bar" style="margin:12px 0 8px"><i class="d" style="width:${st.W?Math.min(100,st.gw/st.W*100):0}%"></i></div>
-    <div class="small muted">${fmt(st.gw,0)} of ${fmt(st.W,0)}% marked${st.W?` · Final between <b class="mono">${fmt(st.floor,1)}%</b> and <b class="mono">${fmt(st.ceil,1)}%</b>`:'.'}</div></div>
-    <div class="card" style="display:flex;flex-direction:column;gap:14px">
-      <div><div class="lbl">Goal grade</div>${goalPills}</div>
-      <div style="border-top:1px solid var(--line);padding-top:12px"><div class="lbl">Final grade</div>${gradePills}<div class="small muted" style="margin-top:8px">Set once posted by the registrar. Feeds your GPA.</div></div>
+  const finalSel=`<select class="sel-pill ${gradeCls(c.grade)}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade">${gOpts.map(l=>`<option value="${esc(l)}" ${(c.grade||'')===l?'selected':''}>${l===''?'Final: Unset':'Final: '+l}</option>`).join('')}</select>`;
+  return`<div class="dr-summary">
+    <div class="dr-sum-top">
+      <div><div class="lbl">Standing now</div><div class="row" style="gap:10px;margin-top:6px"><span class="num" style="font-size:44px">${st.pct==null?'–':fmt(st.pct,1)}<span class="muted" style="font-size:20px">%</span></span>${lpill(st.letter)}</div></div>
+      <div style="text-align:right"><div class="meta-txt">${fmt(st.gw,0)} of ${fmt(st.W,0)}% marked</div>${st.W?`<div class="small muted" style="margin-top:3px">Range <b class="mono">${fmt(st.floor,1)}%</b> – <b class="mono">${fmt(st.ceil,1)}%</b></div>`:''}</div>
     </div>
+    <div class="bar" style="height:5px"><i class="d" style="width:${st.W?Math.min(100,st.gw/st.W*100):0}%"></i></div>
+    <div class="dr-sum-controls">${goalSel}${finalSel}<span class="meta-txt" style="margin-left:auto">Total weight ${fmt(st.W,0)}%</span></div>
   </div>
-  <h2>Grading breakdown</h2>${(c.assess||[]).map(g=>groupCard(c,g)).join('')||'<div class="empty">No grading groups yet. Add one, or read a syllabus.</div>'}
-  <div class="row between" style="margin:8px 0 26px"><button class="btn" data-a="addgroup" data-id="${c.id}">+ Add a group</button><span class="pill ${Math.abs(st.W-100)>0.01&&st.W?'warn':'good'}">Total weight ${fmt(st.W,0)}%</span></div>
-  <h2>What you need on the rest</h2>${st.rem>0&&st.W?`<div class="card" style="padding:4px 16px">${needRows}</div><p class="small muted">Average needed across the ${fmt(st.rem,0)}% still to be marked.</p>`:'<div class="empty">Everything is marked, or no weights are set.</div>'}`;
+  <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Grading breakdown</h2><button type="button" class="btn sm" data-a="addgroup" data-id="${c.id}">+ Add group</button></div>
+  ${(c.assess||[]).map(g=>groupCard(c,g)).join('')||'<div class="empty">No grading groups yet. Add one above or import a syllabus.</div>'}
+  ${st.rem>0&&st.W?`<details class="card" style="margin-top:18px;padding:14px 16px"><summary>What you need on the remaining ${fmt(st.rem,0)}%</summary>${needRows}</details>`:''}`;
 }
 
 /* ---------- course drawer ---------- */
@@ -1274,7 +1387,8 @@ function catalogTrayHtml(cat,P){
   const catCr=cat.reduce((a,c)=>a+c.credits,0);
   const open=!!(P.trayOpen||U.moveCourseId);
   if(!open){
-    return`<div class="cat-bar" data-drop=""><div class="row" style="gap:8px"><b>Catalog</b><span class="pill">${cat.length} unscheduled · ${catCr} cr</span><span class="small muted">Drop a course here to unschedule</span></div><button type="button" class="btn sm" data-a="toggletray">Open catalog</button></div>`;
+    if(!cat.length)return'';
+    return`<div class="cat-bar" data-drop=""><div class="row" style="gap:8px"><b>Catalog</b><span class="meta-txt">${cat.length} unscheduled · ${catCr} cr</span></div><button type="button" class="btn sm" data-a="toggletray">Show catalog</button></div>`;
   }
   const q=(U.catQ||'').trim().toLowerCase(),ck=U.catCat||'';
   const shown=cat.filter(c=>(!ck||c.cat===ck)&&(!q||(c.code+' '+c.title).toLowerCase().includes(q)));
@@ -1311,9 +1425,14 @@ function vGrid(){
   const cat=S.courses.filter(c=>!termOf(c.term));
   const tot=S.courses.filter(c=>termOf(c.term)&&counts(c)).reduce((a,c)=>a+c.credits,0);
   const laySeg=`<div class="seg" role="group" aria-label="Grid layout">${[['years','Years'],['timeline','Timeline']].map(([k,l])=>`<button type="button" class="${P.layout===k?'on':''}" data-a="plancfg" data-f="layout" data-v="${k}">${l}</button>`).join('')}</div>`;
-  const densSeg=`<div class="seg" role="group" aria-label="Card density">${[['auto','Auto'],['comfort','Comfort'],['compact','Compact'],['mini','Mini']].map(([k,l])=>`<button type="button" class="${P.density===k?'on':''}" data-a="plancfg" data-f="density" data-v="${k}">${l}</button>`).join('')}</div>`;
-  const colorSel=`<select class="sel-pill" data-c="plancfg" data-f="colorBy" aria-label="Color cards by">${[['status','Color: Status'],['cat','Color: Category'],['grade','Color: Grade']].map(([k,l])=>`<option value="${k}" ${P.colorBy===k?'selected':''}>${l}</option>`).join('')}</select>`;
-  const bar=`<div class="grid-bar"><div class="grid-bar-grp">${laySeg}${densSeg}${colorSel}<button type="button" class="btn sm ${P.collapseDone?'soft':''}" data-a="plancfg" data-f="collapseDone" data-v="${P.collapseDone?'0':'1'}">${P.collapseDone?'Show finished':'Collapse done'}</button></div><div class="grid-bar-grp"><button type="button" class="btn sm ${P.trayOpen?'soft':''}" data-a="toggletray">Catalog (${cat.length})</button><span class="pill acc">${tot} / ${S.settings.totalCredits} cr</span></div></div>`;
+  const densSeg=`<div class="seg" role="group" aria-label="Card density" style="width:100%">${[['auto','Auto'],['comfort','Comfort'],['compact','Compact'],['mini','Mini']].map(([k,l])=>`<button type="button" style="flex:1" class="${P.density===k?'on':''}" data-a="plancfg" data-f="density" data-v="${k}">${l}</button>`).join('')}</div>`;
+  const colorSel=`<select class="sel-pill" style="width:100%" data-c="plancfg" data-f="colorBy" aria-label="Color cards by">${[['status','Course status'],['cat','Category'],['grade','Letter grade']].map(([k,l])=>`<option value="${k}" ${P.colorBy===k?'selected':''}>${l}</option>`).join('')}</select>`;
+  const viewPop=U.viewPop?`<div class="ctx-backdrop" data-a="closeviewpop"></div><div class="pop-menu" role="dialog" aria-label="View options">
+    <div><span class="lbl" style="display:block;margin-bottom:5px">Card density</span>${densSeg}</div>
+    <div><span class="lbl" style="display:block;margin-bottom:5px">Color cards by</span>${colorSel}</div>
+    <button type="button" class="btn sm ${P.collapseDone?'soft':''}" style="width:100%" data-a="plancfg" data-f="collapseDone" data-v="${P.collapseDone?'0':'1'}">${P.collapseDone?'✓ Finished terms collapsed':'Collapse finished terms'}</button>
+  </div>`:'';
+  const bar=`<div class="grid-bar"><div class="grid-bar-grp">${laySeg}<button type="button" class="btn sm ${P.trayOpen?'soft':''}" data-a="toggletray">Catalog (${cat.length})</button><div class="pop-wrap"><button type="button" class="btn sm ${U.viewPop?'soft':''}" data-a="toggleviewpop">View ▾</button>${viewPop}</div></div><span class="meta-txt">${tot} / ${S.settings.totalCredits} cr planned</span></div>`;
   const mc=U.moveCourseId?getC(U.moveCourseId):null;
   const mvBar=mc?`<div class="move-bar"><span>Moving <b>${esc(mc.code)}</b> — tap <b>Place</b> on a term</span><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="moveto" data-term="">Move to Catalog</button><button type="button" class="btn sm ghost" data-a="cancelmove">Cancel</button></div></div>`:'';
   return bar+(P.layout==='timeline'?vGridTimeline(S.terms,cat,P):vGridYears(S.terms,cat,P))+mvBar;
@@ -1356,16 +1475,28 @@ function vGpa(){
     farT?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Not this term</div><div class="small muted">Would take ${fmt(thisNeed)} this term (best possible: <b class="mono">${fmt(thisMaxTerm)}</b>, lifting overall to <b class="mono">${fmt(thisBestCum)}</b>). ${fmt(tg)} is a goal for later terms.</div>`:
     `<div class="num" style="margin:12px 0 8px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">Term average to reach ${fmt(tg)} overall · max term <b class="mono">${fmt(thisMaxTerm)}</b> (overall <b class="mono">${fmt(thisBestCum)}</b>).</div>`;
   const d=cum.gpa==null?null:cum.gpa-tg;
-  return head('GPA lab','See where your GPA stands, what the rest of the degree has to average to reach your target, and what a few grades would do.')+
-  `<div class="grid g3">
-    <div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}"><div class="row between"><div class="lbl">Cumulative now</div>${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)} vs target</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(cum.gpa)}</div><div class="small muted">${cum.cr} graded credits</div></div>
-    <div class="card kpi-card ${far?'kpi-warn':'kpi-acc'}"><div class="lbl">Needed for ${fmt(tg)} at graduation</div>${card2}</div>
-    <div class="card kpi-card ${farT?'kpi-warn':'kpi-good'}"><div class="lbl">Needed this term</div>${card3}</div>
-  </div>
-  <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
-  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv" data-cid="${x.c.id}"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="row" style="gap:6px"><span class="pill good">+${fmt(x.gain)}</span><button type="button" class="btn sm soft" data-a="retakecourse" data-id="${x.c.id}" title="Copy &amp; link as a retake in your next term">Retake</button></span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
-  <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
-`+termPlanSection()+((S.ui&&S.ui.modules&&S.ui.modules.whatif!==false)?whatIf(cum):'')+transcriptSection();
+  const mods=(S.ui&&S.ui.modules)||{},hasWi=mods.whatif!==false;
+  let tab=U.gpaTab||'target';
+  if(tab==='whatif'&&!hasWi)tab='target';
+  const gpaTabs=[['target','Target'],hasWi?['whatif','What-if']:null,['transcript','Transcript']].filter(Boolean);
+  const tabNav=`<div class="tabs">${gpaTabs.map(([k,l])=>`<a href="#" data-a="gpatab" data-v="${k}" ${tab===k?'aria-current="page"':''}>${l}</a>`).join('')}</div>`;
+  const strip=`<div class="stats-strip cols-3" style="margin-bottom:20px">
+    <div class="stat-cell"><span class="lbl">Cumulative now</span><div class="stat-val">${fmt(cum.gpa)}${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)}</span>`:''}</div><span class="stat-sub">${cum.cr} graded credits · target ${fmt(tg)}</span></div>
+    <div class="stat-cell"><span class="lbl">Needed to graduate at ${fmt(tg)}</span><div class="stat-val" ${far?'style="color:var(--bad)"':''}>${o.need==null?'–':far?'Out of reach':o.need<=0?'0.00':fmt(o.need)}</div><span class="stat-sub">${o.need==null?'All degree credits graded':far?`Max finish ${fmt(o.best)} with ${fmt(maxP,1)}s`:`Over remaining ${o.R} cr · max ${fmt(o.best)}`}</span></div>
+    <div class="stat-cell"><span class="lbl">Needed this term</span><div class="stat-val" ${farT?'style="color:var(--bad)"':''}>${thisNeed==null?'–':farT?'Not this term':thisNeed<=0?'0.00':fmt(thisNeed)}</div><span class="stat-sub">${thisNeed==null?'No graded credits yet':farT?`Best term ${fmt(thisMaxTerm)} → cum ${fmt(thisBestCum)}`:`Max term ${fmt(thisMaxTerm)} → cum ${fmt(thisBestCum)}`}</span></div>
+  </div>`;
+  let body='';
+  if(tab==='whatif'){
+    body=whatIf(cum);
+  }else if(tab==='transcript'){
+    body=transcriptSection(true);
+  }else{
+    body=strip+termPlanSection()+
+    `<div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}${rtNote?`<div class="small muted" style="padding:6px 0 10px">${rtNote}</div>`:''}</div>
+    ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv" data-cid="${x.c.id}"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} <span class="meta-txt">${x.c.credits} cr</span></span><span class="row" style="gap:6px"><span class="pill good">+${fmt(x.gain)}</span><button type="button" class="btn sm soft" data-a="retakecourse" data-id="${x.c.id}" title="Copy &amp; link as a retake in your next term">Retake</button></span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
+    <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Cr</th><th class="r">Term</th><th class="r">Cum</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">now</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>`;
+  }
+  return head('GPA','')+tabNav+body;
 }
 
 /* ---------- requirements and minors ---------- */
@@ -1428,17 +1559,30 @@ function sylPreview(){
   ${o.notes?`<div class="small muted" style="margin-top:10px"><b>Policies noticed:</b> ${esc(o.notes)}</div>`:''}
   <div class="row" style="margin-top:16px"><button class="btn primary" data-a="sylAdd">${o.targetId?'Update existing course':'Add this course'}</button><button class="btn" data-a="sylRow">+ Add a row</button><button class="btn ghost" data-a="sylDiscard">Discard</button></div></div>`;
 }
-function vAdd(){
-  if(!S.terms.length)return head('Add a course','From a syllabus, or by hand.')+setupPanel();
+function addFormBody(isModal){
   const y=U.syl,can=!!AI.key,defTerm=U.addTerm||(S.terms.find(t=>t.status==='current')||{}).id||'';
-  const imp=`<div class="card"><div class="row between" style="margin-bottom:6px"><h2 style="margin:0">From a syllabus</h2><a class="btn sm soft" href="#canvas">Import from Simple Syllabus →</a></div><p class="small muted" style="margin:0 0 14px">Paste syllabus text or drop a file (.pdf, .txt, .md${U.imgMax?', or page photos':''}). Atlas extracts grading weights automatically${can?' with Gemini AI':' locally — no API key needed (or add a free Gemini key in Settings for PDF/photo reading)'}.</p>
-  <textarea id="syl-text" rows="6" data-c="syltext" placeholder="Paste the syllabus text or grading breakdown here (e.g. Quizzes 20%, Midterm 30%, Final 50%)…">${esc(y.text)}</textarea>
-  <label class="dropzone" style="margin-top:12px"><input type="file" id="syl-file" data-c="sylf" multiple accept="${U.imgMax?'image/*,':''}.pdf,.txt,.md,text/plain,application/pdf" hidden><span class="dz-title">${y.files.length?`${y.files.length} image${y.files.length>1?'s':''} attached`:'Choose syllabus files'}</span><span class="dz-sub">Supports .pdf, .txt, .md${U.imgMax?' or page photos':''}</span></label>
-  ${y.files.length||y.msg?`<div class="row" style="margin-top:10px">${y.files.length?`<button class="btn ghost sm" data-a="sylClearImg">Remove attached images</button>`:''}<span class="small muted" id="syl-msg">${esc(y.msg||'')}</span></div>`:''}
-  <div class="row" style="margin-top:14px"><label class="f" style="min-width:170px"><span>Term</span>${termSel('syl-term',y.term||defTerm,'Not scheduled')}</label>${can?`<button class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read with AI'}</button>`:''}<button class="btn ${can?'':'primary'}" data-a="sylreadlocal" style="align-self:flex-end">Extract weights locally</button>${!can?`<button class="btn ghost sm" data-a="go" data-v="settings" style="align-self:flex-end">Add Gemini key</button>`:''}</div>
-  ${y.err?`<p class="small" style="color:var(--bad);margin-top:10px">${esc(y.err)}</p>`:''}</div>${sylPreview()}`;
-  return head('Add a course','Build a course from its syllabus, or fill it in yourself.')+imp+
-  `<div class="card" style="margin-top:20px"><h2>By hand</h2><div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Counts toward</span>${catSel('ma-cat')}</label><label class="f"><span>Term</span>${termSel('ma-term',U.addTerm||'','Not scheduled')}</label></div><label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics"></label><label class="f" style="margin-top:12px"><span>Prerequisites</span><input id="ma-pre" placeholder="EE 202, MTH 202"></label><div style="margin-top:16px"><button class="btn primary" data-a="manual">Add course</button></div></div>`;
+  const tab=U.addTab||(U.syl&&U.syl.out?'syllabus':'quick');
+  const tabs=`<div class="tabs" style="margin-bottom:14px"><a href="#" data-a="addtab" data-v="quick" ${tab==='quick'?'aria-current="page"':''}>Quick add</a><a href="#" data-a="addtab" data-v="syllabus" ${tab==='syllabus'?'aria-current="page"':''}>From syllabus</a></div>`;
+  if(tab==='syllabus'){
+    return tabs+`<p class="small muted" style="margin:0 0 12px">Paste syllabus text or drop a file (.pdf, .txt, .md${U.imgMax?', or photos':''}). Extracts grading weights automatically${can?' with Gemini AI':' locally — no API key needed'}.</p>
+    <textarea id="syl-text" rows="5" data-c="syltext" placeholder="Paste syllabus text or grading breakdown (e.g. Quizzes 20%, Midterm 30%, Final 50%)…">${esc(y.text)}</textarea>
+    <label class="dropzone" style="margin-top:10px;padding:14px"><input type="file" id="syl-file" data-c="sylf" multiple accept="${U.imgMax?'image/*,':''}.pdf,.txt,.md,text/plain,application/pdf" hidden><span class="dz-title">${y.files.length?`${y.files.length} image${y.files.length>1?'s':''} attached`:'Choose syllabus files'}</span><span class="dz-sub">Supports .pdf, .txt, .md${U.imgMax?' or page photos':''}</span></label>
+    ${y.files.length||y.msg?`<div class="row" style="margin-top:8px">${y.files.length?`<button type="button" class="btn ghost sm" data-a="sylClearImg">Remove attached images</button>`:''}<span class="small muted" id="syl-msg">${esc(y.msg||'')}</span></div>`:''}
+    <div class="row" style="margin-top:12px"><label class="f" style="min-width:160px"><span>Term</span>${termSel('syl-term',y.term||defTerm,'Not scheduled')}</label>${can?`<button type="button" class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read with AI'}</button>`:''}<button type="button" class="btn ${can?'':'primary'}" data-a="sylreadlocal" style="align-self:flex-end">Extract weights</button><a class="btn ghost sm" href="#canvas" data-a="closeadd" style="align-self:flex-end">Simple Syllabus →</a></div>
+    ${y.err?`<p class="small" style="color:var(--bad);margin-top:8px">${esc(y.err)}</p>`:''}${sylPreview()}`;
+  }
+  return tabs+`<div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301" autocomplete="off"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Term</span>${termSel('ma-term',defTerm,'Not scheduled')}</label><label class="f"><span>Category</span>${catSel('ma-cat')}</label></div>
+  <label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics" autocomplete="off"></label>
+  <details style="margin-top:12px"><summary class="small">Optional: Prerequisites</summary><label class="f" style="margin-top:8px"><span>Prerequisites (comma separated)</span><input id="ma-pre" placeholder="EE 202, MATH 202"></label></details>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn primary" data-a="manual">Add course</button>${isModal?`<button type="button" class="btn ghost" data-a="closeadd">Cancel</button>`:''}</div>`;
+}
+function addModal(){
+  if(!S.terms.length)return'';
+  return`<div class="modal-veil" data-a="closeaddbg"><div class="modal-box" role="dialog" aria-label="Add course"><div class="modal-head"><h2>Add a course</h2><button type="button" class="btn ghost sm" data-a="closeadd" aria-label="Close">✕</button></div>${addFormBody(true)}</div></div>`;
+}
+function vAdd(){
+  if(!S.terms.length)return head('Add a course','')+setupPanel();
+  return head('Add a course','')+`<div class="card">${addFormBody(false)}</div>`;
 }
 
 /* ---------- settings ---------- */
@@ -1517,20 +1661,24 @@ const UNIVERSAL_BOOKMARK_FN=async(ATLAS_URL)=>{try{
     }
     payload={v:2,kind:'canvas',at:Date.now(),courses:out};
   }else{
+    const t=s=>(s||'').replace(/\s+/g,' ').trim();
+    const scrapeDoc=doc=>{const tbs=[];Array.from(doc.querySelectorAll('table')).slice(0,30).forEach(tb=>{const rows=Array.from(tb.rows||[]).slice(0,180).map(r=>Array.from(r.cells||[]).map(c=>t(c.innerText||c.textContent).slice(0,140))).filter(r=>r.some(Boolean));if(rows.length)tbs.push({id:tb.id||'',rows})});return{tables:tbs,text:(doc.body?t(doc.body.innerText||doc.body.textContent):'').slice(0,30000)}};
     const docs=[document];
     Array.from(document.querySelectorAll('iframe')).forEach(f=>{try{if(f.contentDocument)docs.push(f.contentDocument)}catch(e){}});
-    const t=s=>(s||'').replace(/\s+/g,' ').trim();
-    const tables=[],texts=[];
-    docs.forEach(doc=>{
-      Array.from(doc.querySelectorAll('table')).slice(0,25).forEach(tb=>{
-        const rows=Array.from(tb.rows).slice(0,150).map(r=>Array.from(r.cells).map(c=>t(c.innerText).slice(0,120)));
-        if(rows.length)tables.push({id:tb.id||'',rows});
-      });
-      if(doc.body&&doc.body.innerText)texts.push(doc.body.innerText.slice(0,30000));
-    });
+    const cur=docs.map(scrapeDoc);
     const loc=location.hostname+' '+location.href;
     const kind=/stellic/i.test(loc)?'stellic':/pscs|peoplesoft/i.test(loc)?'pscs':'syllabus';
-    payload={v:2,kind,at:Date.now(),url:location.href,title:document.title,tables,text:texts.join('\n')};
+    if(kind==='pscs'){
+      const bm=location.pathname.match(/^\/(psc|psp)\/([^/]+)\/([^/]+)\/([^/]+)/i);
+      const pfx=location.origin+'/psc/'+(bm?bm[2]:'CSPROD')+'/'+(bm?bm[3]:'EMPLOYEE')+'/'+(bm?bm[4]:'SA')+'/c/';
+      const getP=async comp=>{try{const r=await fetch(pfx+comp,{credentials:'same-origin'});if(!r.ok)return null;const h=await r.text();if(!h||(/sign\s*in|ps_login|userid/i.test(h.slice(0,4000))&&!/<table/i.test(h)))return null;return scrapeDoc(new DOMParser().parseFromString(h,'text/html'))}catch(e){return null}};
+      const ps=await Promise.all(['SA_LEARNER_SERVICES.SSS_MY_CRSEHIST.GBL','SSR_STUDENT_FL.SSR_CRSE_HIST_FL.GBL','SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.GBL','SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL','SA_LEARNER_SERVICES.SSR_SSENRL_SCHD_W.GBL','SSR_STUDENT_FL.SSR_VW_CLASS_FL.GBL'].map(getP));
+      const mrg=a=>{const v=a.filter(Boolean);return{tables:v.flatMap(x=>x.tables),text:v.map(x=>x.text).join('\n')}};
+      const history=mrg([ps[0],ps[1],ps[2],...cur]),schedule=mrg([ps[3],ps[4],ps[5],...cur]);
+      payload={v:2,kind:'pscs-bundle',at:Date.now(),url:location.href,title:document.title,history,schedule,tables:history.tables,text:history.text};
+    }else{
+      payload={v:2,kind,at:Date.now(),url:location.href,title:document.title,tables:cur.flatMap(x=>x.tables),text:cur.map(x=>x.text).join('\n')};
+    }
   }
   const j=JSON.stringify(payload);
   const b64=btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -1711,6 +1859,55 @@ function parsePscsGrades(obj){
   }
   return Object.values(found);
 }
+function parseScheduleDays(str){
+  const s=String(str||''),out=[];
+  const map=[[/\bMon(?:day)?\b|Mo/gi,'M'],[/\bTue(?:sday)?\b|Tu/gi,'T'],[/\bWed(?:nesday)?\b|We/gi,'W'],[/\bThu(?:rsday)?\b|Th/gi,'Th'],[/\bFri(?:day)?\b|Fr/gi,'F'],[/\bSat(?:urday)?\b|Sa/gi,'Sa'],[/\bSun(?:day)?\b|Su/gi,'Su']];
+  map.forEach(([rx,d])=>{if(rx.test(s)&&out.indexOf(d)<0)out.push(d)});
+  if(!out.length)(s.match(/Th|Sa|Su|M|T|W|F/g)||[]).forEach(d=>{if(out.indexOf(d)<0)out.push(d)});
+  return out;
+}
+function parsePscsSchedule(obj){
+  if(!obj)return null;
+  const codeRe=/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/i;
+  const timeRe=/(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)\s*[-–—to]+\s*(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)/i;
+  const roomRe=/\b([A-Z]{1,3}-\d{2,4}|FF-[A-Z]\d{3}|GF-[A-Z]\d{3}|LG\d+|Room\s+\S+|Lab\s+\S+)\b/i;
+  const parseTime=v=>{
+    const m=String(v||'').trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?$/i);if(!m)return null;
+    let h=+m[1];if(m[3]){const p=m[3].toLowerCase();if(p==='pm'&&h<12)h+=12;if(p==='am'&&h===12)h=0}return h*60+(+m[2]);
+  };
+  const items=[],byKey={};
+  let curCode='',curTitle='',curSec='';
+  const term=parseTermTok(obj.text||'')||((S.terms.find(t=>t.status==='current')||{}).name||'Current Term');
+  const feed=(cells)=>{
+    const joined=cells.join(' ');
+    const cm=joined.match(codeRe);
+    if(cm){
+      curCode=(cm[1]+' '+cm[2]).toUpperCase();
+      const sm=joined.match(/\b([LSRTDC]\d{1,2})\b/);
+      curSec=sm?sm[1]:'';
+      const tc=cells.find(x=>x&&!codeRe.test(x)&&!timeRe.test(x)&&x.length>4&&!/^\d+$/.test(x));
+      if(tc)curTitle=tc.slice(0,80);
+    }
+    const tm=joined.match(timeRe);
+    if(tm&&curCode){
+      const a=parseTime(tm[1]),b=parseTime(tm[2]);
+      const days=parseScheduleDays(joined.slice(0,tm.index+12)+' '+joined);
+      if(a!=null&&b!=null&&b>a&&days.length){
+        const rCell=cells.find(x=>roomRe.test(x))||'';
+        const rM=rCell.match(roomRe);
+        const room=rM?rM[0]:'';
+        const k=curCode+'|'+(curSec||'SEC');
+        if(!byKey[k]){byKey[k]={code:curCode,title:curTitle||curCode,sec:curSec,ins:'',meets:[]};items.push(byKey[k])}
+        days.forEach(d=>{if(!byKey[k].meets.some(m=>m.d===d&&m.s===a&&m.e===b))byKey[k].meets.push({d,s:a,e:b,r:room})});
+      }
+    }
+  };
+  ((obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>feed(r.map(x=>String(x||'').trim()))));
+  if(!items.length&&obj.text){
+    String(obj.text).split(/\r?\n/).forEach(line=>feed(line.split(/\t|\s{2,}/).map(x=>x.trim()).filter(Boolean)));
+  }
+  return items.length?{at:Date.now(),term,source:'pscs',items}:null;
+}
 function parseStellicAudit(obj){
   const codeRe=/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/;
   const validG=new Set(['CR','NC','W','A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F']);
@@ -1845,11 +2042,12 @@ function routeImportedObj(j,rawStr){
     if(!prev.courses.length){U.stellicPrev=null;U.cvErr='No courses or requirements found in that Stellic export. Open your Degree Audit / Progress page first.';render();return true}
     U.stellicPrev=prev;U.cvErr='';location.hash='canvas';render();return true;
   }
-  if(j&&(j.kind==='pscs'||/pscs|peoplesoft/i.test(j.url||''))){
+  if(j&&(j.kind==='pscs'||j.kind==='pscs-bundle'||/pscs|peoplesoft/i.test(j.url||''))){
     U.cv=[];U.stellicPrev=null;U.sylImport=null;
-    const diffs=parsePscsGrades(j);
-    if(!diffs.length){U.pscsDiff=null;U.cvErr='No course grades found in that PSCS page. Open Academic Records → Course History or Grades first.';render();return true}
-    U.pscsDiff=diffs;U.cvErr='';location.hash='canvas';render();return true;
+    const diffs=parsePscsGrades(j.history||j);
+    const sched=parsePscsSchedule(j.schedule||j);
+    if(!diffs.length&&!sched){U.pscsDiff=null;U.pscsSched=null;U.cvErr='No course grades or weekly schedule found in that PSCS export. Make sure you are signed in to PSCS.';render();return true}
+    U.pscsDiff=diffs;U.pscsSched=sched;U.pscsApplySched=!!sched;U.cvErr='';location.hash='canvas';render();return true;
   }
   if(j&&(j.kind==='syllabus'||/syllabus/i.test((j.url||'')+(j.title||'')))){
     U.cv=[];U.pscsDiff=null;U.stellicPrev=null;
@@ -1872,7 +2070,7 @@ function handleIncomingImport(jsonStr){
   ACT2.cvread();
 }
 function vCanvas(){
-  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],st=U.stellicPrev||null,syl=U.sylImport||null,lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
+  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],pscsSched=U.pscsSched||null,st=U.stellicPrev||null,syl=U.sylImport||null,lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
   const baseHint=atlasBaseUrl().replace(/\/+$/,'')||'http://127.0.0.1:3000';
   const opts=sel=>`<option value="">Skip this one</option><option value="__new__" ${sel==='__new__'?'selected':''}>+ Create new course</option>`+S.courses.filter(c=>status(c)!=='done'||c.id===sel).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('');
   const allOpts=sel=>`<option value="__new__" ${sel==='__new__'?'selected':''}>+ Create new course</option>`+S.courses.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)} (${esc((termOf(c.term)||{}).name||'Catalog')})</option>`).join('');
@@ -1887,19 +2085,22 @@ function vCanvas(){
     <label class="row small" style="margin-bottom:12px;cursor:pointer"><input type="checkbox" data-c="sylimp" data-f="applyWeights" ${syl.applyWeights?'checked':''}> Apply these grading weights to the course</label>`:'<p class="small muted">No weight table was detected on this page — linking will still save the Syllabus URL and instructor.</p>'}
     <div class="row"><button type="button" class="btn primary" data-a="sylimportapply">${syl.target==='__new__'?'Create course with syllabus':'Link syllabus to course'}</button><button type="button" class="btn" data-a="sylimportedit">Edit in Add Course…</button><button type="button" class="btn ghost" data-a="sylimportclear">Dismiss</button></div>
   </div>`:'';
-  return head('Sync & Import','Sync scores from Canvas, import PSCS Course History, build from Stellic, or link Simple Syllabus.',`<a class="btn" href="#setup">Setup Guide</a><a class="btn soft" href="#tour">Tour</a>`)+
-  (DESKTOP_HOST?hostCanvasCard():'')+`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">One-click “Send to Atlas” bookmark</h2><span class="pill">Last Canvas sync: ${lastAt?esc(new Date(lastAt).toLocaleString()):'Never'}</span></div>
-  <p class="small muted" style="margin:0 0 12px">Drag this button onto your browser Bookmarks bar once. Then whenever you are signed into <b>Canvas</b>, <b>PSCS</b>, <b>Simple Syllabus</b>, or <b>Stellic</b>, click it once to send the page straight to Atlas.</p>
-  <div class="row" style="margin-bottom:12px"><a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Canvas, PSCS, Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button class="btn" data-a="copybm">Copy bookmark code</button></div>
+  return head('Sync & Import','',`<a class="btn sm" href="#setup">Setup Guide</a><a class="btn ghost sm" href="#tour">Tour</a>`)+
+  (DESKTOP_HOST?hostCanvasCard():`<div class="card kpi-card kpi-acc" style="margin-bottom:16px"><div class="row between" style="margin-bottom:6px"><h2 style="margin:0">No-bookmarklet 1-Click Sync (Browser Extension)</h2><span class="pill acc">Recommended</span></div><p class="small muted" style="margin:0 0 10px">Load the bundled <b>Atlas Companion</b> extension once in Chrome or Edge. Sign in to Canvas and PSCS normally, then click <b>✦ Sync All Portals</b> from the toolbar icon to pull Canvas scores, PSCS past grades, and your live PSCS weekly schedule automatically (100% read-only, no passwords stored).</p><details><summary>30-second setup (Chrome / Edge)</summary><ol class="small muted" style="margin:6px 0 0;padding-left:20px;line-height:1.6"><li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>) and enable <b>Developer mode</b>.</li><li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder inside your Atlas repo.</li><li>Click the <b>Atlas Companion</b> icon → set Server URL to <code>${esc(baseHint)}</code> → hit <b>✦ Sync All Portals</b>.</li></ol></details></div>`)+`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Or use the “Send to Atlas” bookmark</h2><span class="meta-txt">${lastAt?'Synced '+esc(new Date(lastAt).toLocaleDateString()):'Not synced yet'}</span></div>
+  <p class="small muted" style="margin:0 0 12px">Drag this button onto your Bookmarks bar once. Clicking it on <b>PSCS</b> (even right on the homepage!) now auto-reads both <b>Course History</b> and your <b>Live Weekly Schedule</b> in one click — and also works on <b>Canvas</b>, <b>Simple Syllabus</b>, and <b>Stellic</b>.</p>
+  <div class="row" style="margin-bottom:10px"><a class="btn primary sm" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Canvas, PSCS (any page), Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button type="button" class="btn sm" data-a="copybm">Copy code</button></div>
   <details><summary>Manual code</summary><textarea id="bm-code" rows="3" readonly class="mono small">${esc(bmCode())}</textarea></details></div>
-  <div class="card" style="margin-top:16px"><h2>Paste export or page report</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Paste Canvas JSON, PSCS Course History/Grades, Simple Syllabus report, or Stellic Degree Audit here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  <div class="card" style="margin-top:16px"><h2>Paste from any portal</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Auto-detects Canvas JSON, PSCS Course History/Schedule, Simple Syllabus report, or Stellic Degree Audit…">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button type="button" class="btn primary sm" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
   sylCard+
   (st?`<div class="card" style="margin-top:16px"><h2>Stellic degree audit preview</h2><p class="small muted" style="margin:-4px 0 12px">Detected <b>${st.courses.length}</b> courses across <b>${st.cats.length}</b> requirement categories (${st.totalCredits} cr).</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Title</th><th>Term</th><th class="r">Cr</th><th>Grade</th></tr></thead><tbody>${st.courses.slice(0,40).map(c=>`<tr><td class="mono small"><b>${esc(c.code)}</b></td><td>${esc(c.title)}</td><td class="small muted">${esc(c.termName)}</td><td class="r mono">${c.credits}</td><td>${lpill(c.grade)}</td></tr>`).join('')}</tbody></table></div>${st.courses.length>40?`<p class="small muted">Showing first 40 of ${st.courses.length} courses.</p>`:''}<div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="stellicapply">Build / Merge into Atlas</button></div></div>`:'')+
   (list.length?`<div class="card kpi-card kpi-acc" style="margin-top:16px"><h2>Match or create Canvas courses</h2><p class="small muted" style="margin:-4px 0 12px">Existing courses update automatically; unmatched Canvas courses default to <b>+ Create new course</b> so your term builds itself in one click.</p><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Action / Course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td><b>${esc(cv.name)}</b>${cv.term?`<div class="small muted">${esc(cv.term)}</div>`:''}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into Atlas</button></div><p class="small muted">Your course matching is remembered for next time. Items that do not fit a group go into “Unsorted from Canvas” with no weight.</p></div>`:'')+
-  (pscs.length?`<div class="card" style="margin-top:16px"><h2>PSCS grade &amp; history import</h2><p class="small muted" style="margin:-4px 0 12px">Found ${pscs.length} course${pscs.length===1?'':'s'}. Existing courses update grades; new courses auto-create their terms.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':r.status==='create'?'Create':'New'}</span></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply selected</button></div></div>`:'')+
-  `<div class="card" style="margin-top:16px"><h2>Calendar feed &amp; companion extension</h2><p class="small muted" style="margin:-4px 0 12px">Export an .ics file for Apple/Google Calendar, or load the unpacked companion browser extension for background Canvas auto-sync.</p>
-  <div class="row"><button type="button" class="btn" data-a="calics">Download .ics calendar</button>${typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft" data-a="copycalurl">Copy calendar subscription URL</button>`:''}</div>
-  <details style="margin-top:12px"><summary>Browser extension setup (Edge / Chrome)</summary><ol class="small muted" style="margin:6px 0 0;padding-left:20px;line-height:1.6"><li>Open <code>edge://extensions</code> (or <code>chrome://extensions</code>) and enable <b>Developer mode</b>.</li><li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder inside your Atlas repo.</li><li>Open the Atlas Companion icon to set your server URL (<code>${esc(baseHint)}</code>) and sync Canvas automatically whenever you browse Canvas.</li></ol></details></div>`;
+  ((pscs.length||pscsSched)?`<div class="card kpi-card kpi-good" style="margin-top:16px"><h2>PSCS import (Grades &amp; Live Schedule)</h2>
+  ${pscsSched?`<div style="padding:10px 12px;border:1px solid var(--good-border);background:var(--good-soft);border-radius:9px;margin-bottom:14px"><label class="row small" style="cursor:pointer;gap:8px"><input type="checkbox" data-c="pscssched" ${U.pscsApplySched!==false?'checked':''}><span><b>Live Weekly Schedule detected (${pscsSched.items.length} classes · ${esc(pscsSched.term)})</b> — updates your Home “This week” schedule with rooms &amp; extra classes.</span></label></div>`:''}
+  ${pscs.length?`<p class="small muted" style="margin:0 0 10px">Found ${pscs.length} course grade${pscs.length===1?'':'s'}. Existing courses update; new courses auto-create their terms.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':r.status==='create'?'Create':'New'}</span></td></tr>`).join('')}</tbody></table></div>`:''}
+  <div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply PSCS import</button></div></div>`:'')+
+  `<details class="card" style="margin-top:16px"><summary>Extras · Calendar feed (.ics)</summary>
+  <p class="small muted" style="margin:0 0 12px">Subscribe to your assignment due dates in Apple Calendar or Google Calendar.</p>
+  <div class="row"><button type="button" class="btn sm" data-a="calics">Download .ics calendar</button>${typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft sm" data-a="copycalurl">Copy calendar subscription URL</button>`:''}</div></details>`;
 }
 const icsEsc=s=>String(s==null?'':s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
 function calendarIcs(){
@@ -1987,7 +2188,8 @@ const ACT2={
   },
   pscsapply(){
     const list=(U.pscsDiff||[]).filter(r=>r.apply);
-    if(!list.length)return toast('No courses selected');
+    const applySched=!!(U.pscsSched&&U.pscsApplySched!==false);
+    if(!list.length&&!applySched)return toast('Nothing selected to apply');
     pushUndo('PSCS import');
     let upd=0,crt=0;
     if(!S.settings.school)S.settings.school='Habib University';
@@ -2003,10 +2205,12 @@ const ACT2={
         const c=getC(r.id);if(c){c.grade=r.pscsGrade;upd++}
       }
     });
+    if(applySched)S.schedule=U.pscsSched;
     S.links=S.links||{canvas:{at:0,map:{}},pscs:{at:0}};
     S.links.pscs=S.links.pscs||{at:0};S.links.pscs.at=Date.now();
-    U.pscsDiff=null;U.cvText='';persist();if(crt&&U.route==='overview')render();else{location.hash='overview';render()}
-    toast(`PSCS: ${upd} updated, ${crt} created`,true);
+    U.pscsDiff=null;U.pscsSched=null;U.cvText='';persist();if(crt&&U.route==='overview')render();else{location.hash='overview';render()}
+    const parts=[];if(upd)parts.push(upd+' updated');if(crt)parts.push(crt+' created');if(applySched)parts.push('live schedule saved');
+    toast('PSCS: '+parts.join(', '),true);
   },
   calics(){saveFile('atlas-calendar.ics',calendarIcs()).then(()=>toast('Calendar saved'),e=>{if(!e||e.code!=='declined')toast('Could not save calendar')})},
   copycalurl(){
@@ -2015,7 +2219,7 @@ const ACT2={
     else toast(u);
   },
 };
-const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v},pscsrow(e,d){const r=(U.pscsDiff||[])[+d.i];if(r)r.apply=!!e.target.checked},sylimp(e,d,v){if(!U.sylImport)return;if(d.f==='applyWeights')U.sylImport.applyWeights=!!e.target.checked;else U.sylImport[d.f]=v}};
+const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v},pscsrow(e,d){const r=(U.pscsDiff||[])[+d.i];if(r)r.apply=!!e.target.checked},pscssched(e){U.pscsApplySched=!!e.target.checked},sylimp(e,d,v){if(!U.sylImport)return;if(d.f==='applyWeights')U.sylImport.applyWeights=!!e.target.checked;else U.sylImport[d.f]=v}};
 
 /* ---------- transcript ---------- */
 function transcript(){
@@ -2053,9 +2257,11 @@ async function transcriptPdf(){
   need(30);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Cumulative GPA '+(cum.gpa==null?'–':fmt(cum.gpa))+'     Credits earned '+earnedCredits(),M,y);
   return doc.output('arraybuffer');
 }
-function transcriptSection(){
+function transcriptSection(asTab){
   const T=transcript();
-  return`<details id="tr-details" class="card sec"><summary>Transcript</summary><div class="row" style="margin-bottom:14px"><button class="btn" data-a="trcsv">Download CSV</button><button class="btn" data-a="trpdf">Download PDF</button><button class="btn" data-a="trprint">Print / Save PDF</button></div>${T.map(t=>`<div style="margin-bottom:16px"><div class="row between"><h3>${esc(t.name)}${t.cr?' <span class="pill">credit / no credit</span>':t.status==='current'?' <span class="pill acc">in progress</span>':''}</h3><span class="mono small muted">${t.credits} cr${t.tg!=null?' · GPA '+fmt(t.tg):''}${t.cg!=null?' · cumulative '+fmt(t.cg):''}</span></div><div class="scroll"><table class="t"><tbody>${t.rows.map(r=>`<tr><td class="mono small" style="white-space:nowrap">${esc(r.code)}</td><td>${esc(r.title)}${r.note?` <span class="pill">${r.note}</span>`:''}</td><td class="r mono">${r.cr}</td><td class="r mono">${esc(r.grade)}</td></tr>`).join('')}</tbody></table></div></div>`).join('')||'<div class="empty">Finished and current terms appear here.</div>'}</details>`;
+  const inner=`<div class="row" style="margin-bottom:14px"><button type="button" class="btn sm" data-a="trcsv">Download CSV</button><button type="button" class="btn sm" data-a="trpdf">Download PDF</button><button type="button" class="btn sm" data-a="trprint">Print / Save PDF</button></div>${T.map(t=>`<div style="margin-bottom:16px"><div class="row between"><h3>${esc(t.name)}${t.cr?' <span class="pill">CR / NC</span>':t.status==='current'?' <span class="pill acc">in progress</span>':''}</h3><span class="meta-txt">${t.credits} cr${t.tg!=null?' · GPA '+fmt(t.tg):''}${t.cg!=null?' · cum '+fmt(t.cg):''}</span></div><div class="scroll"><table class="t"><tbody>${t.rows.map(r=>`<tr><td class="mono small" style="white-space:nowrap">${esc(r.code)}</td><td>${esc(r.title)}${r.note?` <span class="pill">${r.note}</span>`:''}</td><td class="r mono">${r.cr}</td><td class="r mono">${esc(r.grade)}</td></tr>`).join('')}</tbody></table></div></div>`).join('')||'<div class="empty">Finished and current terms appear here.</div>'}`;
+  if(asTab)return`<div id="tr-details" class="card">${inner}</div>`;
+  return`<details id="tr-details" class="card sec"><summary>Transcript</summary>${inner}</details>`;
 }
 Object.assign(ACT2,{
   trcsv(){saveFile('atlas-transcript.csv',transcriptCsv()).then(()=>toast('Transcript saved'),e=>{if(!e||e.code!=='declined')toast('The file could not be saved')})},
@@ -2240,36 +2446,35 @@ function termPlanSection(){
   const rowsH=p.rows.map(r=>{
     const lim=r.has?`max <b>${esc(r.ceL)}</b>`:'no breakdown';
     const nd=r.need==null?'–':r.need<=0?'<span style="color:var(--good)">secured</span>':r.need>100?'<span style="color:var(--bad)">out of reach</span>':`<b>${fmt(r.need,0)}%</b> on ${fmt(r.st.rem,0)}%`;
-    const goalPills=`<div class="opt-pills compact"><button type="button" class="opt-pill ${!r.goal?'on subtle':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="">Auto</button>${scPass.map(x=>`<button type="button" class="opt-pill ${r.goal===x.l?'on':''}" data-a="pickgoal" data-id="${r.c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}</div>`;
-    return`<tr><td style="min-width:170px"><a href="#" data-a="open" data-id="${r.c.id}" style="text-decoration:none;color:inherit"><b>${esc(r.c.code)}</b> <span class="muted small">${r.c.credits} cr${r.st.pct!=null?' · '+fmt(r.st.pct,0)+'%':''}</span><div class="small muted">${esc(r.c.title)}</div></a></td><td class="small muted" style="white-space:nowrap">${lim}</td><td>${lpill(r.aim)}</td><td>${goalPills}</td><td class="small r" style="white-space:nowrap">${nd}</td></tr>`}).join('');
-  return`<div class="sec"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 10px">${head1}</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Reach</th><th>Aim</th><th>Your goal</th><th class="r">Needed</th></tr></thead><tbody>${rowsH}</tbody></table></div>
-  <div class="row between" style="padding-top:12px;border-top:1px solid var(--line);margin-top:6px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals, or the aim where you have none</span><div class="row" style="gap:6px"><span class="pill">Term ${fmt(p.proj)}</span><span class="pill acc">Overall ${fmt(p.after)}</span></div></div></div></div>`;
+    const goalSel=`<select class="sel-pill ${r.goal?'acc':''}" data-c="goal" data-id="${r.c.id}" aria-label="Goal for ${esc(r.c.code)}"><option value="">Auto (${esc(r.aim)})</option>${scPass.map(x=>`<option value="${esc(x.l)}" ${r.goal===x.l?'selected':''}>${esc(x.l)}</option>`).join('')}</select>`;
+    return`<tr><td style="min-width:170px"><a href="#" data-a="open" data-id="${r.c.id}" style="text-decoration:none;color:inherit"><b>${esc(r.c.code)}</b> <span class="meta-txt">${r.c.credits} cr${r.st.pct!=null?' · '+fmt(r.st.pct,0)+'%':''}</span><div class="small muted">${esc(r.c.title)}</div></a></td><td class="small muted" style="white-space:nowrap">${lim}</td><td>${lpill(r.aim)}</td><td>${goalSel}</td><td class="small r" style="white-space:nowrap">${nd}</td></tr>`}).join('');
+  return`<div class="sec" style="margin-top:0"><h2>${esc(p.t.name)}: what each course needs</h2><div class="card"><p class="small" style="margin:0 0 10px">${head1}</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Reach</th><th>Aim</th><th>Your goal</th><th class="r">Needed</th></tr></thead><tbody>${rowsH}</tbody></table></div>
+  <div class="row between" style="padding-top:12px;border-top:1px solid var(--line);margin-top:6px;flex-wrap:wrap;gap:8px"><span class="small muted">If you land your goals (or the aim where set to Auto)</span><div class="row" style="gap:6px"><span class="pill">Term ${fmt(p.proj)}</span><span class="pill acc">Overall ${fmt(p.after)}</span></div></div></div></div>`;
 }
 
 /* ---------- what if, one term at a time ---------- */
 function whatIf(cum){
   const over=U.whatif,terms=S.terms.filter(t=>t.status!=='done'&&S.courses.some(c=>c.term===t.id));
-  if(!terms.length)return`<div class="sec"><h2>What if</h2><div class="empty">Schedule current or planned courses to try grades on them.</div></div>`;
+  if(!terms.length)return`<div class="empty">Schedule current or planned courses to try grades on them.</div>`;
   let sel=U.wiTerm;if(sel!=='all'&&!terms.some(t=>t.id===sel))sel=(terms.find(t=>t.status==='current')||terms[0]).id;
   const shown=sel==='all'?terms:terms.filter(t=>t.id===sel),lab=S.courses.filter(c=>terms.some(t=>t.id===c.term));
   const pr=gpaOf(doneCourses().concat(lab),true,over);
-  const quickGrades=S.settings.scale.filter(x=>x.p>=2.67).slice(0,5);
-  const allQuick=S.settings.scale.filter(x=>x.p>=2).slice(0,6);
-  const opts=v=>['<option value="">–</option>'].concat(S.settings.scale.map(x=>`<option ${v===x.l?'selected':''}>${esc(x.l)}</option>`)).join('');
+  const quickGrades=S.settings.scale.filter(x=>x.p>=3).slice(0,4);
+  const opts=v=>['<option value="">Auto</option>'].concat(S.settings.scale.map(x=>`<option ${v===x.l?'selected':''}>${esc(x.l)}</option>`)).join('');
   const row=c=>{
     const run=c.grade||standing(c).letter,cur=over[c.id]||'';
     const qp=quickGrades.map(x=>`<button type="button" class="opt-pill ${cur===x.l?'on '+gradeCls(x.l):''}" data-a="wiset" data-id="${c.id}" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('');
-    return`<div class="li" style="flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr${status(c)==='current'&&run?' · now '+esc(run):''}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;flex-wrap:wrap;justify-content:flex-end"><div class="opt-pills compact">${qp}</div><select class="sel-pill ${cur?gradeCls(cur):''}" data-c="wi" data-id="${c.id}" aria-label="Grade for ${esc(c.code)}">${opts(cur)}</select></div></div>`;
+    return`<div class="li" style="flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr${status(c)==='current'&&run?' · now '+esc(run):''}</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;flex-wrap:nowrap;justify-content:flex-end"><div class="opt-pills compact">${qp}</div><select class="sel-pill ${cur?gradeCls(cur):''}" data-c="wi" data-id="${c.id}" aria-label="Grade for ${esc(c.code)}">${opts(cur)}</select></div></div>`;
   };
-  const strip=`<div class="tabs">${terms.map(t=>`<a href="#" data-a="witerm" data-v="${t.id}" ${sel===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="witerm" data-v="all" ${sel==='all'?'aria-current="page"':''}>All terms</a></div>`;
+  const strip=`<div class="tabs" style="margin-bottom:14px">${terms.map(t=>`<a href="#" data-a="witerm" data-v="${t.id}" ${sel===t.id?'aria-current="page"':''}>${esc(t.name)}</a>`).join('')}<a href="#" data-a="witerm" data-v="all" ${sel==='all'?'aria-current="page"':''}>All terms</a></div>`;
   const block=t=>{const cs=S.courses.filter(c=>c.term===t.id),tg=gpaOf(cs,t.status==='current',over);
-    return`<div><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">${esc(t.name)}</h3><span class="pill ${tg.gpa!=null?'acc':''}">term GPA ${tg.gpa==null?'–':fmt(tg.gpa)}</span></div><div class="card" style="padding:4px 16px">${cs.map(row).join('')}</div></div>`};
+    return`<div><div class="row between" style="margin-bottom:8px"><h3 style="margin:0">${esc(t.name)}</h3><span class="meta-txt">term GPA <b>${tg.gpa==null?'–':fmt(tg.gpa)}</b></span></div><div class="card" style="padding:4px 16px">${cs.map(row).join('')}</div></div>`};
   const single=shown.length===1?gpaOf(S.courses.filter(c=>c.term===shown[0].id),shown[0].status==='current',over):null;
   const delta=(cum.gpa!=null&&pr.gpa!=null)?pr.gpa-cum.gpa:null;
-  const setAllBar=`<div class="opt-pills compact"><span class="lbl" style="margin-right:2px">Set all:</span>${allQuick.map(x=>`<button type="button" class="opt-pill" data-a="wisetall" data-v="${esc(x.l)}">${esc(x.l)}</button>`).join('')}<select class="sel-pill" data-c="wiall" aria-label="Set the whole term to"><option value="">Other</option>${S.settings.scale.map(x=>`<option>${esc(x.l)}</option>`).join('')}</select><button class="btn sm" data-a="wireset">Reset</button></div>`;
-  return`<div class="sec"><div class="row between" style="margin-bottom:14px"><h2 style="margin:0">What if</h2>${setAllBar}</div>${strip}
-  <div class="grid g2" style="align-items:start;margin-top:4px"><div style="display:flex;flex-direction:column;gap:16px">${shown.map(block).join('')}</div>
-  <div class="card kpi-card ${delta==null?'kpi-acc':delta>=0?'kpi-good':'kpi-warn'}" style="position:sticky;top:20px"><div class="row between"><div class="lbl">Projected cumulative</div>${delta!=null?`<span class="pill ${delta>=0?'good':'bad'}">${delta>=0?'+':''}${fmt(delta)} from today</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(pr.gpa)}</div><div class="small muted">${pr.cr} credits counted.${single?` This term alone: <b class="mono">${single.gpa==null?'–':fmt(single.gpa)}</b>.`:''} Pick a grade for any course or set the whole term at once. Unset courses use their running grade.</div></div></div></div>`;
+  const setAllBar=`<div class="row" style="gap:6px"><select class="sel-pill" data-c="wiall" aria-label="Set the whole term to"><option value="">Set all to…</option>${S.settings.scale.map(x=>`<option>${esc(x.l)}</option>`).join('')}</select><button type="button" class="btn ghost sm" data-a="wireset">Reset</button></div>`;
+  return`<div class="row between" style="margin-bottom:10px;gap:10px;flex-wrap:wrap">${strip}${setAllBar}</div>
+  <div class="grid g2" style="align-items:start"><div style="display:flex;flex-direction:column;gap:16px">${shown.map(block).join('')}</div>
+  <div class="card" style="position:sticky;top:20px"><div class="row between"><div class="lbl">Projected cumulative</div>${delta!=null?`<span class="pill ${delta>=0?'good':'bad'}">${delta>=0?'+':''}${fmt(delta)}</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(pr.gpa)}</div><div class="small muted">${pr.cr} credits counted.${single?` This term alone: <b class="mono">${single.gpa==null?'–':fmt(single.gpa)}</b>.`:''} Unset courses use their running grade.</div></div></div>`;
 }
 Object.assign(ACT2,{witerm(e,d){U.wiTerm=d.v;render()}});
 Object.assign(CHG2,{goal(e,d,v){const c=getC(d.id);if(c)c.goal=v||null}});
@@ -2432,6 +2637,17 @@ function clashes(list){
   const out=[];
   for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)list[i].s.meets.forEach(a=>list[j].s.meets.forEach(b=>{if(a.d===b.d&&a.s<b.e&&b.s<a.e)out.push({a:list[i],b:list[j],d:a.d,at:Math.max(a.s,b.s)})}));
   return out;
+}
+function liveScheduleList(){
+  const sch=S.schedule;
+  if(!sch||!Array.isArray(sch.items)||!sch.items.length)return[];
+  return sch.items.map((it,i)=>({c:{id:'live-'+i,code:it.code||'',title:it.title||''},s:{k:'live-'+i,sec:it.sec||'',meets:it.meets||[]}}));
+}
+function pickedTermInfo(){
+  const pk=picked();if(!pk.length)return null;
+  const tid=pk[0].c&&pk[0].c.term;
+  const t=tid?termOf(tid):enrollTerm();
+  return t||null;
 }
 function weekGrid(list,bad){
   const ms=[];list.forEach(x=>x.s.meets.forEach(m=>ms.push(m)));if(!ms.length)return'';
@@ -2601,12 +2817,12 @@ function backupSection(){
     const alts=all.map(s=>{
       const ok=!others.some(o=>o.s.meets.some(a=>s.meets.some(b=>a.d===b.d&&a.s<b.e&&b.s<a.e)));
       const rb=resBadge(s);
-      return`<div class="small" style="padding:4px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(fmtIns(s.ins,1))} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
+      return`<div class="small" style="padding:3px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(fmtIns(s.ins,1))} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
     }).join('');
-    return`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.c.code)}</b> <span class="muted">if ${esc(x.s.sec)} is full:</span>${alts}</div>`;
+    return`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.c.code)}</b> <span class="muted small">if ${esc(x.s.sec)} is full:</span>${alts}</div>`;
   }).filter(Boolean).join('');
   if(!rows)return'';
-  return`<div class="sec"><h2>Backup sections</h2><div class="card" style="padding:4px 16px">${rows}</div><p class="small muted">Sections marked "fits" do not clash with the rest of your schedule. Sections crossed out would create a clash.</p></div>`;
+  return`<div>${rows}</div><p class="small muted" style="margin:10px 0 0">Sections marked “fits” do not clash with your rest of week.</p>`;
 }
 
 /* ---------- auto-schedule UI ---------- */
@@ -2615,72 +2831,86 @@ function autoScheduleSection(){
   const t=enrollTerm();if(!t)return'';
   const cs=S.courses.filter(c=>c.term===t.id);
   const courseList=enrollSlots(cs);
-  if(courseList.length<2)return''; /* need at least 2 slots to auto-schedule */
+  if(courseList.length<2)return'';
   const uniqueCourses=new Set(courseList.map(x=>x.c.id)).size;
 
   const prefs=U.enrPrefs||{};
-  const timeSeg=[['','Any time'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].map(([k,l])=>`<button type="button" class="${(prefs.time||'')===k?'on':''}" data-a="enrtime" data-v="${k}">${l}</button>`).join('');
-  const prefsUI=`<div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:12px">Preferences</h3>
-  <div class="f" style="margin-bottom:12px"><span class="lbl" style="display:block;margin-bottom:5px">Preferred times</span><div class="seg">${timeSeg}</div></div>
-  <div class="fgrid" style="align-items:end">
-    <label class="f"><span>Preferred instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
+  const timeSeg=[['','Any'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].map(([k,l])=>`<button type="button" class="${(prefs.time||'')===k?'on':''}" data-a="enrtime" data-v="${k}">${l}</button>`).join('');
+  const prefsUI=`<div style="margin-bottom:12px">
+  <div class="f" style="margin-bottom:10px"><span class="lbl">Preferred times</span><div class="seg">${timeSeg}</div></div>
+  <div class="fgrid" style="gap:10px">
+    <label class="f"><span>Prefer instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
     <label class="f"><span>Avoid instructor</span><input data-c="enrpref" data-f="avoidInstructor" value="${esc(prefs.avoidInstructor||'')}" placeholder="Partial name"></label>
   </div></div>`;
 
-  if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${uniqueCourses} course${uniqueCourses===1?'':'s'} (${courseList.length} section component${courseList.length===1?'':'s'}) with offered times. Atlas generates clash-free combinations ranked by your preferences and seat reservations.</p></div>`;
+  if(!U.showAutoSched)return`${prefsUI}<button type="button" class="btn primary sm" data-a="autosched">Find clash-free schedules</button><p class="small muted" style="margin:8px 0 0">${uniqueCourses} course${uniqueCourses===1?'':'s'} (${courseList.length} section component${courseList.length===1?'':'s'}) ready.</p>`;
 
   const scheds=findSchedules();
-  if(!scheds.length)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<div class="card"><div class="empty">No clash-free combination found. Try reducing courses or adding sections with different times.</div></div><button class="btn" data-a="autosched" style="margin-top:12px">Try again</button></div>`;
+  if(!scheds.length)return`${prefsUI}<div class="empty" style="padding:16px">No clash-free combination found.</div><button type="button" class="btn sm" data-a="autosched" style="margin-top:10px">Try again</button>`;
 
-  const rows=scheds.map((sch,idx)=>{
-    const bad=clashes(sch.items);
-    return`<div class="card kpi-card kpi-acc" style="margin-bottom:14px"><div class="row between" style="margin-bottom:10px"><h3 style="margin:0">Option ${idx+1} <span class="pill acc">score ${sch.score}</span></h3><button class="btn primary sm" data-a="applysched" data-v="${idx}">Use this</button></div>
-    <div class="small" style="margin-bottom:10px;line-height:1.6">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
-    ${weekGrid(sch.items,bad)}</div>`;
-  }).join('');
+  const rows=scheds.slice(0,5).map((sch,idx)=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="row between" style="margin-bottom:6px"><b>Option ${idx+1} <span class="meta-txt">score ${sch.score}</span></b><button type="button" class="btn primary sm" data-a="applysched" data-v="${idx}">Use this</button></div>
+    <div class="small" style="line-height:1.55">${sch.items.map(x=>`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))} · #${esc(x.s.k)}`).join('<br>')}</div></div>`).join('');
 
-  return`<div class="sec"><h2>Auto-schedule · ${scheds.length} option${scheds.length>1?'s':''}</h2>${prefsUI}${rows}<button class="btn" data-a="autosched">Refresh</button></div>`;
+  return`${prefsUI}<div class="row between" style="margin-bottom:8px"><span class="meta-txt">${scheds.length} clash-free options</span><button type="button" class="btn ghost sm" data-a="autosched">Refresh</button></div>${rows}`;
 }
 
 /* ---------- main enrollment view ---------- */
+function renderSectionPicker(c,g,cur){
+  const selSec=g.sections.find(s=>s.k===cur),key=c.id+':'+g.comp;
+  const many=g.sections.length>4,showChips=!many||!!(U.enrExpand&&U.enrExpand[key]);
+  const ctl=many?`<div class="row" style="gap:6px;flex-wrap:nowrap;max-width:100%"><select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="${esc(g.label)} for ${esc(c.code)}"><option value="">Choose ${esc(g.label)} (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select><button type="button" class="btn ghost sm" data-a="enrexpand" data-k="${esc(key)}" style="flex:none">${showChips?'Hide':'All '+g.sections.length}</button></div>`:'';
+  const chips=showChips?`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`:'';
+  return{ctl,chips,selSec};
+}
 function vEnroll(){
   const E=S.enroll,t=enrollTerm(),eTermLabel=E?fmtEnrollTerm(E.term):'';
-  const srvBtn=typeof location!=='undefined'&&/^https?:$/i.test(location.protocol)?`<div class="row" style="margin-top:12px"><button class="btn soft sm" data-a="loadsrvsched">Load Spring 2027 schedule from server</button></div>`:'';
-  const up=`<div class="card"><h3 style="margin-bottom:6px">${E?'Update the offerings':'Import the course offerings'}</h3><p class="small muted" style="margin:0 0 14px">When the registrar publishes the schedule of classes for a term, drop the spreadsheet here (.xlsx or .csv). Atlas finds your planned courses in it, lets you pick sections, and warns you about clashes.</p>
-  <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">${E?`Loaded: ${esc(eTermLabel)} (${E.sections.length} sections)`:'Choose schedule spreadsheet'}</span><span class="dz-sub">${E?'Click to replace with a newer .xlsx or .csv file':'Supports .xlsx, .xls, and .csv exports from PSCS'}</span></label>${srvBtn}
-  ${U.enrMsg?`<div class="small" style="color:var(--bad);margin-top:10px">${esc(U.enrMsg)}</div>`:''}</div>`;
-  if(!E)return up;
+  const isWeb=typeof location!=='undefined'&&/^https?:$/i.test(location.protocol);
+  if(!E){
+    const srvBtn=isWeb?`<div class="row" style="margin-top:12px"><button type="button" class="btn soft sm" data-a="loadsrvsched">Load Spring 2027 schedule from server</button></div>`:'';
+    return`<div class="card"><h3 style="margin-bottom:6px">Import course offerings</h3><p class="small muted" style="margin:0 0 14px">Drop the registrar’s schedule spreadsheet (.xlsx or .csv). Atlas matches your planned courses, splits multi-component Lectures &amp; Seminars, and checks for clashes.</p>
+    <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">Choose schedule spreadsheet</span><span class="dz-sub">Supports .xlsx, .xls, and .csv exports from PSCS</span></label>${srvBtn}
+    ${U.enrMsg?`<div class="small" style="color:var(--bad);margin-top:10px">${esc(U.enrMsg)}</div>`:''}</div>`;
+  }
+  const topBar=`<div class="enr-bar"><div class="row" style="gap:8px"><span class="small"><b>${esc(eTermLabel)}</b> offerings</span><span class="meta-txt">${E.sections.length} sections</span><select class="sel-pill" data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div><div class="row" style="gap:6px"><label class="btn sm" style="cursor:pointer">Replace file<input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" hidden></label>${isWeb?`<button type="button" class="btn ghost sm" data-a="loadsrvsched">Reload Spring 2027</button>`:''}</div></div>${U.enrMsg?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border);color:var(--bad)">${esc(U.enrMsg)}</div>`:''}`;
   const cs=t?S.courses.filter(c=>c.term===t.id):[];
   const pk=picked(),bad=clashes(pk);
   const rowsH=cs.map(c=>{
     const ss=offered(c),comps=secComponents(ss),pmap=getCoursePickMap(c.id);
     if(!ss.length){
-      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div><span class="pill warn">not offered in this file</span></div></div></div>`;
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><span class="meta-txt">Not offered</span></div></div>`;
     }
     if(comps.length===1){
-      const g=comps[0],cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
-      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
-      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
-      const resH=selSec?resDetail(selSec):'';
-      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div style="min-width:0;max-width:100%">${ctl}</div></div>${chips}${resH}${selSec&&selSec.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(selSec.meets))} · ${esc(selSec.meets[0].r)}</div>`:''}</div>`;
+      const g=comps[0],cur=pmap[g.comp]||'',p=renderSectionPicker(c,g,cur);
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div style="min-width:0;max-width:100%">${p.ctl}</div></div>${p.chips}${p.selSec?resDetail(p.selSec):''}${p.selSec&&p.selSec.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(p.selSec.meets))} · ${esc(p.selSec.meets[0].r)}</div>`:''}</div>`;
     }
     const pickedCnt=comps.filter(g=>!!pmap[g.comp]).length;
     const statusPill=pickedCnt===comps.length?`<span class="pill good">${pickedCnt}/${comps.length} picked</span>`:`<span class="pill warn">Pick ${comps.map(g=>g.label).join(' + ')} (${pickedCnt}/${comps.length})</span>`;
     const compBlocks=comps.map(g=>{
-      const cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
-      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="${esc(g.label)} for ${esc(c.code)}"><option value="">Choose ${esc(g.label)} (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
-      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
-      return`<div class="comp-box"><div class="comp-head"><span class="comp-title">${esc(g.label)}${g.sections.length===1?' · required common section':''}</span>${ctl}</div>${chips}${selSec?resDetail(selSec):''}</div>`;
+      const cur=pmap[g.comp]||'',p=renderSectionPicker(c,g,cur);
+      return`<div class="comp-box"><div class="comp-head"><span class="comp-title">${esc(g.label)}${g.sections.length===1?' · common':''}</span>${p.ctl}</div>${p.chips}${p.selSec?resDetail(p.selSec):''}</div>`;
     }).join('');
-    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${statusPill}</div></div>${compBlocks}</div>`;
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div>${statusPill}</div>${compBlocks}</div>`;
   }).join('');
-  const clashH=bad.length?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft);margin-bottom:16px"><b style="color:var(--bad)">Schedule Clashes</b><div class="small" style="margin-top:6px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} and ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap on ${DAYL[x.d]} around ${hm(x.at)}`).join('<br>')}</div></div>`:'';
-  const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
+  const clashH=bad.length?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft);margin-bottom:14px;padding:12px 14px"><b style="color:var(--bad)">Schedule Clashes</b><div class="small" style="margin-top:4px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} &amp; ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap ${DAYL[x.d]} ${hm(x.at)}`).join('<br>')}</div></div>`:'';
+
+  const tab=U.enrTab||'week';
+  const rTabs=[['week','Week'],['cart','Cart'+(pk.length?' ('+pk.length+')':'')],['backups','Backups'],['auto','Auto'],['search','Search']];
+  let rightBody='';
+  if(tab==='week'){
+    rightBody=pk.length?weekGrid(pk,bad):'<div class="empty">Pick sections on the left to see your weekly timetable.</div>';
+  }else if(tab==='cart'){
+    rightBody=pk.length?`<div style="margin:-4px 0">${pk.map(x=>{const rb=resBadge(x.s);return`<div class="kv"><span title="${esc(cleanInsList(x.s.ins).join('; '))}"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))}</span><span class="row" style="gap:8px;flex:none">${rb}<span class="mono" style="min-width:44px;text-align:right;font-weight:600">${esc(x.s.k)}</span></span></div>`}).join('')}</div><div class="row between" style="padding-top:12px;border-top:1px solid var(--line);margin-top:10px"><div><div class="lbl">PSCS class numbers</div><div class="mono small" style="margin-top:4px;user-select:all">${pk.map(x=>x.s.k).join(', ')}</div></div><button type="button" class="btn primary sm" data-a="copycart">Copy</button></div>`:'<div class="empty">Pick sections to fill your PSCS shopping cart.</div>';
+  }else if(tab==='backups'){
+    rightBody=backupSection()||'<div class="empty">Pick sections first to see clash-free backup alternatives.</div>';
+  }else if(tab==='auto'){
+    rightBody=autoScheduleSection()||'<div class="empty">Add at least 2 offered courses to generate clash-free schedules.</div>';
+  }else{
+    const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
+    rightBody=`<input id="enr-q" data-c="enrq" placeholder="Search code, title, instructor, or program…" value="${esc(U.enrQ||'')}" style="width:100%;margin-bottom:10px">${found.length?found.map(s=>`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="meta-txt">${esc(s.sec)}</span></span><span class="meta-txt">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')}</span></div>`).join(''):`<div class="small muted" style="padding:8px 0">${q.length>1?'Nothing matched.':'Type at least two letters to search all '+E.sections.length+' sections.'}</div>`}`;
+  }
   const open=[];S.minors.forEach(mn=>minorStat(mn).open.forEach(r=>{const opts=(r.sl.opts||[]);const hits=opts.map(o=>({o,n:E.sections.filter(s=>aliases(o).some(a=>aliases(s.code).indexOf(a)>=0)).length}));open.push({mn,r,hits})}));
-  const minorH=open.filter(x=>x.hits.length).length?`<div class="sec"><h2>Minor courses on offer</h2><div class="card" style="padding:4px 16px">${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">✓ means a section is in the file you loaded.</div></div></div>`:'';
-  return up+`<div class="sec"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Choose sections for ${esc(t?t.name:'')}</h2><select class="sel-pill" data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>${clashH}
-  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px;min-width:0">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:10px 0">Offerings loaded for <b>${esc(eTermLabel)}</b>. Pick the term your courses sit in, then choose sections.</div></div><div class="card" style="position:sticky;top:20px;min-width:0">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
-  <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
+  const minorH=open.filter(x=>x.hits.length).length?`<details class="card" style="margin-top:16px"><summary>Minor courses on offer</summary>${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}</details>`:'';
+  return topBar+clashH+`<div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px;min-width:0">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}</div><div class="card" style="position:sticky;top:20px;min-width:0"><div class="enr-pane-tabs">${rTabs.map(([k,l])=>`<button type="button" class="${tab===k?'on':''}" data-a="enrtab" data-v="${k}">${l}</button>`).join('')}</div>${rightBody}</div></div>${minorH}`;
 }
 
 function resDetail(section){
@@ -2692,7 +2922,9 @@ Object.assign(ACT2,{
   copycart(){const pk=picked();if(!pk.length)return;const txt=pk.map(x=>x.s.k).join(', ');
     if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>toast('Class numbers copied'),()=>toast('Could not copy'));else toast('Select and copy: '+txt)},
   autosched(){U.showAutoSched=true;render()},
-  applysched(e,d){applySchedule(+d.v);U.showAutoSched=false},
+  applysched(e,d){applySchedule(+d.v);U.showAutoSched=false;U.enrTab='week';toast('Schedule applied');render()},
+  enrtab(e,d){U.enrTab=d.v;render()},
+  enrexpand(e,d){U.enrExpand=U.enrExpand||{};U.enrExpand[d.k]=!U.enrExpand[d.k];render()},
   enrtime(e,d){U.enrPrefs=U.enrPrefs||{};U.enrPrefs.time=d.v;render()},
   picksec(e,d){const comp=d.comp||'SEC',cur=getCoursePickMap(d.id)[comp]||'';setCoursePick(d.id,comp,cur===d.v?'':d.v);persist();render()},
   async loadsrvsched(){U.enrMsg='';try{const b=(typeof WEB_BASE==='string'?WEB_BASE:'');const r=await fetch(b+'/api/offerings/default');if(!r.ok)throw new Error('HTTP '+r.status);const rows=parseCsvRows(await r.text());const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);o.picks=preserveEnrollPicks(keep,o.sections);S.enroll=o;persist();toast('Loaded '+fmtEnrollTerm(o.term)+' ('+o.sections.length+' sections)')}catch(err){U.enrMsg='Could not load server schedule ('+(err&&err.message||'error')+')'}render()},
@@ -2760,7 +2992,7 @@ const WEB_HOST=IS_WEB?{
 
 const HOST=DESKTOP_HOST||WEB_HOST;
 
-const hostCanvasCard=()=>DESKTOP_HOST?`<div class="card" style="margin-bottom:16px"><h2>Sign in and sync</h2><p class="small muted" style="margin:-6px 0 12px">Atlas opens ${esc(HC.canvasUrl||'your Canvas')} in its own window. Sign in the way you normally do. Atlas then reads your courses, scores and due dates, and the window closes. Your password is never stored.</p><div class="row"><button class="btn primary" data-a="hostcanvas">${U.hostBusy==='canvas'?'Waiting for you to sign in…':'Sign in to Canvas'}</button></div></div>`:'';
+const hostCanvasCard=()=>DESKTOP_HOST?`<div class="card kpi-card kpi-acc" style="margin-bottom:16px"><h2>One-click Portal Sync (Read-only)</h2><p class="small muted" style="margin:-6px 0 12px">Atlas opens your university portals in isolated windows where you sign in normally. Once signed in, Atlas reads your Canvas courses/scores and automatically reads PSCS Course History + Live Weekly Schedule in one pass. Passwords are never stored and no changes are ever made to your portals.</p><div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn primary" data-a="hostsyncall" ${U.hostBusy?'disabled':''}>${U.hostBusy==='all'?'Syncing Canvas & PSCS…':'✦ Sync All (Canvas + PSCS)'}</button><button type="button" class="btn" data-a="hostcanvas" ${U.hostBusy?'disabled':''}>${U.hostBusy==='canvas'?'Waiting for Canvas…':'Canvas only'}</button><button type="button" class="btn" data-a="hostpscs" ${U.hostBusy?'disabled':''}>${U.hostBusy==='pscs'?'Reading PSCS…':'PSCS (Grades + Live Schedule)'}</button></div></div>`:'';
 const hostCard=()=>`<div class="sec"><h2>This computer &amp; server sync</h2><div class="card">
   <div class="small muted" style="margin-bottom:12px">Your plan is saved in a file on this computer, with a backup copy kept at most once an hour.<br><span class="mono">${esc(HC.dataPath||'')}</span></div>
   <div class="row" style="margin-bottom:18px"><button class="btn" data-a="hostfolder">Open the data folder</button></div>
@@ -2809,6 +3041,20 @@ if(DESKTOP_HOST){
     async hostcanvas(){if(U.hostBusy)return;U.hostBusy='canvas';U.cvErr='';render();
       try{const raw=await DESKTOP_HOST.canvasExport();U.hostBusy='';handleIncomingImport(raw)}
       catch(e){U.hostBusy='';U.cvErr=String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,'');render()}},
+    async hostpscs(){if(U.hostBusy)return;if(!DESKTOP_HOST.pscsExport)return toast('Update desktop app to use PSCS auto-sync');U.hostBusy='pscs';U.cvErr='';render();
+      try{const raw=await DESKTOP_HOST.pscsExport();U.hostBusy='';handleIncomingImport(raw)}
+      catch(e){U.hostBusy='';U.cvErr=String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,'');render()}},
+    async hostsyncall(){if(U.hostBusy)return;U.hostBusy='all';U.cvErr='';render();
+      const errs=[];let gotCv=false,gotPscs=false;
+      try{const rawCv=await DESKTOP_HOST.canvasExport();if(rawCv){const j=JSON.parse(rawCv);if(j&&Array.isArray(j.courses)){U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)||'__new__'}));gotCv=true}}}catch(e){errs.push('Canvas: '+String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,''))}
+      if(DESKTOP_HOST.pscsExport){
+        try{const rawPs=await DESKTOP_HOST.pscsExport();if(rawPs){const j=JSON.parse(rawPs);const diffs=parsePscsGrades(j.history||j);const sched=parsePscsSchedule(j.schedule||j);if(diffs.length)U.pscsDiff=diffs;if(sched&&sched.items&&sched.items.length){U.pscsSched=sched;U.pscsApplySched=true}if(diffs.length||(sched&&sched.items.length))gotPscs=true}}catch(e){errs.push('PSCS: '+String((e&&e.message)||e).replace(/^Error invoking remote method '[^']*': (Error: )?/,''))}
+      }
+      U.hostBusy='';
+      if(errs.length)U.cvErr=errs.join(' · ');
+      location.hash='canvas';render();
+      if(gotCv||gotPscs)toast('Portals read — review & apply below');
+    },
     async hostserversync(){
       if(!HC.serverUrl)return toast('Set your server URL first');
       try{
@@ -2942,9 +3188,10 @@ const ICONS={
   table:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18M9 3v18"/></svg>',
   edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-  portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
+  portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+  theme:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'
 };
-const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
+const ROUTES=[['overview','Home','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA','#gpa'],['canvas','Sync','#canvas']];
 const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,setup:vSetup,tour:vTour,settings:vSettings};
 const LSTHEME='course-atlas.theme';
 const LSRAIL='course-atlas.rail';
@@ -2966,7 +3213,7 @@ function cmdItems(q){
     {id:'r:req',lbl:'Plan · Requirements',sub:'Degree categories & minors',act:()=>location.hash='req'},
     mods.enroll!==false?{id:'r:enroll',lbl:'Plan · Enrollment',sub:'Sections & weekly timetable',act:()=>location.hash='enroll'}:null,
     {id:'r:gpa',lbl:'GPA lab',sub:'Target calculator & what-if',act:()=>location.hash='gpa'},
-    {id:'r:add',lbl:'Add course',sub:'From syllabus or manually',act:()=>location.hash='add'},
+    {id:'r:add',lbl:'Add course',sub:'Quick add or from syllabus',act:()=>ACT.openadd()},
     mods.canvas!==false?{id:'r:canvas',lbl:'Sync from Canvas',sub:'Import scores & due dates',act:()=>location.hash='canvas'}:null,
     {id:'r:setup',lbl:'Setup guide',sub:'Canvas fast-start, dossiers & portal import',act:()=>location.hash='setup'},
     {id:'r:tour',lbl:'Interactive tour',sub:'1-minute walkthrough of Atlas',act:()=>location.hash='tour'},
@@ -3003,8 +3250,8 @@ function moreSheet(){
     <div class="row between"><h3 style="margin:0;font-size:17px">More</h3><button type="button" class="btn ghost sm" data-a="togglemore" aria-label="Close">✕</button></div>
     ${portals.length?`<div><div class="lbl" style="margin-bottom:8px">Portals</div><div class="more-grid">${portals.map(p=>`<button type="button" class="more-tile" data-a="openportal" data-id="${esc(p.id)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span>${esc(p.name)}</span></button>`).join('')}</div></div>`:''}
     <div><div class="lbl" style="margin-bottom:8px">Actions</div><div class="more-grid">
-      <a class="more-tile" href="#add" data-a="closemore">${ICONS.plus}<span>Add course</span></a>
-      ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync Canvas</span></a>`:''}
+      <button type="button" class="more-tile" data-a="openadd">${ICONS.plus}<span>Add course</span></button>
+      ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync &amp; Import</span></a>`:''}
       <a class="more-tile" href="#setup" data-a="closemore">${ICONS.info}<span>Setup guide</span></a>
       <a class="more-tile" href="#tour" data-a="closemore">${ICONS.portal}<span>Tour</span></a>
       <button type="button" class="more-tile" data-a="opencmd">${ICONS.search}<span>Search (⌘K)</span></button>
@@ -3023,22 +3270,29 @@ function render(){
   const th=U.theme||'',mods=(S.ui&&S.ui.modules)||{};
   const mobTheme=th==='dark'?'Dark':th==='light'?'Light':'Auto';
   const dotCls=/offline|could not|conflict/i.test(U.sync||'')?'warn':'';
-  const themeSeg=`<div class="theme-seg" role="group" aria-label="Theme">${[['','Auto'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`;
-  const deskRoutes=ROUTES;
-  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='settings'?'nav-settings':''}" title="${r[1]}" ${U.route===r[0]?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')+
+  const deskRoutes=ROUTES.filter(r=>!(r[0]==='canvas'&&mods.canvas===false));
+  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='canvas'?'nav-desk-only':''}" title="${r[1]}" ${U.route===r[0]?'aria-current="page"':''}>${ICONS[r[0]==='canvas'?'sync':r[0]]||''}<span>${r[1]}</span></a>`).join('')+
     `<button type="button" class="nav-more ${U.moreOpen||U.route==='settings'||U.route==='add'||U.route==='canvas'||U.route==='setup'||U.route==='tour'?'on':''}" data-a="togglemore" aria-label="More">${ICONS.more}<span>More</span></button>`;
   const portals=mods.portals!==false?(S.settings.portals||[]).filter(p=>p.on):[];
-  const dockHtml=portals.length?`<div class="side-dock"><div class="side-lbl">Portals</div>${portals.map(p=>`<div class="dock-row"><button type="button" class="dock-btn" data-a="openportal" data-id="${esc(p.id)}" title="Open ${esc(p.name)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span class="dock-name">${esc(p.name)}</span></button>${p.kind==='canvas'&&mods.canvas!==false?`<button type="button" class="dock-act" data-a="quickcanvas" title="Sync Canvas" aria-label="Sync Canvas">${ICONS.sync}</button>`:''}</div>`).join('')}</div>`:'';
-  const mobAddBtn=(U.route==='courses'||U.route==='add')?'':`<a class="btn sm" href="#add">+ Add</a>`;
+  const dockHtml=portals.length?`<div class="side-dock"><div class="side-lbl">Portals</div><div class="portal-strip">${portals.map(p=>`<button type="button" class="p-chip" data-a="openportal" data-id="${esc(p.id)}" title="Open ${esc(p.name)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span>${esc(p.name.split(' ')[0])}</span></button>`).join('')}</div></div>`:'';
+  const needSetup=!S.courses.length||!(S.links&&S.links.canvas&&S.links.canvas.at);
+  const mobAddBtn=(U.route==='courses'||U.route==='add')?'':`<button type="button" class="btn sm" data-a="openadd">+ Add</button>`;
   const side=`<aside class="side"><div class="side-card">
     <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button>${mobAddBtn}<button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
+    ${S.terms.length?`<button type="button" class="side-cta" data-a="openadd" title="Add a course">${ICONS.plus}<span>Add course</span></button>`:''}
     <nav class="nav" aria-label="Sections">${navLinks}</nav>
     ${dockHtml}
-    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}<a class="side-btn" href="#setup" title="Setup guide" ${U.route==='setup'?'aria-current="page"':''}>${ICONS.info}<span>Setup guide</span></a><a class="side-btn" href="#tour" title="Interactive tour" ${U.route==='tour'?'aria-current="page"':''}>${ICONS.portal}<span>Tour</span></a></div>
-    <div class="side-foot">${themeSeg}<div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
+    <div class="side-foot">
+      <div class="side-util">
+        <a class="util-btn" href="#settings" title="Settings" ${U.route==='settings'?'aria-current="page"':''}>${ICONS.settings}<span class="side-util-txt">Settings</span></a>
+        <a class="util-btn" href="#setup" title="Setup guide &amp; tour" ${U.route==='setup'||U.route==='tour'?'aria-current="page"':''}>${ICONS.info}${needSetup?'<i class="util-dot"></i>':''}<span class="side-util-txt">Guide</span></a>
+        <button type="button" class="util-btn" data-a="cycletheme" title="Theme: ${mobTheme} (click to switch)" aria-label="Cycle theme">${ICONS.theme}</button>
+      </div>
+      <div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div>
+    </div>
   </div></aside>`;
   const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
-  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.ctx?ctxMenu():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
+  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.addOpen?addModal():''}${U.ctx?ctxMenu():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
   if(U.ctx){
     const cm=$('.ctx-menu');
@@ -3072,7 +3326,7 @@ function routeFromHash(){const h=(location.hash||'').replace('#','');
     }catch(e){toast('Could not read incoming import link')}
   }
   if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
-  U.course=null;U.ctx=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
+  U.course=null;U.ctx=null;U.addOpen=false;U.viewPop=false;U.dueEdit=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
 
 /* ---------- file export & Gemini syllabus reader ---------- */
 const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
@@ -3167,7 +3421,31 @@ const ACT={
     pushUndo('Copied '+orig.code);S.courses.push(copy);persist();
     toast('Copied '+orig.code,true);
   },
-  addinterm(e,d){U.addTerm=d.term||'';location.hash='add';render()},
+  addinterm(e,d){U.addTerm=d.term||'';U.addTab='quick';U.addOpen=true;render();setTimeout(()=>{const el=$('#ma-code');if(el)el.focus()},0)},
+  openadd(){if(!S.terms.length){location.hash='setup';return}U.moreOpen=false;U.addTerm='';U.addTab='quick';U.addOpen=true;render();setTimeout(()=>{const el=$('#ma-code');if(el)el.focus()},0)},
+  closeadd(){U.addOpen=false;render()},
+  closeaddbg(e){if(e.target.classList.contains('modal-veil')){U.addOpen=false;render()}},
+  addtab(e,d){e.preventDefault();U.addTab=d.v||'quick';render()},
+  gpatab(e,d){e.preventDefault();U.gpaTab=d.v||'target';render()},
+  toggleviewpop(){U.viewPop=!U.viewPop;render()},
+  closeviewpop(){U.viewPop=false;render()},
+  togglegrp(e,d){U.openGrps=U.openGrps||{};U.openGrps[d.gid]=!U.openGrps[d.gid];render()},
+  cycleflag(e,d){
+    const c=getC(d.id),g=c&&(c.assess||[]).find(x=>x.id===d.gid),it=g&&(g.items||[]).find(x=>x.id===d.iid);
+    if(!it)return;
+    pushUndo('Flagged '+it.n);it.st=FLAG_NEXT[it.st||'']||'';persist();render();
+  },
+  dueedit(e,d){e.stopPropagation();U.dueEdit=d.k;render();setTimeout(()=>{const el=$('#due-in');if(el)el.focus()},0)},
+  duecancel(e){e.stopPropagation();U.dueEdit=null;render()},
+  duesave(e,d){
+    e.stopPropagation();
+    const v=num(val('due-in'));
+    const c=getC(d.id),g=c&&(c.assess||[]).find(x=>x.id===d.gid),it=g&&(g.items||[]).find(x=>x.id===d.iid);
+    if(!it||v==null)return toast('Enter a numeric score');
+    pushUndo('Scored '+it.n);it.s=v;U.dueEdit=null;persist();toast(`Saved ${v}/${it.m} for ${it.n}`,true);
+  },
+  welcomemode(e,d){U.welcomeMode=d.v||'';render()},
+  weekmode(e,d){U.weekMode=d.v||'live';render()},
   tourstep(e,d){U.tourStep=Math.max(0,Math.min(TOUR_STEPS.length-1,parseInt(d.v,10)||0));render();window.scrollTo(0,0)},
   tab(e,d){e.preventDefault();U.tab=d.v;render()},
   sel(e,d){U.sel=(d.id&&U.sel!==d.id)?d.id:null;render()},
@@ -3252,8 +3530,8 @@ const ACT={
   resetall(){U.confirmReset=false;S=blank();U.course=null;persist();location.hash='overview';render()},
   manual(){
     const code=val('ma-code'),title=val('ma-title');if(!code||!title)return toast('Add a code and a title');
-    const c={id:uid(),code,title,credits:num(val('ma-cr'))||3,term:val('ma-term')||null,cat:val('ma-cat'),prereqs:splitList(val('ma-pre')),grade:null,assess:[],notes:'',instructor:''};
-    mut(()=>S.courses.push(c));U.course=c.id;U.tab='assess';render();
+    const c={id:uid(),code,title,credits:num(val('ma-cr'))||3,term:val('ma-term')||null,cat:val('ma-cat'),prereqs:splitList(val('ma-pre')),coreqs:[],grade:null,assess:[],notes:'',instructor:''};
+    U.addOpen=false;mut(()=>S.courses.push(c),'Added '+code);U.course=c.id;U.tab='assess';render();
   },
   async export(){
     try{await saveFile('course-atlas-backup.json',JSON.stringify(S,null,2));toast('Backup saved')}catch(e){if(!e||e.code!=='declined')toast('The backup could not be saved')}
@@ -3277,7 +3555,7 @@ const ACT={
       c={id:uid(),code:o.code,title:o.title,credits:o.credits||3,term:o.term||null,cat:o.cat||S.settings.cats[0].k,prereqs:o.prereqs,coreqs:[],grade:null,instructor:o.instructor||'',syllabusUrl:o.syllabusUrl||'',notes:o.notes||'',assess:buildAssess()};
       S.courses.push(c);
     }
-    U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
+    U.addOpen=false;U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
   },
   sylreadlocal(){
     const y=U.syl;y.text=($('#syl-text')||{}).value||y.text;y.term=val('syl-term');
@@ -3402,8 +3680,13 @@ document.addEventListener('keydown',e=>{
     if(e.key==='Enter'){e.preventDefault();const it=items[Math.min(U.cmdIdx||0,items.length-1)];U.cmdOpen=false;if(it&&it.act)it.act();else render();return}
   }
   if(e.key==='Escape'&&U.ctx){U.ctx=null;render();return}
+  if(e.key==='Escape'&&U.viewPop){U.viewPop=false;render();return}
+  if(e.key==='Escape'&&U.addOpen){U.addOpen=false;render();return}
   if(e.key==='Escape'&&U.moreOpen){U.moreOpen=false;render();return}
   if(e.key==='Escape'&&U.course){U.course=null;render()}
+  if(e.key==='Enter'&&e.target&&e.target.id==='due-in'){
+    e.preventDefault();const btn=e.target.parentElement&&e.target.parentElement.querySelector('[data-a="duesave"]');if(btn)btn.click();return;
+  }
   if(e.key==='Enter'&&e.target.matches&&e.target.matches('.ir input[data-f="s"]')){
     e.preventDefault();
     const list=Array.from(document.querySelectorAll('.drawer .ir input[data-f="s"]'));
@@ -3437,7 +3720,7 @@ document.addEventListener('change',e=>{
   if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=AI.key?8:0;render();return}
   const f=CHG[k]||CHG2[k];if(!f)return;
   try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
-  if(k==='syl'||k==='sylA'||k==='sylimp'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
+  if(k==='syl'||k==='sylA'||k==='sylimp'||k==='pscssched'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
   persist();render();
 });
 let dragId=null;
@@ -3500,8 +3783,9 @@ function upgrade(o){
     mergeUrl('canvas',HC.canvasUrl);mergeUrl('pscs',HC.pscsUrl);mergeUrl('syllabus',HC.syllabusUrl);
   }
   const du=defUi(),ou=o.ui||{};
+  const isV5=!o.v||o.v<6;
   const mergeWidgets=(defList,curList)=>{
-    if(!Array.isArray(curList)||!curList.length)return defList;
+    if(isV5||!Array.isArray(curList)||!curList.length)return defList;
     const out=curList.filter(x=>x&&x.w).map(x=>({w:x.w,size:x.size||'m',on:x.on!==false}));
     defList.forEach(d=>{if(!out.some(x=>x.w===d.w))out.push(Object.assign({},d))});
     return out;
@@ -3517,9 +3801,10 @@ function upgrade(o){
     accent:ou.accent||'blue',
     density:ou.density||'comfortable'
   };
+  st.schedule=o.schedule||null;
   const ol=o.links||{};
   st.links={canvas:Object.assign({at:0,map:{}},ol.canvas||{}),pscs:Object.assign({at:0},ol.pscs||{})};
-  st.v=5;return st;
+  st.v=6;return st;
 }
 function adopt(o){S=upgrade(o);S.sample=false}
 async function boot(){
@@ -3534,7 +3819,7 @@ async function boot(){
   const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
   if(local&&Array.isArray(local.terms)&&!local.sample){
     const was=local.v;adopt(local);
-    if(!was||was<5)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    if(!was||was<6)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
     if(HOST){
       if(DESKTOP_HOST||!serverHad||!was||was<3)HOST.save(JSON.stringify(S)).then(()=>{setSync(okMsg)},()=>setSync(offMsg));
       else setSync(okMsg);

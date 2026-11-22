@@ -37,16 +37,28 @@ function vGpa(){
     farT?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Not this term</div><div class="small muted">Would take ${fmt(thisNeed)} this term (best possible: <b class="mono">${fmt(thisMaxTerm)}</b>, lifting overall to <b class="mono">${fmt(thisBestCum)}</b>). ${fmt(tg)} is a goal for later terms.</div>`:
     `<div class="num" style="margin:12px 0 8px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">Term average to reach ${fmt(tg)} overall · max term <b class="mono">${fmt(thisMaxTerm)}</b> (overall <b class="mono">${fmt(thisBestCum)}</b>).</div>`;
   const d=cum.gpa==null?null:cum.gpa-tg;
-  return head('GPA lab','See where your GPA stands, what the rest of the degree has to average to reach your target, and what a few grades would do.')+
-  `<div class="grid g3">
-    <div class="card kpi-card ${d==null?'kpi-acc':d>=0?'kpi-good':'kpi-warn'}"><div class="row between"><div class="lbl">Cumulative now</div>${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)} vs target</span>`:''}</div><div class="num" style="margin:12px 0 8px">${fmt(cum.gpa)}</div><div class="small muted">${cum.cr} graded credits</div></div>
-    <div class="card kpi-card ${far?'kpi-warn':'kpi-acc'}"><div class="lbl">Needed for ${fmt(tg)} at graduation</div>${card2}</div>
-    <div class="card kpi-card ${farT?'kpi-warn':'kpi-good'}"><div class="lbl">Needed this term</div>${card3}</div>
-  </div>
-  <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
-  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv" data-cid="${x.c.id}"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="row" style="gap:6px"><span class="pill good">+${fmt(x.gain)}</span><button type="button" class="btn sm soft" data-a="retakecourse" data-id="${x.c.id}" title="Copy &amp; link as a retake in your next term">Retake</button></span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
-  <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
-`+termPlanSection()+((S.ui&&S.ui.modules&&S.ui.modules.whatif!==false)?whatIf(cum):'')+transcriptSection();
+  const mods=(S.ui&&S.ui.modules)||{},hasWi=mods.whatif!==false;
+  let tab=U.gpaTab||'target';
+  if(tab==='whatif'&&!hasWi)tab='target';
+  const gpaTabs=[['target','Target'],hasWi?['whatif','What-if']:null,['transcript','Transcript']].filter(Boolean);
+  const tabNav=`<div class="tabs">${gpaTabs.map(([k,l])=>`<a href="#" data-a="gpatab" data-v="${k}" ${tab===k?'aria-current="page"':''}>${l}</a>`).join('')}</div>`;
+  const strip=`<div class="stats-strip cols-3" style="margin-bottom:20px">
+    <div class="stat-cell"><span class="lbl">Cumulative now</span><div class="stat-val">${fmt(cum.gpa)}${d!=null?`<span class="pill ${d>=0?'good':'bad'}">${d>=0?'+':''}${fmt(d)}</span>`:''}</div><span class="stat-sub">${cum.cr} graded credits · target ${fmt(tg)}</span></div>
+    <div class="stat-cell"><span class="lbl">Needed to graduate at ${fmt(tg)}</span><div class="stat-val" ${far?'style="color:var(--bad)"':''}>${o.need==null?'–':far?'Out of reach':o.need<=0?'0.00':fmt(o.need)}</div><span class="stat-sub">${o.need==null?'All degree credits graded':far?`Max finish ${fmt(o.best)} with ${fmt(maxP,1)}s`:`Over remaining ${o.R} cr · max ${fmt(o.best)}`}</span></div>
+    <div class="stat-cell"><span class="lbl">Needed this term</span><div class="stat-val" ${farT?'style="color:var(--bad)"':''}>${thisNeed==null?'–':farT?'Not this term':thisNeed<=0?'0.00':fmt(thisNeed)}</div><span class="stat-sub">${thisNeed==null?'No graded credits yet':farT?`Best term ${fmt(thisMaxTerm)} → cum ${fmt(thisBestCum)}`:`Max term ${fmt(thisMaxTerm)} → cum ${fmt(thisBestCum)}`}</span></div>
+  </div>`;
+  let body='';
+  if(tab==='whatif'){
+    body=whatIf(cum);
+  }else if(tab==='transcript'){
+    body=transcriptSection(true);
+  }else{
+    body=strip+termPlanSection()+
+    `<div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}${rtNote?`<div class="small muted" style="padding:6px 0 10px">${rtNote}</div>`:''}</div>
+    ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv" data-cid="${x.c.id}"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} <span class="meta-txt">${x.c.credits} cr</span></span><span class="row" style="gap:6px"><span class="pill good">+${fmt(x.gain)}</span><button type="button" class="btn sm soft" data-a="retakecourse" data-id="${x.c.id}" title="Copy &amp; link as a retake in your next term">Retake</button></span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
+    <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Cr</th><th class="r">Term</th><th class="r">Cum</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">now</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>`;
+  }
+  return head('GPA','')+tabNav+body;
 }
 
 /* ---------- requirements and minors ---------- */

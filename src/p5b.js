@@ -19,9 +19,10 @@ const ICONS={
   table:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18M9 3v18"/></svg>',
   edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
   check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-  portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
+  portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
+  theme:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'
 };
-const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
+const ROUTES=[['overview','Home','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA','#gpa'],['canvas','Sync','#canvas']];
 const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,setup:vSetup,tour:vTour,settings:vSettings};
 const LSTHEME='course-atlas.theme';
 const LSRAIL='course-atlas.rail';
@@ -43,7 +44,7 @@ function cmdItems(q){
     {id:'r:req',lbl:'Plan · Requirements',sub:'Degree categories & minors',act:()=>location.hash='req'},
     mods.enroll!==false?{id:'r:enroll',lbl:'Plan · Enrollment',sub:'Sections & weekly timetable',act:()=>location.hash='enroll'}:null,
     {id:'r:gpa',lbl:'GPA lab',sub:'Target calculator & what-if',act:()=>location.hash='gpa'},
-    {id:'r:add',lbl:'Add course',sub:'From syllabus or manually',act:()=>location.hash='add'},
+    {id:'r:add',lbl:'Add course',sub:'Quick add or from syllabus',act:()=>ACT.openadd()},
     mods.canvas!==false?{id:'r:canvas',lbl:'Sync from Canvas',sub:'Import scores & due dates',act:()=>location.hash='canvas'}:null,
     {id:'r:setup',lbl:'Setup guide',sub:'Canvas fast-start, dossiers & portal import',act:()=>location.hash='setup'},
     {id:'r:tour',lbl:'Interactive tour',sub:'1-minute walkthrough of Atlas',act:()=>location.hash='tour'},
@@ -80,8 +81,8 @@ function moreSheet(){
     <div class="row between"><h3 style="margin:0;font-size:17px">More</h3><button type="button" class="btn ghost sm" data-a="togglemore" aria-label="Close">✕</button></div>
     ${portals.length?`<div><div class="lbl" style="margin-bottom:8px">Portals</div><div class="more-grid">${portals.map(p=>`<button type="button" class="more-tile" data-a="openportal" data-id="${esc(p.id)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span>${esc(p.name)}</span></button>`).join('')}</div></div>`:''}
     <div><div class="lbl" style="margin-bottom:8px">Actions</div><div class="more-grid">
-      <a class="more-tile" href="#add" data-a="closemore">${ICONS.plus}<span>Add course</span></a>
-      ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync Canvas</span></a>`:''}
+      <button type="button" class="more-tile" data-a="openadd">${ICONS.plus}<span>Add course</span></button>
+      ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync &amp; Import</span></a>`:''}
       <a class="more-tile" href="#setup" data-a="closemore">${ICONS.info}<span>Setup guide</span></a>
       <a class="more-tile" href="#tour" data-a="closemore">${ICONS.portal}<span>Tour</span></a>
       <button type="button" class="more-tile" data-a="opencmd">${ICONS.search}<span>Search (⌘K)</span></button>
@@ -100,22 +101,29 @@ function render(){
   const th=U.theme||'',mods=(S.ui&&S.ui.modules)||{};
   const mobTheme=th==='dark'?'Dark':th==='light'?'Light':'Auto';
   const dotCls=/offline|could not|conflict/i.test(U.sync||'')?'warn':'';
-  const themeSeg=`<div class="theme-seg" role="group" aria-label="Theme">${[['','Auto'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`;
-  const deskRoutes=ROUTES;
-  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='settings'?'nav-settings':''}" title="${r[1]}" ${U.route===r[0]?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')+
+  const deskRoutes=ROUTES.filter(r=>!(r[0]==='canvas'&&mods.canvas===false));
+  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='canvas'?'nav-desk-only':''}" title="${r[1]}" ${U.route===r[0]?'aria-current="page"':''}>${ICONS[r[0]==='canvas'?'sync':r[0]]||''}<span>${r[1]}</span></a>`).join('')+
     `<button type="button" class="nav-more ${U.moreOpen||U.route==='settings'||U.route==='add'||U.route==='canvas'||U.route==='setup'||U.route==='tour'?'on':''}" data-a="togglemore" aria-label="More">${ICONS.more}<span>More</span></button>`;
   const portals=mods.portals!==false?(S.settings.portals||[]).filter(p=>p.on):[];
-  const dockHtml=portals.length?`<div class="side-dock"><div class="side-lbl">Portals</div>${portals.map(p=>`<div class="dock-row"><button type="button" class="dock-btn" data-a="openportal" data-id="${esc(p.id)}" title="Open ${esc(p.name)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span class="dock-name">${esc(p.name)}</span></button>${p.kind==='canvas'&&mods.canvas!==false?`<button type="button" class="dock-act" data-a="quickcanvas" title="Sync Canvas" aria-label="Sync Canvas">${ICONS.sync}</button>`:''}</div>`).join('')}</div>`:'';
-  const mobAddBtn=(U.route==='courses'||U.route==='add')?'':`<a class="btn sm" href="#add">+ Add</a>`;
+  const dockHtml=portals.length?`<div class="side-dock"><div class="side-lbl">Portals</div><div class="portal-strip">${portals.map(p=>`<button type="button" class="p-chip" data-a="openportal" data-id="${esc(p.id)}" title="Open ${esc(p.name)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span>${esc(p.name.split(' ')[0])}</span></button>`).join('')}</div></div>`:'';
+  const needSetup=!S.courses.length||!(S.links&&S.links.canvas&&S.links.canvas.at);
+  const mobAddBtn=(U.route==='courses'||U.route==='add')?'':`<button type="button" class="btn sm" data-a="openadd">+ Add</button>`;
   const side=`<aside class="side"><div class="side-card">
     <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button>${mobAddBtn}<button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
+    ${S.terms.length?`<button type="button" class="side-cta" data-a="openadd" title="Add a course">${ICONS.plus}<span>Add course</span></button>`:''}
     <nav class="nav" aria-label="Sections">${navLinks}</nav>
     ${dockHtml}
-    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}<a class="side-btn" href="#setup" title="Setup guide" ${U.route==='setup'?'aria-current="page"':''}>${ICONS.info}<span>Setup guide</span></a><a class="side-btn" href="#tour" title="Interactive tour" ${U.route==='tour'?'aria-current="page"':''}>${ICONS.portal}<span>Tour</span></a></div>
-    <div class="side-foot">${themeSeg}<div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
+    <div class="side-foot">
+      <div class="side-util">
+        <a class="util-btn" href="#settings" title="Settings" ${U.route==='settings'?'aria-current="page"':''}>${ICONS.settings}<span class="side-util-txt">Settings</span></a>
+        <a class="util-btn" href="#setup" title="Setup guide &amp; tour" ${U.route==='setup'||U.route==='tour'?'aria-current="page"':''}>${ICONS.info}${needSetup?'<i class="util-dot"></i>':''}<span class="side-util-txt">Guide</span></a>
+        <button type="button" class="util-btn" data-a="cycletheme" title="Theme: ${mobTheme} (click to switch)" aria-label="Cycle theme">${ICONS.theme}</button>
+      </div>
+      <div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div>
+    </div>
   </div></aside>`;
   const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
-  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.ctx?ctxMenu():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
+  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.addOpen?addModal():''}${U.ctx?ctxMenu():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
   if(U.ctx){
     const cm=$('.ctx-menu');
@@ -149,7 +157,7 @@ function routeFromHash(){const h=(location.hash||'').replace('#','');
     }catch(e){toast('Could not read incoming import link')}
   }
   if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
-  U.course=null;U.ctx=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
+  U.course=null;U.ctx=null;U.addOpen=false;U.viewPop=false;U.dueEdit=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
 
 /* ---------- file export & Gemini syllabus reader ---------- */
 const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
@@ -244,7 +252,31 @@ const ACT={
     pushUndo('Copied '+orig.code);S.courses.push(copy);persist();
     toast('Copied '+orig.code,true);
   },
-  addinterm(e,d){U.addTerm=d.term||'';location.hash='add';render()},
+  addinterm(e,d){U.addTerm=d.term||'';U.addTab='quick';U.addOpen=true;render();setTimeout(()=>{const el=$('#ma-code');if(el)el.focus()},0)},
+  openadd(){if(!S.terms.length){location.hash='setup';return}U.moreOpen=false;U.addTerm='';U.addTab='quick';U.addOpen=true;render();setTimeout(()=>{const el=$('#ma-code');if(el)el.focus()},0)},
+  closeadd(){U.addOpen=false;render()},
+  closeaddbg(e){if(e.target.classList.contains('modal-veil')){U.addOpen=false;render()}},
+  addtab(e,d){e.preventDefault();U.addTab=d.v||'quick';render()},
+  gpatab(e,d){e.preventDefault();U.gpaTab=d.v||'target';render()},
+  toggleviewpop(){U.viewPop=!U.viewPop;render()},
+  closeviewpop(){U.viewPop=false;render()},
+  togglegrp(e,d){U.openGrps=U.openGrps||{};U.openGrps[d.gid]=!U.openGrps[d.gid];render()},
+  cycleflag(e,d){
+    const c=getC(d.id),g=c&&(c.assess||[]).find(x=>x.id===d.gid),it=g&&(g.items||[]).find(x=>x.id===d.iid);
+    if(!it)return;
+    pushUndo('Flagged '+it.n);it.st=FLAG_NEXT[it.st||'']||'';persist();render();
+  },
+  dueedit(e,d){e.stopPropagation();U.dueEdit=d.k;render();setTimeout(()=>{const el=$('#due-in');if(el)el.focus()},0)},
+  duecancel(e){e.stopPropagation();U.dueEdit=null;render()},
+  duesave(e,d){
+    e.stopPropagation();
+    const v=num(val('due-in'));
+    const c=getC(d.id),g=c&&(c.assess||[]).find(x=>x.id===d.gid),it=g&&(g.items||[]).find(x=>x.id===d.iid);
+    if(!it||v==null)return toast('Enter a numeric score');
+    pushUndo('Scored '+it.n);it.s=v;U.dueEdit=null;persist();toast(`Saved ${v}/${it.m} for ${it.n}`,true);
+  },
+  welcomemode(e,d){U.welcomeMode=d.v||'';render()},
+  weekmode(e,d){U.weekMode=d.v||'live';render()},
   tourstep(e,d){U.tourStep=Math.max(0,Math.min(TOUR_STEPS.length-1,parseInt(d.v,10)||0));render();window.scrollTo(0,0)},
   tab(e,d){e.preventDefault();U.tab=d.v;render()},
   sel(e,d){U.sel=(d.id&&U.sel!==d.id)?d.id:null;render()},
@@ -329,8 +361,8 @@ const ACT={
   resetall(){U.confirmReset=false;S=blank();U.course=null;persist();location.hash='overview';render()},
   manual(){
     const code=val('ma-code'),title=val('ma-title');if(!code||!title)return toast('Add a code and a title');
-    const c={id:uid(),code,title,credits:num(val('ma-cr'))||3,term:val('ma-term')||null,cat:val('ma-cat'),prereqs:splitList(val('ma-pre')),grade:null,assess:[],notes:'',instructor:''};
-    mut(()=>S.courses.push(c));U.course=c.id;U.tab='assess';render();
+    const c={id:uid(),code,title,credits:num(val('ma-cr'))||3,term:val('ma-term')||null,cat:val('ma-cat'),prereqs:splitList(val('ma-pre')),coreqs:[],grade:null,assess:[],notes:'',instructor:''};
+    U.addOpen=false;mut(()=>S.courses.push(c),'Added '+code);U.course=c.id;U.tab='assess';render();
   },
   async export(){
     try{await saveFile('course-atlas-backup.json',JSON.stringify(S,null,2));toast('Backup saved')}catch(e){if(!e||e.code!=='declined')toast('The backup could not be saved')}
@@ -354,7 +386,7 @@ const ACT={
       c={id:uid(),code:o.code,title:o.title,credits:o.credits||3,term:o.term||null,cat:o.cat||S.settings.cats[0].k,prereqs:o.prereqs,coreqs:[],grade:null,instructor:o.instructor||'',syllabusUrl:o.syllabusUrl||'',notes:o.notes||'',assess:buildAssess()};
       S.courses.push(c);
     }
-    U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
+    U.addOpen=false;U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
   },
   sylreadlocal(){
     const y=U.syl;y.text=($('#syl-text')||{}).value||y.text;y.term=val('syl-term');
@@ -479,8 +511,13 @@ document.addEventListener('keydown',e=>{
     if(e.key==='Enter'){e.preventDefault();const it=items[Math.min(U.cmdIdx||0,items.length-1)];U.cmdOpen=false;if(it&&it.act)it.act();else render();return}
   }
   if(e.key==='Escape'&&U.ctx){U.ctx=null;render();return}
+  if(e.key==='Escape'&&U.viewPop){U.viewPop=false;render();return}
+  if(e.key==='Escape'&&U.addOpen){U.addOpen=false;render();return}
   if(e.key==='Escape'&&U.moreOpen){U.moreOpen=false;render();return}
   if(e.key==='Escape'&&U.course){U.course=null;render()}
+  if(e.key==='Enter'&&e.target&&e.target.id==='due-in'){
+    e.preventDefault();const btn=e.target.parentElement&&e.target.parentElement.querySelector('[data-a="duesave"]');if(btn)btn.click();return;
+  }
   if(e.key==='Enter'&&e.target.matches&&e.target.matches('.ir input[data-f="s"]')){
     e.preventDefault();
     const list=Array.from(document.querySelectorAll('.drawer .ir input[data-f="s"]'));
@@ -514,7 +551,7 @@ document.addEventListener('change',e=>{
   if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=AI.key?8:0;render();return}
   const f=CHG[k]||CHG2[k];if(!f)return;
   try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
-  if(k==='syl'||k==='sylA'||k==='sylimp'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
+  if(k==='syl'||k==='sylA'||k==='sylimp'||k==='pscssched'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
   persist();render();
 });
 let dragId=null;
@@ -577,8 +614,9 @@ function upgrade(o){
     mergeUrl('canvas',HC.canvasUrl);mergeUrl('pscs',HC.pscsUrl);mergeUrl('syllabus',HC.syllabusUrl);
   }
   const du=defUi(),ou=o.ui||{};
+  const isV5=!o.v||o.v<6;
   const mergeWidgets=(defList,curList)=>{
-    if(!Array.isArray(curList)||!curList.length)return defList;
+    if(isV5||!Array.isArray(curList)||!curList.length)return defList;
     const out=curList.filter(x=>x&&x.w).map(x=>({w:x.w,size:x.size||'m',on:x.on!==false}));
     defList.forEach(d=>{if(!out.some(x=>x.w===d.w))out.push(Object.assign({},d))});
     return out;
@@ -594,9 +632,10 @@ function upgrade(o){
     accent:ou.accent||'blue',
     density:ou.density||'comfortable'
   };
+  st.schedule=o.schedule||null;
   const ol=o.links||{};
   st.links={canvas:Object.assign({at:0,map:{}},ol.canvas||{}),pscs:Object.assign({at:0},ol.pscs||{})};
-  st.v=5;return st;
+  st.v=6;return st;
 }
 function adopt(o){S=upgrade(o);S.sample=false}
 async function boot(){
@@ -611,7 +650,7 @@ async function boot(){
   const offMsg=DESKTOP_HOST?'Could not save to the data file':'Saved on device (offline)';
   if(local&&Array.isArray(local.terms)&&!local.sample){
     const was=local.v;adopt(local);
-    if(!was||was<5)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+    if(!was||was<6)try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
     if(HOST){
       if(DESKTOP_HOST||!serverHad||!was||was<3)HOST.save(JSON.stringify(S)).then(()=>{setSync(okMsg)},()=>setSync(offMsg));
       else setSync(okMsg);

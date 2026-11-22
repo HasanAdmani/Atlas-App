@@ -17,20 +17,24 @@ const UNIVERSAL_BOOKMARK_FN=async(ATLAS_URL)=>{try{
     }
     payload={v:2,kind:'canvas',at:Date.now(),courses:out};
   }else{
+    const t=s=>(s||'').replace(/\s+/g,' ').trim();
+    const scrapeDoc=doc=>{const tbs=[];Array.from(doc.querySelectorAll('table')).slice(0,30).forEach(tb=>{const rows=Array.from(tb.rows||[]).slice(0,180).map(r=>Array.from(r.cells||[]).map(c=>t(c.innerText||c.textContent).slice(0,140))).filter(r=>r.some(Boolean));if(rows.length)tbs.push({id:tb.id||'',rows})});return{tables:tbs,text:(doc.body?t(doc.body.innerText||doc.body.textContent):'').slice(0,30000)}};
     const docs=[document];
     Array.from(document.querySelectorAll('iframe')).forEach(f=>{try{if(f.contentDocument)docs.push(f.contentDocument)}catch(e){}});
-    const t=s=>(s||'').replace(/\s+/g,' ').trim();
-    const tables=[],texts=[];
-    docs.forEach(doc=>{
-      Array.from(doc.querySelectorAll('table')).slice(0,25).forEach(tb=>{
-        const rows=Array.from(tb.rows).slice(0,150).map(r=>Array.from(r.cells).map(c=>t(c.innerText).slice(0,120)));
-        if(rows.length)tables.push({id:tb.id||'',rows});
-      });
-      if(doc.body&&doc.body.innerText)texts.push(doc.body.innerText.slice(0,30000));
-    });
+    const cur=docs.map(scrapeDoc);
     const loc=location.hostname+' '+location.href;
     const kind=/stellic/i.test(loc)?'stellic':/pscs|peoplesoft/i.test(loc)?'pscs':'syllabus';
-    payload={v:2,kind,at:Date.now(),url:location.href,title:document.title,tables,text:texts.join('\n')};
+    if(kind==='pscs'){
+      const bm=location.pathname.match(/^\/(psc|psp)\/([^/]+)\/([^/]+)\/([^/]+)/i);
+      const pfx=location.origin+'/psc/'+(bm?bm[2]:'CSPROD')+'/'+(bm?bm[3]:'EMPLOYEE')+'/'+(bm?bm[4]:'SA')+'/c/';
+      const getP=async comp=>{try{const r=await fetch(pfx+comp,{credentials:'same-origin'});if(!r.ok)return null;const h=await r.text();if(!h||(/sign\s*in|ps_login|userid/i.test(h.slice(0,4000))&&!/<table/i.test(h)))return null;return scrapeDoc(new DOMParser().parseFromString(h,'text/html'))}catch(e){return null}};
+      const ps=await Promise.all(['SA_LEARNER_SERVICES.SSS_MY_CRSEHIST.GBL','SSR_STUDENT_FL.SSR_CRSE_HIST_FL.GBL','SA_LEARNER_SERVICES.SSR_SSENRL_GRADE.GBL','SA_LEARNER_SERVICES.SSR_SSENRL_LIST.GBL','SA_LEARNER_SERVICES.SSR_SSENRL_SCHD_W.GBL','SSR_STUDENT_FL.SSR_VW_CLASS_FL.GBL'].map(getP));
+      const mrg=a=>{const v=a.filter(Boolean);return{tables:v.flatMap(x=>x.tables),text:v.map(x=>x.text).join('\n')}};
+      const history=mrg([ps[0],ps[1],ps[2],...cur]),schedule=mrg([ps[3],ps[4],ps[5],...cur]);
+      payload={v:2,kind:'pscs-bundle',at:Date.now(),url:location.href,title:document.title,history,schedule,tables:history.tables,text:history.text};
+    }else{
+      payload={v:2,kind,at:Date.now(),url:location.href,title:document.title,tables:cur.flatMap(x=>x.tables),text:cur.map(x=>x.text).join('\n')};
+    }
   }
   const j=JSON.stringify(payload);
   const b64=btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -211,6 +215,55 @@ function parsePscsGrades(obj){
   }
   return Object.values(found);
 }
+function parseScheduleDays(str){
+  const s=String(str||''),out=[];
+  const map=[[/\bMon(?:day)?\b|Mo/gi,'M'],[/\bTue(?:sday)?\b|Tu/gi,'T'],[/\bWed(?:nesday)?\b|We/gi,'W'],[/\bThu(?:rsday)?\b|Th/gi,'Th'],[/\bFri(?:day)?\b|Fr/gi,'F'],[/\bSat(?:urday)?\b|Sa/gi,'Sa'],[/\bSun(?:day)?\b|Su/gi,'Su']];
+  map.forEach(([rx,d])=>{if(rx.test(s)&&out.indexOf(d)<0)out.push(d)});
+  if(!out.length)(s.match(/Th|Sa|Su|M|T|W|F/g)||[]).forEach(d=>{if(out.indexOf(d)<0)out.push(d)});
+  return out;
+}
+function parsePscsSchedule(obj){
+  if(!obj)return null;
+  const codeRe=/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/i;
+  const timeRe=/(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)\s*[-–—to]+\s*(\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?)/i;
+  const roomRe=/\b([A-Z]{1,3}-\d{2,4}|FF-[A-Z]\d{3}|GF-[A-Z]\d{3}|LG\d+|Room\s+\S+|Lab\s+\S+)\b/i;
+  const parseTime=v=>{
+    const m=String(v||'').trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?$/i);if(!m)return null;
+    let h=+m[1];if(m[3]){const p=m[3].toLowerCase();if(p==='pm'&&h<12)h+=12;if(p==='am'&&h===12)h=0}return h*60+(+m[2]);
+  };
+  const items=[],byKey={};
+  let curCode='',curTitle='',curSec='';
+  const term=parseTermTok(obj.text||'')||((S.terms.find(t=>t.status==='current')||{}).name||'Current Term');
+  const feed=(cells)=>{
+    const joined=cells.join(' ');
+    const cm=joined.match(codeRe);
+    if(cm){
+      curCode=(cm[1]+' '+cm[2]).toUpperCase();
+      const sm=joined.match(/\b([LSRTDC]\d{1,2})\b/);
+      curSec=sm?sm[1]:'';
+      const tc=cells.find(x=>x&&!codeRe.test(x)&&!timeRe.test(x)&&x.length>4&&!/^\d+$/.test(x));
+      if(tc)curTitle=tc.slice(0,80);
+    }
+    const tm=joined.match(timeRe);
+    if(tm&&curCode){
+      const a=parseTime(tm[1]),b=parseTime(tm[2]);
+      const days=parseScheduleDays(joined.slice(0,tm.index+12)+' '+joined);
+      if(a!=null&&b!=null&&b>a&&days.length){
+        const rCell=cells.find(x=>roomRe.test(x))||'';
+        const rM=rCell.match(roomRe);
+        const room=rM?rM[0]:'';
+        const k=curCode+'|'+(curSec||'SEC');
+        if(!byKey[k]){byKey[k]={code:curCode,title:curTitle||curCode,sec:curSec,ins:'',meets:[]};items.push(byKey[k])}
+        days.forEach(d=>{if(!byKey[k].meets.some(m=>m.d===d&&m.s===a&&m.e===b))byKey[k].meets.push({d,s:a,e:b,r:room})});
+      }
+    }
+  };
+  ((obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>feed(r.map(x=>String(x||'').trim()))));
+  if(!items.length&&obj.text){
+    String(obj.text).split(/\r?\n/).forEach(line=>feed(line.split(/\t|\s{2,}/).map(x=>x.trim()).filter(Boolean)));
+  }
+  return items.length?{at:Date.now(),term,source:'pscs',items}:null;
+}
 function parseStellicAudit(obj){
   const codeRe=/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/;
   const validG=new Set(['CR','NC','W','A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F']);
@@ -345,11 +398,12 @@ function routeImportedObj(j,rawStr){
     if(!prev.courses.length){U.stellicPrev=null;U.cvErr='No courses or requirements found in that Stellic export. Open your Degree Audit / Progress page first.';render();return true}
     U.stellicPrev=prev;U.cvErr='';location.hash='canvas';render();return true;
   }
-  if(j&&(j.kind==='pscs'||/pscs|peoplesoft/i.test(j.url||''))){
+  if(j&&(j.kind==='pscs'||j.kind==='pscs-bundle'||/pscs|peoplesoft/i.test(j.url||''))){
     U.cv=[];U.stellicPrev=null;U.sylImport=null;
-    const diffs=parsePscsGrades(j);
-    if(!diffs.length){U.pscsDiff=null;U.cvErr='No course grades found in that PSCS page. Open Academic Records → Course History or Grades first.';render();return true}
-    U.pscsDiff=diffs;U.cvErr='';location.hash='canvas';render();return true;
+    const diffs=parsePscsGrades(j.history||j);
+    const sched=parsePscsSchedule(j.schedule||j);
+    if(!diffs.length&&!sched){U.pscsDiff=null;U.pscsSched=null;U.cvErr='No course grades or weekly schedule found in that PSCS export. Make sure you are signed in to PSCS.';render();return true}
+    U.pscsDiff=diffs;U.pscsSched=sched;U.pscsApplySched=!!sched;U.cvErr='';location.hash='canvas';render();return true;
   }
   if(j&&(j.kind==='syllabus'||/syllabus/i.test((j.url||'')+(j.title||'')))){
     U.cv=[];U.pscsDiff=null;U.stellicPrev=null;
@@ -372,7 +426,7 @@ function handleIncomingImport(jsonStr){
   ACT2.cvread();
 }
 function vCanvas(){
-  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],st=U.stellicPrev||null,syl=U.sylImport||null,lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
+  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],pscsSched=U.pscsSched||null,st=U.stellicPrev||null,syl=U.sylImport||null,lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
   const baseHint=atlasBaseUrl().replace(/\/+$/,'')||'http://127.0.0.1:3000';
   const opts=sel=>`<option value="">Skip this one</option><option value="__new__" ${sel==='__new__'?'selected':''}>+ Create new course</option>`+S.courses.filter(c=>status(c)!=='done'||c.id===sel).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('');
   const allOpts=sel=>`<option value="__new__" ${sel==='__new__'?'selected':''}>+ Create new course</option>`+S.courses.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)} (${esc((termOf(c.term)||{}).name||'Catalog')})</option>`).join('');
@@ -387,19 +441,22 @@ function vCanvas(){
     <label class="row small" style="margin-bottom:12px;cursor:pointer"><input type="checkbox" data-c="sylimp" data-f="applyWeights" ${syl.applyWeights?'checked':''}> Apply these grading weights to the course</label>`:'<p class="small muted">No weight table was detected on this page — linking will still save the Syllabus URL and instructor.</p>'}
     <div class="row"><button type="button" class="btn primary" data-a="sylimportapply">${syl.target==='__new__'?'Create course with syllabus':'Link syllabus to course'}</button><button type="button" class="btn" data-a="sylimportedit">Edit in Add Course…</button><button type="button" class="btn ghost" data-a="sylimportclear">Dismiss</button></div>
   </div>`:'';
-  return head('Sync & Import','Sync scores from Canvas, import PSCS Course History, build from Stellic, or link Simple Syllabus.',`<a class="btn" href="#setup">Setup Guide</a><a class="btn soft" href="#tour">Tour</a>`)+
-  (DESKTOP_HOST?hostCanvasCard():'')+`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">One-click “Send to Atlas” bookmark</h2><span class="pill">Last Canvas sync: ${lastAt?esc(new Date(lastAt).toLocaleString()):'Never'}</span></div>
-  <p class="small muted" style="margin:0 0 12px">Drag this button onto your browser Bookmarks bar once. Then whenever you are signed into <b>Canvas</b>, <b>PSCS</b>, <b>Simple Syllabus</b>, or <b>Stellic</b>, click it once to send the page straight to Atlas.</p>
-  <div class="row" style="margin-bottom:12px"><a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Canvas, PSCS, Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button class="btn" data-a="copybm">Copy bookmark code</button></div>
+  return head('Sync & Import','',`<a class="btn sm" href="#setup">Setup Guide</a><a class="btn ghost sm" href="#tour">Tour</a>`)+
+  (DESKTOP_HOST?hostCanvasCard():`<div class="card kpi-card kpi-acc" style="margin-bottom:16px"><div class="row between" style="margin-bottom:6px"><h2 style="margin:0">No-bookmarklet 1-Click Sync (Browser Extension)</h2><span class="pill acc">Recommended</span></div><p class="small muted" style="margin:0 0 10px">Load the bundled <b>Atlas Companion</b> extension once in Chrome or Edge. Sign in to Canvas and PSCS normally, then click <b>✦ Sync All Portals</b> from the toolbar icon to pull Canvas scores, PSCS past grades, and your live PSCS weekly schedule automatically (100% read-only, no passwords stored).</p><details><summary>30-second setup (Chrome / Edge)</summary><ol class="small muted" style="margin:6px 0 0;padding-left:20px;line-height:1.6"><li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>) and enable <b>Developer mode</b>.</li><li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder inside your Atlas repo.</li><li>Click the <b>Atlas Companion</b> icon → set Server URL to <code>${esc(baseHint)}</code> → hit <b>✦ Sync All Portals</b>.</li></ol></details></div>`)+`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Or use the “Send to Atlas” bookmark</h2><span class="meta-txt">${lastAt?'Synced '+esc(new Date(lastAt).toLocaleDateString()):'Not synced yet'}</span></div>
+  <p class="small muted" style="margin:0 0 12px">Drag this button onto your Bookmarks bar once. Clicking it on <b>PSCS</b> (even right on the homepage!) now auto-reads both <b>Course History</b> and your <b>Live Weekly Schedule</b> in one click — and also works on <b>Canvas</b>, <b>Simple Syllabus</b>, and <b>Stellic</b>.</p>
+  <div class="row" style="margin-bottom:10px"><a class="btn primary sm" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Canvas, PSCS (any page), Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button type="button" class="btn sm" data-a="copybm">Copy code</button></div>
   <details><summary>Manual code</summary><textarea id="bm-code" rows="3" readonly class="mono small">${esc(bmCode())}</textarea></details></div>
-  <div class="card" style="margin-top:16px"><h2>Paste export or page report</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Paste Canvas JSON, PSCS Course History/Grades, Simple Syllabus report, or Stellic Degree Audit here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  <div class="card" style="margin-top:16px"><h2>Paste from any portal</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Auto-detects Canvas JSON, PSCS Course History/Schedule, Simple Syllabus report, or Stellic Degree Audit…">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button type="button" class="btn primary sm" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
   sylCard+
   (st?`<div class="card" style="margin-top:16px"><h2>Stellic degree audit preview</h2><p class="small muted" style="margin:-4px 0 12px">Detected <b>${st.courses.length}</b> courses across <b>${st.cats.length}</b> requirement categories (${st.totalCredits} cr).</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Title</th><th>Term</th><th class="r">Cr</th><th>Grade</th></tr></thead><tbody>${st.courses.slice(0,40).map(c=>`<tr><td class="mono small"><b>${esc(c.code)}</b></td><td>${esc(c.title)}</td><td class="small muted">${esc(c.termName)}</td><td class="r mono">${c.credits}</td><td>${lpill(c.grade)}</td></tr>`).join('')}</tbody></table></div>${st.courses.length>40?`<p class="small muted">Showing first 40 of ${st.courses.length} courses.</p>`:''}<div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="stellicapply">Build / Merge into Atlas</button></div></div>`:'')+
   (list.length?`<div class="card kpi-card kpi-acc" style="margin-top:16px"><h2>Match or create Canvas courses</h2><p class="small muted" style="margin:-4px 0 12px">Existing courses update automatically; unmatched Canvas courses default to <b>+ Create new course</b> so your term builds itself in one click.</p><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Action / Course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td><b>${esc(cv.name)}</b>${cv.term?`<div class="small muted">${esc(cv.term)}</div>`:''}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into Atlas</button></div><p class="small muted">Your course matching is remembered for next time. Items that do not fit a group go into “Unsorted from Canvas” with no weight.</p></div>`:'')+
-  (pscs.length?`<div class="card" style="margin-top:16px"><h2>PSCS grade &amp; history import</h2><p class="small muted" style="margin:-4px 0 12px">Found ${pscs.length} course${pscs.length===1?'':'s'}. Existing courses update grades; new courses auto-create their terms.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':r.status==='create'?'Create':'New'}</span></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply selected</button></div></div>`:'')+
-  `<div class="card" style="margin-top:16px"><h2>Calendar feed &amp; companion extension</h2><p class="small muted" style="margin:-4px 0 12px">Export an .ics file for Apple/Google Calendar, or load the unpacked companion browser extension for background Canvas auto-sync.</p>
-  <div class="row"><button type="button" class="btn" data-a="calics">Download .ics calendar</button>${typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft" data-a="copycalurl">Copy calendar subscription URL</button>`:''}</div>
-  <details style="margin-top:12px"><summary>Browser extension setup (Edge / Chrome)</summary><ol class="small muted" style="margin:6px 0 0;padding-left:20px;line-height:1.6"><li>Open <code>edge://extensions</code> (or <code>chrome://extensions</code>) and enable <b>Developer mode</b>.</li><li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder inside your Atlas repo.</li><li>Open the Atlas Companion icon to set your server URL (<code>${esc(baseHint)}</code>) and sync Canvas automatically whenever you browse Canvas.</li></ol></details></div>`;
+  ((pscs.length||pscsSched)?`<div class="card kpi-card kpi-good" style="margin-top:16px"><h2>PSCS import (Grades &amp; Live Schedule)</h2>
+  ${pscsSched?`<div style="padding:10px 12px;border:1px solid var(--good-border);background:var(--good-soft);border-radius:9px;margin-bottom:14px"><label class="row small" style="cursor:pointer;gap:8px"><input type="checkbox" data-c="pscssched" ${U.pscsApplySched!==false?'checked':''}><span><b>Live Weekly Schedule detected (${pscsSched.items.length} classes · ${esc(pscsSched.term)})</b> — updates your Home “This week” schedule with rooms &amp; extra classes.</span></label></div>`:''}
+  ${pscs.length?`<p class="small muted" style="margin:0 0 10px">Found ${pscs.length} course grade${pscs.length===1?'':'s'}. Existing courses update; new courses auto-create their terms.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':r.status==='create'?'Create':'New'}</span></td></tr>`).join('')}</tbody></table></div>`:''}
+  <div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply PSCS import</button></div></div>`:'')+
+  `<details class="card" style="margin-top:16px"><summary>Extras · Calendar feed (.ics)</summary>
+  <p class="small muted" style="margin:0 0 12px">Subscribe to your assignment due dates in Apple Calendar or Google Calendar.</p>
+  <div class="row"><button type="button" class="btn sm" data-a="calics">Download .ics calendar</button>${typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft sm" data-a="copycalurl">Copy calendar subscription URL</button>`:''}</div></details>`;
 }
 const icsEsc=s=>String(s==null?'':s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
 function calendarIcs(){
@@ -487,7 +544,8 @@ const ACT2={
   },
   pscsapply(){
     const list=(U.pscsDiff||[]).filter(r=>r.apply);
-    if(!list.length)return toast('No courses selected');
+    const applySched=!!(U.pscsSched&&U.pscsApplySched!==false);
+    if(!list.length&&!applySched)return toast('Nothing selected to apply');
     pushUndo('PSCS import');
     let upd=0,crt=0;
     if(!S.settings.school)S.settings.school='Habib University';
@@ -503,10 +561,12 @@ const ACT2={
         const c=getC(r.id);if(c){c.grade=r.pscsGrade;upd++}
       }
     });
+    if(applySched)S.schedule=U.pscsSched;
     S.links=S.links||{canvas:{at:0,map:{}},pscs:{at:0}};
     S.links.pscs=S.links.pscs||{at:0};S.links.pscs.at=Date.now();
-    U.pscsDiff=null;U.cvText='';persist();if(crt&&U.route==='overview')render();else{location.hash='overview';render()}
-    toast(`PSCS: ${upd} updated, ${crt} created`,true);
+    U.pscsDiff=null;U.pscsSched=null;U.cvText='';persist();if(crt&&U.route==='overview')render();else{location.hash='overview';render()}
+    const parts=[];if(upd)parts.push(upd+' updated');if(crt)parts.push(crt+' created');if(applySched)parts.push('live schedule saved');
+    toast('PSCS: '+parts.join(', '),true);
   },
   calics(){saveFile('atlas-calendar.ics',calendarIcs()).then(()=>toast('Calendar saved'),e=>{if(!e||e.code!=='declined')toast('Could not save calendar')})},
   copycalurl(){
@@ -515,7 +575,7 @@ const ACT2={
     else toast(u);
   },
 };
-const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v},pscsrow(e,d){const r=(U.pscsDiff||[])[+d.i];if(r)r.apply=!!e.target.checked},sylimp(e,d,v){if(!U.sylImport)return;if(d.f==='applyWeights')U.sylImport.applyWeights=!!e.target.checked;else U.sylImport[d.f]=v}};
+const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v},pscsrow(e,d){const r=(U.pscsDiff||[])[+d.i];if(r)r.apply=!!e.target.checked},pscssched(e){U.pscsApplySched=!!e.target.checked},sylimp(e,d,v){if(!U.sylImport)return;if(d.f==='applyWeights')U.sylImport.applyWeights=!!e.target.checked;else U.sylImport[d.f]=v}};
 
 /* ---------- transcript ---------- */
 function transcript(){
@@ -553,9 +613,11 @@ async function transcriptPdf(){
   need(30);doc.setFont('helvetica','bold');doc.setFontSize(12);doc.text('Cumulative GPA '+(cum.gpa==null?'–':fmt(cum.gpa))+'     Credits earned '+earnedCredits(),M,y);
   return doc.output('arraybuffer');
 }
-function transcriptSection(){
+function transcriptSection(asTab){
   const T=transcript();
-  return`<details id="tr-details" class="card sec"><summary>Transcript</summary><div class="row" style="margin-bottom:14px"><button class="btn" data-a="trcsv">Download CSV</button><button class="btn" data-a="trpdf">Download PDF</button><button class="btn" data-a="trprint">Print / Save PDF</button></div>${T.map(t=>`<div style="margin-bottom:16px"><div class="row between"><h3>${esc(t.name)}${t.cr?' <span class="pill">credit / no credit</span>':t.status==='current'?' <span class="pill acc">in progress</span>':''}</h3><span class="mono small muted">${t.credits} cr${t.tg!=null?' · GPA '+fmt(t.tg):''}${t.cg!=null?' · cumulative '+fmt(t.cg):''}</span></div><div class="scroll"><table class="t"><tbody>${t.rows.map(r=>`<tr><td class="mono small" style="white-space:nowrap">${esc(r.code)}</td><td>${esc(r.title)}${r.note?` <span class="pill">${r.note}</span>`:''}</td><td class="r mono">${r.cr}</td><td class="r mono">${esc(r.grade)}</td></tr>`).join('')}</tbody></table></div></div>`).join('')||'<div class="empty">Finished and current terms appear here.</div>'}</details>`;
+  const inner=`<div class="row" style="margin-bottom:14px"><button type="button" class="btn sm" data-a="trcsv">Download CSV</button><button type="button" class="btn sm" data-a="trpdf">Download PDF</button><button type="button" class="btn sm" data-a="trprint">Print / Save PDF</button></div>${T.map(t=>`<div style="margin-bottom:16px"><div class="row between"><h3>${esc(t.name)}${t.cr?' <span class="pill">CR / NC</span>':t.status==='current'?' <span class="pill acc">in progress</span>':''}</h3><span class="meta-txt">${t.credits} cr${t.tg!=null?' · GPA '+fmt(t.tg):''}${t.cg!=null?' · cum '+fmt(t.cg):''}</span></div><div class="scroll"><table class="t"><tbody>${t.rows.map(r=>`<tr><td class="mono small" style="white-space:nowrap">${esc(r.code)}</td><td>${esc(r.title)}${r.note?` <span class="pill">${r.note}</span>`:''}</td><td class="r mono">${r.cr}</td><td class="r mono">${esc(r.grade)}</td></tr>`).join('')}</tbody></table></div></div>`).join('')||'<div class="empty">Finished and current terms appear here.</div>'}`;
+  if(asTab)return`<div id="tr-details" class="card">${inner}</div>`;
+  return`<details id="tr-details" class="card sec"><summary>Transcript</summary>${inner}</details>`;
 }
 Object.assign(ACT2,{
   trcsv(){saveFile('atlas-transcript.csv',transcriptCsv()).then(()=>toast('Transcript saved'),e=>{if(!e||e.code!=='declined')toast('The file could not be saved')})},

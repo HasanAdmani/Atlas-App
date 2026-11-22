@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-11-23 — Streamlined UI Overhaul, Live PSCS Schedule & 1-Click Multi-Portal Sync
+### Summary
+- **UI Simplification & Visual Polish** (`src/p1.html`, `src/p2.js`, `src/p3.js`, `src/p4a.js`, `src/p4b.js`, `src/p5a.js`, `src/p5b.js`, `src/p6.js`, `src/p8.js`):
+  - Slimmed sidebar (16 → 7 controls) with `+ Add course` CTA, 5 nav tabs (`Home`, `Courses`, `Plan`, `GPA`, `Sync`), horizontal Portals icon strip, and compact footer (`Settings`, `Guide`, single theme toggle, sync dot).
+  - Replaced Home's 4 separate KPI cards with a unified 4-metric Stats Strip (`v: 6` schema upgrade), added 1-click inline score entry (`Log`) on **Up Next**, and hid empty `Worth a look` / compact empty `Weekly schedule` bars.
+  - Added centered inline **`+ Add course`** modal (`Quick add` | `From syllabus`) over any page, simplified Course Drawer top summary & 4-column assessment rows with collapsible `⚙` group settings, added Four-Year Grid `View ▾` popover, split GPA Lab into 3 tabs (`Target` · `What-if` · `Transcript`), and converted Enrollment into a compact 1-line offerings bar + smart chip/dropdown threshold + sticky 5-tab right pane (`Week` · `Cart` · `Backups` · `Auto` · `Search`).
+  - Redesigned fresh-install Welcome into a calm 3-card chooser.
+- **Live PSCS Weekly Schedule vs. Future Enrollment** (`src/p2.js`, `src/p3.js`, `src/p6.js`, `src/p8.js`, `src/p5b.js`): Added `S.schedule` for live PSCS weekly schedules so future-term drafts label honestly as `Planned · <Term>` (`Future term`) instead of `"This week"`, with a `[This week | <Planned>]` toggle when both exist.
+- **1-Click Read-Only Multi-Portal Sync (Canvas + PSCS)** (`connectors/pscs.js`, `main.js`, `preload.js`, `src/p9.js`, `src/p6.js`, `extension/*`): Added Electron `pscs:export` + **✦ Sync All (Canvas + PSCS)**, upgraded the **Atlas Companion** Chrome/Edge extension (`v1.1.0`) with **✦ Sync All Portals** (read-only `GET` for Canvas + PSCS Course History + PSCS Live Weekly Schedule), and upgraded the universal bookmarklet to bundle PSCS Course History + Weekly Schedule from any PSCS page.
+
+### Rollback Steps
+1. Check out commit `cc3e88c` on Starserver (`~/apps/atlas`) and run `~/ops/deploy.sh atlas`.
+2. Existing `~/apps/atlas/userData/atlas-data.json` is git-ignored and backwards-compatible (hourly rolling backups in `~/apps/atlas/userData/backups/`).
+
 ## 2026-11-22 — Quick Course Actions, Multi-Component Enrollment, Simple Syllabus Linking & Tour
 ### Summary
 - **Universal Course Context Menu & Quick Actions** (`src/p3.js`, `src/p4a.js`, `src/p4b.js`, `src/p5b.js`, `src/p1.html`): Added `⋮` quick-action buttons and right-click context menus across Courses (cards & table), Overview, Four-Year Grid, and Requirements chips with viewport-clamped upward flipping, 1-click final grade pills, Move to term, **Retake (Copy & Link)**, **Duplicate**, Open/Edit, and undoable Delete. Added inline final grading on current courses, drawer header quick-grade + Retake controls, 1-click Retake buttons in GPA Lab, and `+` quick-add buttons on Four-Year Grid term headers.

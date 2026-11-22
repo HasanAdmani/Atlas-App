@@ -119,7 +119,8 @@ function catalogTrayHtml(cat,P){
   const catCr=cat.reduce((a,c)=>a+c.credits,0);
   const open=!!(P.trayOpen||U.moveCourseId);
   if(!open){
-    return`<div class="cat-bar" data-drop=""><div class="row" style="gap:8px"><b>Catalog</b><span class="pill">${cat.length} unscheduled · ${catCr} cr</span><span class="small muted">Drop a course here to unschedule</span></div><button type="button" class="btn sm" data-a="toggletray">Open catalog</button></div>`;
+    if(!cat.length)return'';
+    return`<div class="cat-bar" data-drop=""><div class="row" style="gap:8px"><b>Catalog</b><span class="meta-txt">${cat.length} unscheduled · ${catCr} cr</span></div><button type="button" class="btn sm" data-a="toggletray">Show catalog</button></div>`;
   }
   const q=(U.catQ||'').trim().toLowerCase(),ck=U.catCat||'';
   const shown=cat.filter(c=>(!ck||c.cat===ck)&&(!q||(c.code+' '+c.title).toLowerCase().includes(q)));
@@ -156,9 +157,14 @@ function vGrid(){
   const cat=S.courses.filter(c=>!termOf(c.term));
   const tot=S.courses.filter(c=>termOf(c.term)&&counts(c)).reduce((a,c)=>a+c.credits,0);
   const laySeg=`<div class="seg" role="group" aria-label="Grid layout">${[['years','Years'],['timeline','Timeline']].map(([k,l])=>`<button type="button" class="${P.layout===k?'on':''}" data-a="plancfg" data-f="layout" data-v="${k}">${l}</button>`).join('')}</div>`;
-  const densSeg=`<div class="seg" role="group" aria-label="Card density">${[['auto','Auto'],['comfort','Comfort'],['compact','Compact'],['mini','Mini']].map(([k,l])=>`<button type="button" class="${P.density===k?'on':''}" data-a="plancfg" data-f="density" data-v="${k}">${l}</button>`).join('')}</div>`;
-  const colorSel=`<select class="sel-pill" data-c="plancfg" data-f="colorBy" aria-label="Color cards by">${[['status','Color: Status'],['cat','Color: Category'],['grade','Color: Grade']].map(([k,l])=>`<option value="${k}" ${P.colorBy===k?'selected':''}>${l}</option>`).join('')}</select>`;
-  const bar=`<div class="grid-bar"><div class="grid-bar-grp">${laySeg}${densSeg}${colorSel}<button type="button" class="btn sm ${P.collapseDone?'soft':''}" data-a="plancfg" data-f="collapseDone" data-v="${P.collapseDone?'0':'1'}">${P.collapseDone?'Show finished':'Collapse done'}</button></div><div class="grid-bar-grp"><button type="button" class="btn sm ${P.trayOpen?'soft':''}" data-a="toggletray">Catalog (${cat.length})</button><span class="pill acc">${tot} / ${S.settings.totalCredits} cr</span></div></div>`;
+  const densSeg=`<div class="seg" role="group" aria-label="Card density" style="width:100%">${[['auto','Auto'],['comfort','Comfort'],['compact','Compact'],['mini','Mini']].map(([k,l])=>`<button type="button" style="flex:1" class="${P.density===k?'on':''}" data-a="plancfg" data-f="density" data-v="${k}">${l}</button>`).join('')}</div>`;
+  const colorSel=`<select class="sel-pill" style="width:100%" data-c="plancfg" data-f="colorBy" aria-label="Color cards by">${[['status','Course status'],['cat','Category'],['grade','Letter grade']].map(([k,l])=>`<option value="${k}" ${P.colorBy===k?'selected':''}>${l}</option>`).join('')}</select>`;
+  const viewPop=U.viewPop?`<div class="ctx-backdrop" data-a="closeviewpop"></div><div class="pop-menu" role="dialog" aria-label="View options">
+    <div><span class="lbl" style="display:block;margin-bottom:5px">Card density</span>${densSeg}</div>
+    <div><span class="lbl" style="display:block;margin-bottom:5px">Color cards by</span>${colorSel}</div>
+    <button type="button" class="btn sm ${P.collapseDone?'soft':''}" style="width:100%" data-a="plancfg" data-f="collapseDone" data-v="${P.collapseDone?'0':'1'}">${P.collapseDone?'✓ Finished terms collapsed':'Collapse finished terms'}</button>
+  </div>`:'';
+  const bar=`<div class="grid-bar"><div class="grid-bar-grp">${laySeg}<button type="button" class="btn sm ${P.trayOpen?'soft':''}" data-a="toggletray">Catalog (${cat.length})</button><div class="pop-wrap"><button type="button" class="btn sm ${U.viewPop?'soft':''}" data-a="toggleviewpop">View ▾</button>${viewPop}</div></div><span class="meta-txt">${tot} / ${S.settings.totalCredits} cr planned</span></div>`;
   const mc=U.moveCourseId?getC(U.moveCourseId):null;
   const mvBar=mc?`<div class="move-bar"><span>Moving <b>${esc(mc.code)}</b> — tap <b>Place</b> on a term</span><div class="row" style="gap:8px"><button type="button" class="btn sm" data-a="moveto" data-term="">Move to Catalog</button><button type="button" class="btn sm ghost" data-a="cancelmove">Cancel</button></div></div>`:'';
   return bar+(P.layout==='timeline'?vGridTimeline(S.terms,cat,P):vGridYears(S.terms,cat,P))+mvBar;

@@ -16,17 +16,30 @@ function sylPreview(){
   ${o.notes?`<div class="small muted" style="margin-top:10px"><b>Policies noticed:</b> ${esc(o.notes)}</div>`:''}
   <div class="row" style="margin-top:16px"><button class="btn primary" data-a="sylAdd">${o.targetId?'Update existing course':'Add this course'}</button><button class="btn" data-a="sylRow">+ Add a row</button><button class="btn ghost" data-a="sylDiscard">Discard</button></div></div>`;
 }
-function vAdd(){
-  if(!S.terms.length)return head('Add a course','From a syllabus, or by hand.')+setupPanel();
+function addFormBody(isModal){
   const y=U.syl,can=!!AI.key,defTerm=U.addTerm||(S.terms.find(t=>t.status==='current')||{}).id||'';
-  const imp=`<div class="card"><div class="row between" style="margin-bottom:6px"><h2 style="margin:0">From a syllabus</h2><a class="btn sm soft" href="#canvas">Import from Simple Syllabus →</a></div><p class="small muted" style="margin:0 0 14px">Paste syllabus text or drop a file (.pdf, .txt, .md${U.imgMax?', or page photos':''}). Atlas extracts grading weights automatically${can?' with Gemini AI':' locally — no API key needed (or add a free Gemini key in Settings for PDF/photo reading)'}.</p>
-  <textarea id="syl-text" rows="6" data-c="syltext" placeholder="Paste the syllabus text or grading breakdown here (e.g. Quizzes 20%, Midterm 30%, Final 50%)…">${esc(y.text)}</textarea>
-  <label class="dropzone" style="margin-top:12px"><input type="file" id="syl-file" data-c="sylf" multiple accept="${U.imgMax?'image/*,':''}.pdf,.txt,.md,text/plain,application/pdf" hidden><span class="dz-title">${y.files.length?`${y.files.length} image${y.files.length>1?'s':''} attached`:'Choose syllabus files'}</span><span class="dz-sub">Supports .pdf, .txt, .md${U.imgMax?' or page photos':''}</span></label>
-  ${y.files.length||y.msg?`<div class="row" style="margin-top:10px">${y.files.length?`<button class="btn ghost sm" data-a="sylClearImg">Remove attached images</button>`:''}<span class="small muted" id="syl-msg">${esc(y.msg||'')}</span></div>`:''}
-  <div class="row" style="margin-top:14px"><label class="f" style="min-width:170px"><span>Term</span>${termSel('syl-term',y.term||defTerm,'Not scheduled')}</label>${can?`<button class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read with AI'}</button>`:''}<button class="btn ${can?'':'primary'}" data-a="sylreadlocal" style="align-self:flex-end">Extract weights locally</button>${!can?`<button class="btn ghost sm" data-a="go" data-v="settings" style="align-self:flex-end">Add Gemini key</button>`:''}</div>
-  ${y.err?`<p class="small" style="color:var(--bad);margin-top:10px">${esc(y.err)}</p>`:''}</div>${sylPreview()}`;
-  return head('Add a course','Build a course from its syllabus, or fill it in yourself.')+imp+
-  `<div class="card" style="margin-top:20px"><h2>By hand</h2><div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Counts toward</span>${catSel('ma-cat')}</label><label class="f"><span>Term</span>${termSel('ma-term',U.addTerm||'','Not scheduled')}</label></div><label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics"></label><label class="f" style="margin-top:12px"><span>Prerequisites</span><input id="ma-pre" placeholder="EE 202, MTH 202"></label><div style="margin-top:16px"><button class="btn primary" data-a="manual">Add course</button></div></div>`;
+  const tab=U.addTab||(U.syl&&U.syl.out?'syllabus':'quick');
+  const tabs=`<div class="tabs" style="margin-bottom:14px"><a href="#" data-a="addtab" data-v="quick" ${tab==='quick'?'aria-current="page"':''}>Quick add</a><a href="#" data-a="addtab" data-v="syllabus" ${tab==='syllabus'?'aria-current="page"':''}>From syllabus</a></div>`;
+  if(tab==='syllabus'){
+    return tabs+`<p class="small muted" style="margin:0 0 12px">Paste syllabus text or drop a file (.pdf, .txt, .md${U.imgMax?', or photos':''}). Extracts grading weights automatically${can?' with Gemini AI':' locally — no API key needed'}.</p>
+    <textarea id="syl-text" rows="5" data-c="syltext" placeholder="Paste syllabus text or grading breakdown (e.g. Quizzes 20%, Midterm 30%, Final 50%)…">${esc(y.text)}</textarea>
+    <label class="dropzone" style="margin-top:10px;padding:14px"><input type="file" id="syl-file" data-c="sylf" multiple accept="${U.imgMax?'image/*,':''}.pdf,.txt,.md,text/plain,application/pdf" hidden><span class="dz-title">${y.files.length?`${y.files.length} image${y.files.length>1?'s':''} attached`:'Choose syllabus files'}</span><span class="dz-sub">Supports .pdf, .txt, .md${U.imgMax?' or page photos':''}</span></label>
+    ${y.files.length||y.msg?`<div class="row" style="margin-top:8px">${y.files.length?`<button type="button" class="btn ghost sm" data-a="sylClearImg">Remove attached images</button>`:''}<span class="small muted" id="syl-msg">${esc(y.msg||'')}</span></div>`:''}
+    <div class="row" style="margin-top:12px"><label class="f" style="min-width:160px"><span>Term</span>${termSel('syl-term',y.term||defTerm,'Not scheduled')}</label>${can?`<button type="button" class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read with AI'}</button>`:''}<button type="button" class="btn ${can?'':'primary'}" data-a="sylreadlocal" style="align-self:flex-end">Extract weights</button><a class="btn ghost sm" href="#canvas" data-a="closeadd" style="align-self:flex-end">Simple Syllabus →</a></div>
+    ${y.err?`<p class="small" style="color:var(--bad);margin-top:8px">${esc(y.err)}</p>`:''}${sylPreview()}`;
+  }
+  return tabs+`<div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301" autocomplete="off"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Term</span>${termSel('ma-term',defTerm,'Not scheduled')}</label><label class="f"><span>Category</span>${catSel('ma-cat')}</label></div>
+  <label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics" autocomplete="off"></label>
+  <details style="margin-top:12px"><summary class="small">Optional: Prerequisites</summary><label class="f" style="margin-top:8px"><span>Prerequisites (comma separated)</span><input id="ma-pre" placeholder="EE 202, MATH 202"></label></details>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn primary" data-a="manual">Add course</button>${isModal?`<button type="button" class="btn ghost" data-a="closeadd">Cancel</button>`:''}</div>`;
+}
+function addModal(){
+  if(!S.terms.length)return'';
+  return`<div class="modal-veil" data-a="closeaddbg"><div class="modal-box" role="dialog" aria-label="Add course"><div class="modal-head"><h2>Add a course</h2><button type="button" class="btn ghost sm" data-a="closeadd" aria-label="Close">✕</button></div>${addFormBody(true)}</div></div>`;
+}
+function vAdd(){
+  if(!S.terms.length)return head('Add a course','')+setupPanel();
+  return head('Add a course','')+`<div class="card">${addFormBody(false)}</div>`;
 }
 
 /* ---------- settings ---------- */
