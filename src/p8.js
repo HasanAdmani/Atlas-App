@@ -125,17 +125,102 @@ async function onOffers(e){
     else{if(!window.XLSX)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
       const wb=window.XLSX.read(await f.arrayBuffer(),{type:'array'});rows=window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
     const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);
-    o.picks={};Object.keys(keep).forEach(id=>{if(o.sections.some(s=>s.k===keep[id]))o.picks[id]=keep[id]});
+    o.picks=preserveEnrollPicks(keep,o.sections);
     S.enroll=o;persist();
   }catch(err){U.enrMsg=err&&(err.message==='columns'||err.message==='empty')?'That file does not look like a schedule of classes. It needs the columns Subject, Catalog, Course Title, Class Nbr, Day, Start Time and End Time.':'The file could not be read ('+(err&&err.message||'unknown')+')';}
   render();
 }
+const COMP_NAMES={L:'Lecture',S:'Seminar',R:'Recitation',T:'Lab / Tutorial',D:'Studio',C:'Capstone'};
+const COMP_ORD=['L','D','S','R','T','C'];
+const secPrefix=s=>{const m=String((s&&s.sec)||'').trim().match(/^([A-Za-z]+)/);return m?m[1].toUpperCase():'SEC'};
+const compLabel=p=>COMP_NAMES[p]||('Component '+p);
+function secComponents(sections){
+  const map={};
+  (sections||[]).forEach(s=>{const p=secPrefix(s);(map[p]=map[p]||[]).push(s)});
+  return Object.keys(map).sort((a,b)=>{
+    const ia=COMP_ORD.indexOf(a),ib=COMP_ORD.indexOf(b);
+    return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b);
+  }).map(p=>({comp:p,label:compLabel(p),sections:map[p]}));
+}
+function getCoursePickMap(courseId){
+  const raw=(S.enroll&&S.enroll.picks||{})[courseId];
+  if(!raw)return{};
+  if(typeof raw==='string'){
+    const sec=((S.enroll&&S.enroll.sections)||[]).find(s=>s.k===raw);
+    return sec?{[secPrefix(sec)]:raw}:{SEC:raw};
+  }
+  return typeof raw==='object'?Object.assign({},raw):{};
+}
+function setCoursePick(courseId,comp,secKey){
+  if(!S.enroll)return;
+  S.enroll.picks=S.enroll.picks||{};
+  const c=getC(courseId);
+  const comps=c?secComponents(offered(c)):[];
+  if(comps.length<=1){
+    if(secKey)S.enroll.picks[courseId]=secKey;
+    else delete S.enroll.picks[courseId];
+    return;
+  }
+  const map=getCoursePickMap(courseId);
+  if(secKey){
+    map[comp]=secKey;
+    /* Auto-select any required sibling component that has only 1 option (e.g. Hikma's single common Lecture L1) */
+    comps.forEach(g=>{if(g.comp!==comp&&!map[g.comp]&&g.sections.length===1)map[g.comp]=g.sections[0].k});
+  }else{
+    delete map[comp];
+  }
+  if(Object.keys(map).length)S.enroll.picks[courseId]=map;
+  else delete S.enroll.picks[courseId];
+}
+function preserveEnrollPicks(keep,sections){
+  const out={},has=k=>sections.some(s=>s.k===k);
+  Object.keys(keep||{}).forEach(id=>{
+    const v=keep[id];
+    if(typeof v==='string'){if(has(v))out[id]=v}
+    else if(v&&typeof v==='object'){
+      const m={};Object.keys(v).forEach(p=>{if(has(v[p]))m[p]=v[p]});
+      if(Object.keys(m).length)out[id]=m;
+    }
+  });
+  return out;
+}
 const offered=c=>{const mine=aliases(c.code);const t=nn(c.title);return((S.enroll&&S.enroll.sections)||[]).filter(s=>aliases(s.code).some(a=>mine.indexOf(a)>=0)||(t&&nn(s.title)===t))};
-const secLabel=s=>`${s.sec} · ${s.ins||'TBA'} · ${s.meets.length?groupMeets(s.meets):'time TBA'}${s.tot?' · '+s.tot+' enrolled':''}`;
+function cleanInsList(raw){
+  const seen=new Set(),out=[];
+  String(raw||'').split(';').forEach(x=>{
+    const s=x.replace(/,\s*/g,', ').replace(/\s+/g,' ').trim();
+    if(!s)return;
+    const k=s.toLowerCase();if(seen.has(k))return;seen.add(k);out.push(s);
+  });
+  return out;
+}
+function fmtIns(raw,maxShow){
+  const list=cleanInsList(raw);
+  if(!list.length)return'TBA';
+  const lim=maxShow||2;
+  if(list.length<=lim)return list.join('; ');
+  return list[0]+' +'+(list.length-1)+' others';
+}
+function fmtEnrollTerm(raw){
+  const s=String(raw||'').trim();if(!s)return'Schedule';
+  const m=s.match(/^(\d{2})([123])\d$/);
+  if(m){const yr=2000+parseInt(m[1],10),sea=m[2]==='1'?'Spring':m[2]==='2'?'Summer':'Fall';return`${sea} ${yr}`}
+  return s;
+}
+const secLabel=s=>`${s.sec} · ${fmtIns(s.ins,1)} · ${s.meets.length?groupMeets(s.meets):'time TBA'}${s.tot?' · '+s.tot+' enrolled':''}`;
 function groupMeets(ms){const g={};ms.forEach(m=>{const k=m.s+'-'+m.e;(g[k]=g[k]||{s:m.s,e:m.e,d:[]}).d.push(m.d)});return Object.values(g).map(x=>x.d.sort((a,b)=>DAYN.indexOf(a)-DAYN.indexOf(b)).join('')+' '+hm(x.s)+'–'+hm(x.e)).join(', ')}
 function enrollTerm(){const ts=S.terms.filter(t=>t.status!=='done'),ci=S.terms.findIndex(t=>t.status==='current');
   return S.terms.find(t=>t.id===U.enrTerm)||S.terms.find((t,i)=>t.status==='planned'&&i>ci)||ts[0]||S.terms[0]}
-function picked(){const E=S.enroll||{},out=[];Object.keys(E.picks||{}).forEach(id=>{const c=getC(id),s=(E.sections||[]).find(x=>x.k===E.picks[id]);if(c&&s)out.push({c,s})});return out}
+function picked(){
+  const E=S.enroll||{},out=[],secs=E.sections||[];
+  Object.keys(E.picks||{}).forEach(id=>{
+    const c=getC(id);if(!c)return;
+    const raw=E.picks[id];
+    const keys=typeof raw==='string'?[raw]:(raw&&typeof raw==='object'?Object.values(raw):[]);
+    keys.forEach(k=>{const s=secs.find(x=>x.k===k);if(s)out.push({c,s,comp:secPrefix(s)})});
+  });
+  return out;
+}
 function clashes(list){
   const out=[];
   for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)list[i].s.meets.forEach(a=>list[j].s.meets.forEach(b=>{if(a.d===b.d&&a.s<b.e&&b.s<a.e)out.push({a:list[i],b:list[j],d:a.d,at:Math.max(a.s,b.s)})}));
@@ -144,9 +229,9 @@ function clashes(list){
 function weekGrid(list,bad){
   const ms=[];list.forEach(x=>x.s.meets.forEach(m=>ms.push(m)));if(!ms.length)return'';
   const a=Math.floor(Math.min.apply(null,ms.map(m=>m.s))/60),b=Math.ceil(Math.max.apply(null,ms.map(m=>m.e))/60),H=46,days=DAYN.filter(d=>d!=='Su'&&(d!=='Sa'||ms.some(m=>m.d==='Sa')));
-  const badIds={};bad.forEach(x=>{badIds[x.a.c.id]=1;badIds[x.b.c.id]=1});
+  const badIds={};bad.forEach(x=>{badIds[x.a.c.id+':'+x.a.s.k]=1;badIds[x.b.c.id+':'+x.b.s.k]=1});
   const hours=[];for(let h=a;h<b;h++)hours.push(h);
-  return`<div class="wk" style="grid-template-columns:44px repeat(${days.length},minmax(0,1fr))"><div></div>${days.map(d=>`<div class="wkh">${DAYL[d]}</div>`).join('')}<div style="position:relative;height:${(b-a)*H}px">${hours.map(h=>`<span class="wkt" style="top:${(h-a)*H}px">${hm(h*60)}</span>`).join('')}</div>${days.map(d=>`<div class="wkc" style="height:${(b-a)*H}px">${hours.map(h=>`<i style="top:${(h-a)*H}px"></i>`).join('')}${list.map(x=>x.s.meets.filter(m=>m.d===d).map(m=>`<div class="wkb${badIds[x.c.id]?' bad':''}" style="top:${(m.s/60-a)*H}px;height:${Math.max(18,(m.e-m.s)/60*H-2)}px"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)}<br><span>${hm(m.s)} ${esc(m.r)}</span></div>`).join('')).join('')}</div>`).join('')}</div>`;
+  return`<div class="wk" style="grid-template-columns:44px repeat(${days.length},minmax(0,1fr))"><div></div>${days.map(d=>`<div class="wkh">${DAYL[d]}</div>`).join('')}<div style="position:relative;height:${(b-a)*H}px">${hours.map(h=>`<span class="wkt" style="top:${(h-a)*H}px">${hm(h*60)}</span>`).join('')}</div>${days.map(d=>`<div class="wkc" style="height:${(b-a)*H}px">${hours.map(h=>`<i style="top:${(h-a)*H}px"></i>`).join('')}${list.map(x=>x.s.meets.filter(m=>m.d===d).map(m=>`<div class="wkb${badIds[x.c.id+':'+x.s.k]?' bad':''}" style="top:${(m.s/60-a)*H}px;height:${Math.max(18,(m.e-m.s)/60*H-2)}px"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)}<br><span>${hm(m.s)} ${esc(m.r)}</span></div>`).join('')).join('')}</div>`).join('')}</div>`;
 }
 
 /* ---------- seat reservations (hardcoded from Spring 2027 PDF) ---------- */
@@ -247,19 +332,27 @@ function scoreSchedule(combo,prefs){
   return score;
 }
 
+function enrollSlots(cs){
+  const slots=[];
+  cs.forEach(c=>{
+    const comps=secComponents(offered(c));
+    comps.forEach(g=>{
+      const opts=g.sections.filter(s=>s.meets.length);
+      if(opts.length)slots.push({c,comp:g.comp,label:g.label,multi:comps.length>1,options:opts});
+    });
+  });
+  return slots;
+}
 function findSchedules(){
   const E=S.enroll;if(!E)return[];
   const t=enrollTerm();if(!t)return[];
   const cs=S.courses.filter(c=>c.term===t.id);
-  const courseList=cs.map(c=>{
-    const opts=offered(c);
-    return{c,options:opts.filter(s=>s.meets.length)};
-  }).filter(x=>x.options.length);
+  const courseList=enrollSlots(cs);
   if(!courseList.length)return[];
   const combos=autoSchedule(courseList);
   const prefs=U.enrPrefs||{};
   const scored=combos.map(combo=>{
-    const items=combo.map((sec,i)=>({c:courseList[i].c,s:sec}));
+    const items=combo.map((sec,i)=>({c:courseList[i].c,comp:courseList[i].comp,s:sec}));
     const sc=scoreSchedule(combo,prefs);
     return{items,score:sc};
   });
@@ -272,7 +365,7 @@ function applySchedule(idx){
   if(!scheds[idx])return;
   const E=S.enroll;
   E.picks={};
-  scheds[idx].items.forEach(x=>{E.picks[x.c.id]=x.s.k});
+  scheds[idx].items.forEach(x=>{setCoursePick(x.c.id,x.comp||secPrefix(x.s),x.s.k)});
   persist();render();
 }
 
@@ -282,7 +375,8 @@ function cartSection(){
   const nums=pk.map(x=>x.s.k);
   const cartHTML=pk.map(x=>{
     const rb=resBadge(x.s);
-    return`<div class="kv"><span><b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')}</span><span class="mono">${esc(x.s.k)} ${rb}</span></div>`;
+    const fullIns=cleanInsList(x.s.ins).join('; ');
+    return`<div class="kv"><span title="${esc(fullIns)}"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))}</span><span class="row" style="gap:8px;flex:none;justify-content:flex-end">${rb}<span class="mono" style="min-width:44px;text-align:right;font-weight:600">${esc(x.s.k)}</span></span></div>`;
   }).join('');
   return`<div class="sec"><h2>Shopping cart</h2><div class="card" style="padding:4px 16px">${cartHTML}
   <div class="row between" style="padding:10px 0;border-top:1px solid var(--line);margin-top:6px"><div><div class="lbl">Class numbers for PSCS</div><div class="mono" style="margin-top:4px;user-select:all">${nums.join(', ')}</div></div><button class="btn" data-a="copycart" style="flex:none">Copy</button></div></div></div>`;
@@ -293,13 +387,14 @@ function backupSection(){
   const pk=picked();if(!pk.length)return'';
   const E=S.enroll;if(!E)return'';
   const rows=pk.map(x=>{
-    const all=offered(x.c).filter(s=>s.k!==x.s.k&&s.meets.length);
+    const comp=secPrefix(x.s);
+    const all=offered(x.c).filter(s=>s.k!==x.s.k&&secPrefix(s)===comp&&s.meets.length);
     if(!all.length)return'';
-    const others=pk.filter(p=>p.c.id!==x.c.id);
+    const others=pk.filter(p=>!(p.c.id===x.c.id&&p.s.k===x.s.k));
     const alts=all.map(s=>{
       const ok=!others.some(o=>o.s.meets.some(a=>s.meets.some(b=>a.d===b.d&&a.s<b.e&&b.s<a.e)));
       const rb=resBadge(s);
-      return`<div class="small" style="padding:4px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(s.ins||'TBA')} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
+      return`<div class="small" style="padding:4px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(fmtIns(s.ins,1))} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
     }).join('');
     return`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.c.code)}</b> <span class="muted">if ${esc(x.s.sec)} is full:</span>${alts}</div>`;
   }).filter(Boolean).join('');
@@ -312,22 +407,20 @@ function autoScheduleSection(){
   const E=S.enroll;if(!E)return'';
   const t=enrollTerm();if(!t)return'';
   const cs=S.courses.filter(c=>c.term===t.id);
-  const courseList=cs.map(c=>{
-    const opts=offered(c).filter(s=>s.meets.length);
-    return{c,options:opts};
-  }).filter(x=>x.options.length);
-  if(courseList.length<2)return''; /* need at least 2 courses to auto-schedule */
+  const courseList=enrollSlots(cs);
+  if(courseList.length<2)return''; /* need at least 2 slots to auto-schedule */
+  const uniqueCourses=new Set(courseList.map(x=>x.c.id)).size;
 
   const prefs=U.enrPrefs||{};
   const timeSeg=[['','Any time'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].map(([k,l])=>`<button type="button" class="${(prefs.time||'')===k?'on':''}" data-a="enrtime" data-v="${k}">${l}</button>`).join('');
   const prefsUI=`<div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:12px">Preferences</h3>
+  <div class="f" style="margin-bottom:12px"><span class="lbl" style="display:block;margin-bottom:5px">Preferred times</span><div class="seg">${timeSeg}</div></div>
   <div class="fgrid" style="align-items:end">
-    <div class="f"><span class="lbl" style="display:block;margin-bottom:5px">Preferred times</span><div class="seg">${timeSeg}</div></div>
     <label class="f"><span>Preferred instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
     <label class="f"><span>Avoid instructor</span><input data-c="enrpref" data-f="avoidInstructor" value="${esc(prefs.avoidInstructor||'')}" placeholder="Partial name"></label>
   </div></div>`;
 
-  if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${courseList.length} courses with sections. Atlas will generate all valid combinations and rank them by your preferences and seat reservations.</p></div>`;
+  if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${uniqueCourses} course${uniqueCourses===1?'':'s'} (${courseList.length} section component${courseList.length===1?'':'s'}) with offered times. Atlas generates clash-free combinations ranked by your preferences and seat reservations.</p></div>`;
 
   const scheds=findSchedules();
   if(!scheds.length)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<div class="card"><div class="empty">No clash-free combination found. Try reducing courses or adding sections with different times.</div></div><button class="btn" data-a="autosched" style="margin-top:12px">Try again</button></div>`;
@@ -335,7 +428,7 @@ function autoScheduleSection(){
   const rows=scheds.map((sch,idx)=>{
     const bad=clashes(sch.items);
     return`<div class="card kpi-card kpi-acc" style="margin-bottom:14px"><div class="row between" style="margin-bottom:10px"><h3 style="margin:0">Option ${idx+1} <span class="pill acc">score ${sch.score}</span></h3><button class="btn primary sm" data-a="applysched" data-v="${idx}">Use this</button></div>
-    <div class="small" style="margin-bottom:10px;line-height:1.6">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
+    <div class="small" style="margin-bottom:10px;line-height:1.6">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
     ${weekGrid(sch.items,bad)}</div>`;
   }).join('');
 
@@ -344,30 +437,43 @@ function autoScheduleSection(){
 
 /* ---------- main enrollment view ---------- */
 function vEnroll(){
-  const E=S.enroll,t=enrollTerm();
+  const E=S.enroll,t=enrollTerm(),eTermLabel=E?fmtEnrollTerm(E.term):'';
   const srvBtn=typeof location!=='undefined'&&/^https?:$/i.test(location.protocol)?`<div class="row" style="margin-top:12px"><button class="btn soft sm" data-a="loadsrvsched">Load Spring 2027 schedule from server</button></div>`:'';
   const up=`<div class="card"><h3 style="margin-bottom:6px">${E?'Update the offerings':'Import the course offerings'}</h3><p class="small muted" style="margin:0 0 14px">When the registrar publishes the schedule of classes for a term, drop the spreadsheet here (.xlsx or .csv). Atlas finds your planned courses in it, lets you pick sections, and warns you about clashes.</p>
-  <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">${E?`Loaded: ${esc(E.term||'Schedule')} (${E.sections.length} sections)`:'Choose schedule spreadsheet'}</span><span class="dz-sub">${E?'Click to replace with a newer .xlsx or .csv file':'Supports .xlsx, .xls, and .csv exports from PSCS'}</span></label>${srvBtn}
+  <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">${E?`Loaded: ${esc(eTermLabel)} (${E.sections.length} sections)`:'Choose schedule spreadsheet'}</span><span class="dz-sub">${E?'Click to replace with a newer .xlsx or .csv file':'Supports .xlsx, .xls, and .csv exports from PSCS'}</span></label>${srvBtn}
   ${U.enrMsg?`<div class="small" style="color:var(--bad);margin-top:10px">${esc(U.enrMsg)}</div>`:''}</div>`;
   if(!E)return up;
   const cs=t?S.courses.filter(c=>c.term===t.id):[];
   const pk=picked(),bad=clashes(pk);
   const rowsH=cs.map(c=>{
-    const ss=offered(c),cur=(E.picks||{})[c.id]||'';
-    const selSec=ss.find(s=>s.k===cur);
-    const rb=selSec?resBadge(selSec):'';
-    const ctl=!ss.length?`<span class="pill warn">not offered in this file</span>`:`<select class="sel-pill ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${ss.length})</option>${ss.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
-    const chips=ss.length?`<div class="sec-chips">${ss.map(s=>{const on=cur===s.k;return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-v="${esc(s.k)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(s.ins||'TBA')} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`:'';
-    const mine=pk.find(x=>x.c.id===c.id);
-    const resH=selSec?resDetail(selSec):'';
-    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${ctl}</div></div>${chips}${rb&&!ss.length?`<div style="margin-top:4px">${rb}</div>`:''}${resH}${mine&&mine.s.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(mine.s.meets))} · ${esc(mine.s.meets[0].r)}</div>`:''}</div>`}).join('');
+    const ss=offered(c),comps=secComponents(ss),pmap=getCoursePickMap(c.id);
+    if(!ss.length){
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div><span class="pill warn">not offered in this file</span></div></div></div>`;
+    }
+    if(comps.length===1){
+      const g=comps[0],cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
+      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
+      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
+      const resH=selSec?resDetail(selSec):'';
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div style="min-width:0;max-width:100%">${ctl}</div></div>${chips}${resH}${selSec&&selSec.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(selSec.meets))} · ${esc(selSec.meets[0].r)}</div>`:''}</div>`;
+    }
+    const pickedCnt=comps.filter(g=>!!pmap[g.comp]).length;
+    const statusPill=pickedCnt===comps.length?`<span class="pill good">${pickedCnt}/${comps.length} picked</span>`:`<span class="pill warn">Pick ${comps.map(g=>g.label).join(' + ')} (${pickedCnt}/${comps.length})</span>`;
+    const compBlocks=comps.map(g=>{
+      const cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
+      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="${esc(g.label)} for ${esc(c.code)}"><option value="">Choose ${esc(g.label)} (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
+      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
+      return`<div class="comp-box"><div class="comp-head"><span class="comp-title">${esc(g.label)}${g.sections.length===1?' · required common section':''}</span>${ctl}</div>${chips}${selSec?resDetail(selSec):''}</div>`;
+    }).join('');
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${statusPill}</div></div>${compBlocks}</div>`;
+  }).join('');
   const clashH=bad.length?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft);margin-bottom:16px"><b style="color:var(--bad)">Schedule Clashes</b><div class="small" style="margin-top:6px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} and ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap on ${DAYL[x.d]} around ${hm(x.at)}`).join('<br>')}</div></div>`:'';
   const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
   const open=[];S.minors.forEach(mn=>minorStat(mn).open.forEach(r=>{const opts=(r.sl.opts||[]);const hits=opts.map(o=>({o,n:E.sections.filter(s=>aliases(o).some(a=>aliases(s.code).indexOf(a)>=0)).length}));open.push({mn,r,hits})}));
   const minorH=open.filter(x=>x.hits.length).length?`<div class="sec"><h2>Minor courses on offer</h2><div class="card" style="padding:4px 16px">${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">✓ means a section is in the file you loaded.</div></div></div>`:'';
   return up+`<div class="sec"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Choose sections for ${esc(t?t.name:'')}</h2><select class="sel-pill" data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>${clashH}
-  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:10px 0">The file is for ${esc(E.term||'one term')}. Pick the term your courses sit in, then choose sections.</div></div><div class="card" style="position:sticky;top:20px">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
-  <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(s.ins||'TBA')} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
+  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px;min-width:0">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:10px 0">Offerings loaded for <b>${esc(eTermLabel)}</b>. Pick the term your courses sit in, then choose sections.</div></div><div class="card" style="position:sticky;top:20px;min-width:0">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
+  <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
 }
 
 function resDetail(section){
@@ -381,11 +487,11 @@ Object.assign(ACT2,{
   autosched(){U.showAutoSched=true;render()},
   applysched(e,d){applySchedule(+d.v);U.showAutoSched=false},
   enrtime(e,d){U.enrPrefs=U.enrPrefs||{};U.enrPrefs.time=d.v;render()},
-  picksec(e,d){S.enroll.picks=S.enroll.picks||{};if(S.enroll.picks[d.id]===d.v)delete S.enroll.picks[d.id];else S.enroll.picks[d.id]=d.v;persist();render()},
-  async loadsrvsched(){U.enrMsg='';try{const b=(typeof WEB_BASE==='string'?WEB_BASE:'');const r=await fetch(b+'/api/offerings/default');if(!r.ok)throw new Error('HTTP '+r.status);const rows=parseCsvRows(await r.text());const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);o.picks={};Object.keys(keep).forEach(id=>{if(o.sections.some(s=>s.k===keep[id]))o.picks[id]=keep[id]});S.enroll=o;persist();toast('Loaded '+(o.term||'schedule')+' ('+o.sections.length+' sections)')}catch(err){U.enrMsg='Could not load server schedule ('+(err&&err.message||'error')+')'}render()},
+  picksec(e,d){const comp=d.comp||'SEC',cur=getCoursePickMap(d.id)[comp]||'';setCoursePick(d.id,comp,cur===d.v?'':d.v);persist();render()},
+  async loadsrvsched(){U.enrMsg='';try{const b=(typeof WEB_BASE==='string'?WEB_BASE:'');const r=await fetch(b+'/api/offerings/default');if(!r.ok)throw new Error('HTTP '+r.status);const rows=parseCsvRows(await r.text());const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);o.picks=preserveEnrollPicks(keep,o.sections);S.enroll=o;persist();toast('Loaded '+fmtEnrollTerm(o.term)+' ('+o.sections.length+' sections)')}catch(err){U.enrMsg='Could not load server schedule ('+(err&&err.message||'error')+')'}render()},
 });
 Object.assign(CHG2,{
-  enrpick(e,d,v){S.enroll.picks=S.enroll.picks||{};if(v)S.enroll.picks[d.id]=v;else delete S.enroll.picks[d.id]},
+  enrpick(e,d,v){setCoursePick(d.id,d.comp||'SEC',v||'')},
   enrterm(e,d,v){U.enrTerm=v},
   enrq(e,d,v){U.enrQ=v},
   enrpref(e,d,v){U.enrPrefs=U.enrPrefs||{};U.enrPrefs[d.f]=v},

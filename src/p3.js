@@ -61,20 +61,40 @@ function attention(){
   return out;
 }
 
+function setupChecklist(onTour){
+  const hasPlan=S.courses.length>0;
+  const hasCanvas=!!(S.links&&S.links.canvas&&S.links.canvas.at);
+  const hasGrades=doneCourses().some(c=>!!c.grade);
+  const hasSyl=S.courses.some(c=>!!c.syllabusUrl);
+  const hasEnroll=!!(S.enroll&&Object.keys(S.enroll.picks||{}).length);
+  const steps=[
+    {done:hasPlan,title:'1. Build your courses',sub:hasPlan?`${S.courses.length} courses in your plan`:'Connect Canvas once (auto-builds your term) or load a Dossier below.',act:DESKTOP_HOST?`<button type="button" class="btn primary sm" data-a="quickcanvas">Sign in to Canvas</button>`:`<a class="btn primary sm" href="#canvas">Link Canvas</a>`},
+    {done:hasCanvas,title:'2. Sync live Canvas grades & due dates',sub:hasCanvas?`Last synced ${new Date(S.links.canvas.at).toLocaleDateString()}`:'Pulls assignments, weights, scores, and upcoming deadlines automatically.',act:`<a class="btn sm" href="#canvas">Sync Canvas</a>`},
+    {done:hasGrades,title:'3. Import past grades (PSCS)',sub:hasGrades?'Official finished grades recorded':'Send your PSCS Course History once to populate past terms & cumulative GPA.',act:`<a class="btn sm" href="#canvas">Import PSCS</a>`},
+    {done:hasSyl,title:'4. Link Simple Syllabus',sub:hasSyl?'Syllabus links attached to courses':'Open any course on Simple Syllabus and click “Send to Atlas” to grab its URL & weights.',act:`<a class="btn sm" href="#canvas">Link Syllabus</a>`},
+    {done:hasEnroll,title:'5. Pick enrollment sections',sub:hasEnroll?'Weekly timetable configured':'Drop the registrar schedule CSV to pick Lectures, Seminars/Labs & check clashes.',act:`<a class="btn sm" href="#enroll">Enrollment</a>`},
+  ];
+  const nextIdx=steps.findIndex(x=>!x.done);
+  const doneCnt=steps.filter(x=>x.done).length;
+  return`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Your setup progress</h2><div class="row" style="gap:6px"><span class="pill ${doneCnt===steps.length?'good':'acc'}">${doneCnt} / ${steps.length} done</span>${onTour?'':`<a class="btn sm soft" href="#tour">Take the 1-min Tour →</a>`}</div></div>
+    <div class="check-list">${steps.map((st,i)=>{const isNext=i===nextIdx;return`<div class="check-row ${st.done?'done':isNext?'next':''}"><div class="row" style="gap:10px;flex-wrap:nowrap;min-width:0"><span class="check-mark">${st.done?'✓':(i+1)}</span><div style="min-width:0"><b class="small">${st.title}</b><div class="small muted">${st.sub}</div></div></div>${st.done?'<span class="pill good">Done</span>':st.act}</div>`}).join('')}</div>
+  </div>`;
+}
 function setupPanel(isGuide){
   const y=new Date().getFullYear(),ds=getDossiers();
-  const tour=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Quick Start Tour</h2><span class="pill acc">3 ways to start</span></div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
-      <div class="stat"><div class="lbl">1 · Curriculum</div><div class="small" style="margin-top:4px">Load a <b>Dossier</b> (EE/CS 2029) or import your <b>Stellic</b> degree audit for any batch.</div></div>
-      <div class="stat"><div class="lbl">2 · Past Grades</div><div class="small" style="margin-top:4px">Paste or send <b>PSCS Course History</b> to auto-create past terms and official grades.</div></div>
-      <div class="stat"><div class="lbl">3 · Current Term</div><div class="small" style="margin-top:4px">Use <b>Sync Canvas</b> to pull live courses, assignment weights, due dates, and scores.</div></div>
-      <div class="stat"><div class="lbl">4 · Plan &amp; Track</div><div class="small" style="margin-top:4px">Explore your <b>4-Year Grid</b>, <b>Prerequisite Roadmap</b>, <b>Minors</b>, and <b>GPA Lab</b>.</div></div>
+  const fastTrack=`<div class="card kpi-card kpi-acc" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Fastest Start · Link Canvas Once</h2><span class="pill acc">Recommended</span></div>
+    <p class="sub" style="margin:0 0 14px">Don’t want to set up terms and courses by hand? Connect Canvas once and Atlas automatically creates your current term, courses, instructors, assignment groups, weights, and due dates.</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      ${DESKTOP_HOST?`<button type="button" class="btn primary" data-a="quickcanvas">${U.hostBusy==='canvas'?'Waiting for Canvas sign-in…':'Sign in to Canvas & Build Plan'}</button>`:`<a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it once while signed into Canvas!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>`}
+      <a class="btn" href="#canvas">Open Sync &amp; Import</a>
+      <a class="btn soft" href="#tour">Interactive Tour →</a>
     </div>
   </div>`;
 
   const pathA=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path A · Load from a University Dossier</h2><span class="pill">Zero setup</span></div>
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path A · Load from a University Dossier</h2><span class="pill">Full 4-year grid</span></div>
     <p class="sub" style="margin:0 0 12px">Start with an official curriculum grid (no personal data or grades). Pick how many regular semesters you have already finished:</p>
     <div class="row" style="margin-bottom:14px;gap:10px"><label class="f" style="max-width:220px"><span>Terms finished so far</span><input id="su-d-done" type="number" min="0" max="12" value="0"></label></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
@@ -87,18 +107,17 @@ function setupPanel(isGuide){
   </div>`;
 
   const pathB=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path B · Auto-Build from Portals (Any Batch)</h2><span class="pill acc">Stellic + PSCS + Canvas</span></div>
-    <p class="sub" style="margin:0 0 12px">Works for any graduating batch or major—even if your curriculum changed. Drag the bookmarklet to your Bookmarks bar, open <b>Stellic</b> (Degree Audit), <b>PSCS</b> (Course History), or <b>Canvas</b>, and click it once—or paste the export below.</p>
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path B · Import from PSCS, Simple Syllabus, or Stellic</h2><span class="pill acc">Any batch</span></div>
+    <p class="sub" style="margin:0 0 12px">The same <b>✦ Send to Atlas</b> bookmarklet works on <b>Canvas</b>, <b>PSCS</b> (Course History / Grades), <b>Simple Syllabus</b> (links + grading weights), and <b>Stellic</b> (Degree Audit). Click it on any portal or paste the export below.</p>
     <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap">
-      <a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it while viewing Stellic, PSCS, or Canvas!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>
+      <a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it while viewing Canvas, PSCS, Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>
       <a class="btn" href="#canvas">Open Sync &amp; Import →</a>
     </div>
-    <textarea id="su-portal-text" rows="3" placeholder="Paste a Stellic Degree Audit, PSCS Course History, or Canvas JSON export here…"></textarea>
+    <textarea id="su-portal-text" rows="3" placeholder="Paste a Canvas JSON, PSCS Course History, Simple Syllabus report, or Stellic Degree Audit here…"></textarea>
     <div class="row" style="margin-top:10px"><button type="button" class="btn primary" data-a="suimport">Import &amp; Build</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div>
   </div>`;
 
-  const pathC=`<div class="card">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path C · Build Custom Degree (Any University)</h2><span class="pill">Blank slate</span></div>
+  const pathC=`<details class="card"><summary>Path C · Build Custom Degree (Any University)</summary>
     <p class="sub" style="margin:0 0 16px">Tell Atlas how your degree runs, pick a grading scale, and add courses manually or from syllabi.</p>
     <div class="fgrid">
       <label class="f"><span>Programme</span><input id="su-prog" placeholder="B.S. Electrical Engineering"></label>
@@ -110,12 +129,56 @@ function setupPanel(isGuide){
       <label class="f"><span>Credits to graduate</span><input id="su-cr" type="number" value="134"></label>
     </div>
     <div class="row" style="margin-top:18px"><button type="button" class="btn primary" data-a="setup">Create my terms</button>${isGuide&&S.terms.length?`<a class="btn" href="#overview">Back to Overview</a>`:''}</div>
-  </div>`;
+  </details>`;
 
-  return tour+pathA+pathB+pathC;
+  return fastTrack+setupChecklist()+pathA+pathB+pathC;
 }
 function vSetup(){
-  return head('Setup Guide','Start from a university dossier, auto-build from Stellic/PSCS/Canvas, or configure a custom degree.')+setupPanel(true);
+  return head('Setup Guide','Link Canvas once to auto-build your term, load a university dossier, or import from PSCS & Simple Syllabus.',`<a class="btn soft" href="#tour">Interactive Tour</a>`)+setupPanel(true);
+}
+const TOUR_STEPS=[
+  {k:'start',lbl:'Step 1',title:'One-Click Setup',badge:'Zero manual entry',
+    body:'New to Atlas? You don’t need to type your courses one by one. Link <b>Canvas</b> once and Atlas automatically builds your current term, courses, instructors, assignment weights, and due dates. Add a <b>Dossier</b> for a full 4-year roadmap or send <b>PSCS Course History</b> for past grades.',
+    tips:['Desktop app: click <b>Sign in to Canvas</b> — sign in normally and Atlas reads your courses privately.','Web / PWA: drag <b>✦ Send to Atlas</b> to your Bookmarks bar and click it once on Canvas.','Your passwords are never seen or stored by Atlas.'],
+    cta:`<a class="btn primary" href="#setup">Go to Setup Guide</a><a class="btn" href="#canvas">Open Sync &amp; Import</a>`},
+  {k:'quick',lbl:'Step 2',title:'Quick Course Actions',badge:'1-click grading & retakes',
+    body:'Common actions are always 1 click away — no digging through drawers. Click the <b>⋮</b> button or <b>right-click</b> any course card, list row, table row, or 4-Year Grid card.',
+    tips:['<b>Set Final Grade</b> right from the popup pills (works for finished and current courses).','<b>Retake Course (Copy &amp; Link)</b> clones every detail without old scores, links it as a retake, and schedules it in your next term.','<b>Duplicate</b>, <b>Move to term</b>, or <b>Delete</b> with instant Undo (<code>Ctrl+Z</code>).'],
+    cta:`<a class="btn primary" href="#courses">Try on Courses</a><a class="btn" href="#gpa">Check GPA Lab</a>`},
+  {k:'plan',lbl:'Step 3',title:'4-Year Plan & Roadmap',badge:'Drag, drop & prereqs',
+    body:'Organize your entire degree in <b>Plan → Four years</b>. Drag courses between terms (or tap ⇄ on mobile) — Atlas highlights valid, warning, and prerequisite-conflict drops in real time.',
+    tips:['Click <b>+</b> on any term header to add a course straight into that semester.','Switch to <b>Roadmap</b> to trace prerequisite chains left-to-right and see which courses unlock the most later courses.','Track <b>Minors</b> and degree credit categories under <b>Requirements</b>.'],
+    cta:`<a class="btn primary" href="#grid">Open Four-Year Plan</a><a class="btn" href="#roadmap">View Roadmap</a>`},
+  {k:'enroll',lbl:'Step 4',title:'Enrollment & Multi-Component Courses',badge:'Lectures + Seminars/Labs',
+    body:'Drop the registrar’s schedule spreadsheet (.csv or .xlsx) into <b>Plan → Enrollment</b> to build a clash-free weekly timetable and PSCS shopping cart.',
+    tips:['Courses with multiple components (like <b>Hikma</b> with Lecture <code>L1</code> + Seminar <code>S3</code>, or <b>Calculus</b> with <code>L</code> + <code>R</code>) automatically split into separate pickers so you can select both.','If a component has only one common section (like Hikma’s <code>L1</code>), picking your Seminar automatically selects the Lecture too.','Use <b>Auto-schedule</b> to generate clash-free combinations ranked by time, instructor, and seat reservations.'],
+    cta:`<a class="btn primary" href="#enroll">Open Enrollment</a>`},
+  {k:'sync',lbl:'Step 5',title:'Canvas, PSCS & Simple Syllabus',badge:'One universal bookmarklet',
+    body:'One single <b>✦ Send to Atlas</b> bookmarklet understands all four Habib portals automatically — no separate tools to juggle.',
+    tips:['<b>Canvas</b>: syncs live scores, weights, and upcoming due dates.','<b>PSCS</b>: reads Course History / Grades and updates or creates finished terms.','<b>Simple Syllabus</b>: grabs the exact syllabus URL, instructor, and grading breakdown and links them straight to your existing course.','<b>Stellic</b>: imports degree audit requirements for any batch.'],
+    cta:`<a class="btn primary" href="#canvas">Set up Bookmarklet</a><a class="btn" href="#overview">Go to Overview</a>`}
+];
+function vTour(){
+  const idx=Math.max(0,Math.min(TOUR_STEPS.length-1,U.tourStep||0));
+  const st=TOUR_STEPS[idx];
+  const tabs=`<div class="tour-steps">${TOUR_STEPS.map((x,i)=>`<button type="button" class="tour-tab ${i===idx?'on':''}" data-a="tourstep" data-v="${i}"><span>${x.lbl}</span><b>${x.title}</b></button>`).join('')}</div>`;
+  const card=`<div class="card kpi-card kpi-acc">
+    <div class="row between" style="margin-bottom:10px"><span class="pill acc">${st.lbl} of ${TOUR_STEPS.length}</span><span class="pill">${st.badge}</span></div>
+    <h1 style="font-size:clamp(24px,3vw,34px);margin-bottom:10px">${st.title}</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;max-width:68ch">${st.body}</p>
+    <div class="card" style="background:var(--surface-2);padding:14px 16px;margin-bottom:18px;box-shadow:none">
+      <div class="lbl" style="margin-bottom:8px">How it works</div>
+      <ul class="small" style="margin:0;padding-left:18px;line-height:1.7">${st.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>
+    <div class="row between" style="padding-top:12px;border-top:1px solid var(--line);gap:10px;flex-wrap:wrap">
+      <div class="row" style="gap:8px">${st.cta}</div>
+      <div class="row" style="gap:6px">
+        <button type="button" class="btn sm" data-a="tourstep" data-v="${idx-1}" ${idx===0?'disabled':''}>← Previous</button>
+        ${idx<TOUR_STEPS.length-1?`<button type="button" class="btn primary sm" data-a="tourstep" data-v="${idx+1}">Next →</button>`:`<button type="button" class="btn primary sm" data-a="go" data-v="setup">Finish &amp; Set Up →</button>`}
+      </div>
+    </div>
+  </div>`;
+  return head('Welcome to Atlas','A 1-minute interactive tour of how Atlas keeps your grades, 4-year plan, and enrollment effortless.',`<a class="btn" href="#setup">Setup Guide</a>`)+tabs+card+`<div class="sec">${setupChecklist(true)}</div>`;
 }
 
 /* ---------- views & customizable widgets ---------- */
@@ -160,7 +223,7 @@ const WIDGETS={
   }},
   inprog:{title:'In progress',render(){
     const cur=curCourses();
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div style="text-align:right;flex:none"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(st.letter)}</div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div class="row" style="gap:6px;flex:none"><div style="text-align:right"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(c.grade||st.letter)}</div><button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
   }},
   duenext:{title:'Due next',render(){
     const dl=deadlines().slice(0,5);
@@ -222,15 +285,15 @@ function courseRow(c){
   const st=standing(c),is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c),s=status(c);
   const rt=S.courses.find(o=>o.retakeOf===c.id);
   const gcls=gradeCls(c.grade);
-  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
-  return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code row" style="gap:6px"><i class="cat-dot" style="background:${esc(catColor(c.cat))}" title="${esc(catName(c.cat))}"></i>${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${s==='done'?gsel:(l?lpill(l):stPill(c))}</div></div>`;
+  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?(s==='current'&&st.letter?'Now '+st.letter:'Grade'):g}</option>`).join('')}</select>`;
+  return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0"><span class="code row" style="gap:6px"><i class="cat-dot" style="background:${esc(catColor(c.cat))}" title="${esc(catName(c.cat))}"></i>${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${(s==='done'||s==='current')?gsel:(l?lpill(l):stPill(c))}<button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions (grade, retake, copy, delete)" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`;
 }
 function courseTableRow(c){
   const st=standing(c),l=effLetter(c),s=status(c),t=termOf(c.term);
   const gcls=gradeCls(c.grade);
-  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
-  const stand=s==='current'&&st.pct!=null?`<span class="mono small">${fmt(st.pct,1)}%</span> ${lpill(st.letter)}`:(l?lpill(l):stPill(c));
-  return`<tr class="click" data-a="open" data-id="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r">${s==='done'?gsel:stand}</td></tr>`;
+  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?(s==='current'&&st.letter?'Now '+st.letter:'Grade'):g}</option>`).join('')}</select>`;
+  const stand=s==='current'&&st.pct!=null?`<span class="mono small">${fmt(st.pct,1)}%</span> ${gsel}`:(s==='done'||s==='current'?gsel:(l?lpill(l):stPill(c)));
+  return`<tr class="click" data-a="open" data-id="${c.id}" data-cid="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r" style="white-space:nowrap">${stand} <button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></td></tr>`;
 }
 function vCourses(){
   const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
@@ -239,6 +302,7 @@ function vCourses(){
   const T=S.terms,ci=T.findIndex(t=>t.status==='current');
   const ni=T.findIndex((t,i)=>t.status==='planned'&&i>ci);
   let li=-1;T.forEach((t,i)=>{if(t.status==='done'&&(ci<0||i<ci))li=i});
+  if(li<0)T.forEach((t,i)=>{if(t.status==='done')li=i});
   const view=U.cview&&(U.cview==='all'||T.some(t=>t.id===U.cview))?U.cview:'now';
   let shown=view==='all'?T.slice():view==='now'?T.filter((t,i)=>i===li||i===ci||i===ni):T.filter(t=>t.id===view);
   if(!shown.length)shown=T.slice(0,2);
@@ -323,9 +387,35 @@ function drawer(){
     <label class="f" style="margin-bottom:14px"><span>Syllabus link (optional https://…)</span><input data-c="cf" data-f="syllabusUrl" data-id="${c.id}" value="${esc(c.syllabusUrl||'')}" placeholder="https://…"></label>
     <label class="f" style="margin-bottom:18px"><span>Notes</span><textarea rows="4" data-c="cf" data-f="notes" data-id="${c.id}">${esc(c.notes||'')}</textarea></label>
     ${dep.length?`<h2>Unlocks</h2><div class="row" style="margin-bottom:22px">${dep.map(o=>`<button class="btn sm" data-a="open" data-id="${o.id}">${esc(o.code)}</button>`).join('')}</div>`:''}
-    <button class="btn danger" data-a="delcourse" data-id="${c.id}">Delete this course</button>`;
+    <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn soft" data-a="retakecourse" data-id="${c.id}">Retake (copy &amp; link)</button><button type="button" class="btn" data-a="dupcourse" data-id="${c.id}">Duplicate</button><button type="button" class="btn danger" data-a="delcourse" data-id="${c.id}">Delete this course</button></div>`;
   }
   const cvLink=c.canvasId?`<a class="btn sm soft" href="${esc(canvasPortalUrl()+'/courses/'+c.canvasId)}" target="_blank" rel="noopener">Canvas ↗</a>`:'';
   const sylLink=c.syllabusUrl?`<a class="btn sm" href="${esc(c.syllabusUrl)}" target="_blank" rel="noopener">Syllabus ↗</a>`:'';
-  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}${cvLink}${sylLink}</div>${tabs}${body}</div></div>`;
+  const hdrGrade=`<select class="sel-pill ${gradeCls(c.grade)}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Final grade…':g}</option>`).join('')}</select>`;
+  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${hdrGrade}<button type="button" class="btn sm" data-a="retakecourse" data-id="${c.id}" title="Copy &amp; link as a retake">Retake</button>${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}${cvLink}${sylLink}</div>${tabs}${body}</div></div>`;
+}
+
+/* ---------- quick action / context menu ---------- */
+function ctxMenu(){
+  const ctx=U.ctx;if(!ctx)return'';
+  const c=getC(ctx.id);if(!c)return'';
+  const vw=typeof window!=='undefined'?window.innerWidth:1200,vh=typeof window!=='undefined'?window.innerHeight:800;
+  const mw=268,mh=360;
+  const left=Math.max(8,Math.min(ctx.x,vw-mw-8));
+  const top=Math.max(8,Math.min(ctx.y,vh-mh-8));
+  const gOpts=gradeOpts(c);
+  const gPills=gOpts.map(l=>{const on=(c.grade||'')===l;const cl=l?gradeCls(l):'subtle';return`<button type="button" class="opt-pill ${on?'on '+cl:''}" data-a="ctxgrade" data-id="${c.id}" data-v="${esc(l)}">${l===''?'Clear':esc(l)}</button>`}).join('');
+  const termOpts=`<option value="">Catalog (unscheduled)</option>`+S.terms.map(t=>`<option value="${t.id}" ${c.term===t.id?'selected':''}>${esc(t.name)}</option>`).join('');
+  return`<div class="ctx-backdrop" data-a="closectx"></div><div class="ctx-menu" role="menu" aria-label="Actions for ${esc(c.code)}" style="left:${left}px;top:${top}px">
+    <div class="ctx-head"><b>${esc(c.code)} · ${c.credits} cr</b><span>${esc(c.title)}</span></div>
+    <div class="ctx-sec"><span class="lbl">Quick final grade</span><div class="ctx-grades">${gPills}</div></div>
+    <div class="ctx-sec"><span class="lbl">Move to term</span><select class="sel-pill" style="width:100%" data-c="ctxmove" data-id="${c.id}" aria-label="Move ${esc(c.code)} to term">${termOpts}</select></div>
+    <button type="button" class="ctx-item" data-a="retakecourse" data-id="${c.id}"><span>Retake course</span><small>copy &amp; link</small></button>
+    <button type="button" class="ctx-item" data-a="dupcourse" data-id="${c.id}"><span>Duplicate course</span><small>copy</small></button>
+    <div class="ctx-sep"></div>
+    <button type="button" class="ctx-item" data-a="ctxopen" data-id="${c.id}" data-v="assess"><span>Open grades</span><small>breakdown</small></button>
+    <button type="button" class="ctx-item" data-a="ctxopen" data-id="${c.id}" data-v="details"><span>Edit details</span><small>prereqs, notes</small></button>
+    <div class="ctx-sep"></div>
+    <button type="button" class="ctx-item danger" data-a="ctxdel" data-id="${c.id}"><span>Delete course</span><small>undoable</small></button>
+  </div>`;
 }

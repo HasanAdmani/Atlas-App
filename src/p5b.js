@@ -22,7 +22,7 @@ const ICONS={
   portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
 };
 const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
-const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,setup:vSetup,settings:vSettings};
+const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,setup:vSetup,tour:vTour,settings:vSettings};
 const LSTHEME='course-atlas.theme';
 const LSRAIL='course-atlas.rail';
 function applyTheme(t){U.theme=t||'';if(U.theme)document.documentElement.dataset.theme=U.theme;else delete document.documentElement.dataset.theme}
@@ -45,7 +45,8 @@ function cmdItems(q){
     {id:'r:gpa',lbl:'GPA lab',sub:'Target calculator & what-if',act:()=>location.hash='gpa'},
     {id:'r:add',lbl:'Add course',sub:'From syllabus or manually',act:()=>location.hash='add'},
     mods.canvas!==false?{id:'r:canvas',lbl:'Sync from Canvas',sub:'Import scores & due dates',act:()=>location.hash='canvas'}:null,
-    {id:'r:setup',lbl:'Setup guide & tour',sub:'Dossiers, Stellic/PSCS auto-build & custom degree',act:()=>location.hash='setup'},
+    {id:'r:setup',lbl:'Setup guide',sub:'Canvas fast-start, dossiers & portal import',act:()=>location.hash='setup'},
+    {id:'r:tour',lbl:'Interactive tour',sub:'1-minute walkthrough of Atlas',act:()=>location.hash='tour'},
     {id:'r:settings',lbl:'Settings',sub:'Degree, portals, appearance & sync',act:()=>location.hash='settings'},
   ].filter(Boolean);
   if(mods.portals!==false)(S.settings.portals||[]).filter(p=>p.on).forEach(p=>all.push({id:'p:'+p.id,lbl:'Open '+p.name,sub:'Portal · '+p.url,act:()=>ACT.openportal(null,{id:p.id})}));
@@ -82,6 +83,7 @@ function moreSheet(){
       <a class="more-tile" href="#add" data-a="closemore">${ICONS.plus}<span>Add course</span></a>
       ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync Canvas</span></a>`:''}
       <a class="more-tile" href="#setup" data-a="closemore">${ICONS.info}<span>Setup guide</span></a>
+      <a class="more-tile" href="#tour" data-a="closemore">${ICONS.portal}<span>Tour</span></a>
       <button type="button" class="more-tile" data-a="opencmd">${ICONS.search}<span>Search (⌘K)</span></button>
       <a class="more-tile" href="#settings" data-a="closemore">${ICONS.settings}<span>Settings</span></a>
       ${UNDO.length?`<button type="button" class="more-tile" data-a="undo">${ICONS.undo}<span>Undo</span></button>`:''}
@@ -100,20 +102,36 @@ function render(){
   const dotCls=/offline|could not|conflict/i.test(U.sync||'')?'warn':'';
   const themeSeg=`<div class="theme-seg" role="group" aria-label="Theme">${[['','Auto'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`;
   const deskRoutes=ROUTES;
-  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='settings'?'nav-settings':''}" title="${r[1]}" ${U.route===r[0]||(r[0]==='courses'&&(U.route==='add'||U.route==='canvas'))?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')+
-    `<button type="button" class="nav-more ${U.moreOpen||U.route==='settings'||U.route==='add'||U.route==='canvas'?'on':''}" data-a="togglemore" aria-label="More">${ICONS.more}<span>More</span></button>`;
+  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='settings'?'nav-settings':''}" title="${r[1]}" ${U.route===r[0]?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')+
+    `<button type="button" class="nav-more ${U.moreOpen||U.route==='settings'||U.route==='add'||U.route==='canvas'||U.route==='setup'||U.route==='tour'?'on':''}" data-a="togglemore" aria-label="More">${ICONS.more}<span>More</span></button>`;
   const portals=mods.portals!==false?(S.settings.portals||[]).filter(p=>p.on):[];
   const dockHtml=portals.length?`<div class="side-dock"><div class="side-lbl">Portals</div>${portals.map(p=>`<div class="dock-row"><button type="button" class="dock-btn" data-a="openportal" data-id="${esc(p.id)}" title="Open ${esc(p.name)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span class="dock-name">${esc(p.name)}</span></button>${p.kind==='canvas'&&mods.canvas!==false?`<button type="button" class="dock-act" data-a="quickcanvas" title="Sync Canvas" aria-label="Sync Canvas">${ICONS.sync}</button>`:''}</div>`).join('')}</div>`:'';
+  const mobAddBtn=(U.route==='courses'||U.route==='add')?'':`<a class="btn sm" href="#add">+ Add</a>`;
   const side=`<aside class="side"><div class="side-card">
-    <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button><a class="btn sm" href="#add">+ Add</a><button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
+    <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button>${mobAddBtn}<button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
     <nav class="nav" aria-label="Sections">${navLinks}</nav>
     ${dockHtml}
-    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}<a class="side-btn" href="#setup" title="Setup guide" ${U.route==='setup'?'aria-current="page"':''}>${ICONS.info}<span>Setup guide</span></a></div>
+    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}<a class="side-btn" href="#setup" title="Setup guide" ${U.route==='setup'?'aria-current="page"':''}>${ICONS.info}<span>Setup guide</span></a><a class="side-btn" href="#tour" title="Interactive tour" ${U.route==='tour'?'aria-current="page"':''}>${ICONS.portal}<span>Tour</span></a></div>
     <div class="side-foot">${themeSeg}<div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
   </div></aside>`;
   const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
-  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
+  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.ctx?ctxMenu():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
+  if(U.ctx){
+    const cm=$('.ctx-menu');
+    if(cm&&cm.getBoundingClientRect){
+      const rect=cm.getBoundingClientRect(),vw=window.innerWidth||1200,vh=window.innerHeight||800;
+      const safeBottom=vh-(vw<=860?80:12);
+      let top=rect.top;
+      if(rect.bottom>safeBottom){
+        const flipped=(U.ctx.ay||U.ctx.y)-rect.height-6;
+        top=flipped>=8?flipped:Math.max(8,safeBottom-rect.height);
+      }
+      const left=Math.max(8,Math.min(rect.left,vw-rect.width-8));
+      cm.style.top=Math.round(top)+'px';
+      cm.style.left=Math.round(left)+'px';
+    }
+  }
 }
 function toast(t,withUndo){U.toast=t;U.toastUndo=!!withUndo;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';U.toastUndo=false;render()},withUndo?4000:2200)}
 function routeFromHash(){const h=(location.hash||'').replace('#','');
@@ -131,7 +149,7 @@ function routeFromHash(){const h=(location.hash||'').replace('#','');
     }catch(e){toast('Could not read incoming import link')}
   }
   if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
-  U.course=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
+  U.course=null;U.ctx=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
 
 /* ---------- file export & Gemini syllabus reader ---------- */
 const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
@@ -192,9 +210,42 @@ const ACT={
   wsize(e,d){const m=U.dashEditMode||'desktop',it=(S.ui.dash[m]||[]).find(x=>x.w===d.w);if(it){it.size=d.v;persist();render()}},
   wmove(e,d){const m=U.dashEditMode||'desktop',arr=S.ui.dash[m]||[];const i=arr.findIndex(x=>x.w===d.w),j=i+(+d.dir||0);if(i>=0&&j>=0&&j<arr.length){const tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;persist();render()}},
   go(e,d){location.hash=d.v},
-  open(e,d){U.course=d.id;U.tab='assess';render()},
+  open(e,d){U.ctx=null;U.course=d.id;U.tab='assess';render()},
   close(){U.course=null;render()},
   closebg(e){if(e.target.classList.contains('veil')){U.course=null;render()}},
+  ctx(e,d){
+    e.stopPropagation();
+    const r=e.target.closest('[data-a="ctx"]').getBoundingClientRect();
+    U.ctx=(U.ctx&&U.ctx.id===d.id)?null:{id:d.id,x:r.right-264,y:r.bottom+6,ay:r.top};
+    render();
+  },
+  closectx(){U.ctx=null;render()},
+  ctxgrade(e,d){
+    const c=getC(d.id);U.ctx=null;
+    if(c){pushUndo('Grade for '+c.code);c.grade=d.v||null;persist();toast(c.grade?(c.code+': '+c.grade):('Cleared grade for '+c.code),true)}else render();
+  },
+  ctxopen(e,d){U.ctx=null;U.course=d.id;U.tab=d.v||'assess';render()},
+  ctxdel(e,d){
+    const c=getC(d.id);U.ctx=null;
+    if(c){pushUndo('Deleted '+c.code);S.courses=S.courses.filter(x=>x.id!==d.id);if(U.course===d.id)U.course=null;persist();toast('Deleted '+c.code,true)}else render();
+  },
+  retakecourse(e,d){
+    const orig=getC(d.id);U.ctx=null;if(!orig)return render();
+    const oi=orig.term?termIdx(orig.term):-1;
+    const ci=S.terms.findIndex(t=>t.status==='current');
+    const nextT=S.terms.find((t,i)=>t.status==='planned'&&i>Math.max(oi,ci))||S.terms.find((t,i)=>t.status!=='done'&&i>oi)||S.terms.find(t=>t.status==='current')||S.terms[S.terms.length-1];
+    const copy={id:uid(),code:orig.code,title:orig.title,credits:orig.credits,term:nextT?nextT.id:null,cat:orig.cat,prereqs:(orig.prereqs||[]).slice(),coreqs:(orig.coreqs||[]).slice(),retakeOf:orig.id,grade:null,assess:[],notes:orig.notes||'',instructor:orig.instructor||'',syllabusUrl:orig.syllabusUrl||''};
+    pushUndo('Retake '+orig.code);S.courses.push(copy);persist();
+    toast(`Scheduled retake of ${orig.code}${nextT?' in '+nextT.name:''}`,true);
+  },
+  dupcourse(e,d){
+    const orig=getC(d.id);U.ctx=null;if(!orig)return render();
+    const copy={id:uid(),code:orig.code,title:orig.title,credits:orig.credits,term:orig.term||null,cat:orig.cat,prereqs:(orig.prereqs||[]).slice(),coreqs:(orig.coreqs||[]).slice(),grade:null,assess:[],notes:orig.notes||'',instructor:orig.instructor||'',syllabusUrl:orig.syllabusUrl||''};
+    pushUndo('Copied '+orig.code);S.courses.push(copy);persist();
+    toast('Copied '+orig.code,true);
+  },
+  addinterm(e,d){U.addTerm=d.term||'';location.hash='add';render()},
+  tourstep(e,d){U.tourStep=Math.max(0,Math.min(TOUR_STEPS.length-1,parseInt(d.v,10)||0));render();window.scrollTo(0,0)},
   tab(e,d){e.preventDefault();U.tab=d.v;render()},
   sel(e,d){U.sel=(d.id&&U.sel!==d.id)?d.id:null;render()},
   hidedone(){U.hideDone=!U.hideDone;render()},
@@ -289,9 +340,31 @@ const ACT={
   sylDel(e,d){U.syl.out.assessments.splice(+d.i,1);render()},
   sylRow(){U.syl.out.assessments.push({name:'',type:'Assignment',weight:0,count:1,drop:0});render()},
   sylAdd(){
-    const o=U.syl.out;if(!o.code||!o.title)return toast('The course needs a code and a title');
-    const c={id:uid(),code:o.code,title:o.title,credits:o.credits||3,term:o.term||null,cat:o.cat||S.settings.cats[0].k,prereqs:o.prereqs,grade:null,instructor:o.instructor||'',notes:o.notes||'',assess:o.assessments.filter(a=>a.name||a.weight).map(a=>{const n=Math.max(1,+a.count||1);return{id:uid(),n:a.name||'Group',type:a.type,w:+a.weight||0,cnt:n,drop:+a.drop||0,items:Array.from({length:n},(_,i)=>({id:uid(),n:n>1?(a.name||'Item')+' '+(i+1):(a.name||'Item'),s:null,m:100,due:'',st:'',late:false}))}})};
-    S.courses.push(c);U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
+    const o=U.syl.out;if(!o.targetId&&(!o.code||!o.title))return toast('The course needs a code and a title');
+    const buildAssess=()=>o.assessments.filter(a=>a.name||a.weight).map(a=>{const n=Math.max(1,+a.count||1);return{id:uid(),n:a.name||'Group',type:a.type,w:+a.weight||0,cnt:n,drop:+a.drop||0,items:Array.from({length:n},(_,i)=>({id:uid(),n:n>1?(a.name||'Item')+' '+(i+1):(a.name||'Item'),s:null,m:100,due:'',st:'',late:false}))}});
+    let c=o.targetId?getC(o.targetId):null;
+    pushUndo(c?('Updated '+c.code+' from syllabus'):('Added '+o.code));
+    if(c){
+      if(o.syllabusUrl)c.syllabusUrl=o.syllabusUrl;
+      if(o.instructor&&!c.instructor)c.instructor=o.instructor;
+      if(o.notes&&!c.notes)c.notes=o.notes;
+      const nw=buildAssess();
+      if(nw.length){if(!(c.assess||[]).length)c.assess=nw;else nw.forEach(g=>{const ex=c.assess.find(x=>nn(x.n)===nn(g.n));if(ex)ex.w=g.w;else c.assess.push(g)})}
+    }else{
+      c={id:uid(),code:o.code,title:o.title,credits:o.credits||3,term:o.term||null,cat:o.cat||S.settings.cats[0].k,prereqs:o.prereqs,coreqs:[],grade:null,instructor:o.instructor||'',syllabusUrl:o.syllabusUrl||'',notes:o.notes||'',assess:buildAssess()};
+      S.courses.push(c);
+    }
+    U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
+  },
+  sylreadlocal(){
+    const y=U.syl;y.text=($('#syl-text')||{}).value||y.text;y.term=val('syl-term');
+    if(!y.text.trim()){y.err='Paste the syllabus text or grading breakdown first.';return render()}
+    const parsed=parseSyllabusDeterministic({text:y.text,title:''});
+    const cur=S.settings.cats;
+    const matchId=matchCourseByCodeOrTitle(parsed.code,parsed.title);
+    y.out={code:parsed.code,title:parsed.title,credits:parsed.credits||3,instructor:parsed.instructor||'',syllabusUrl:parsed.syllabusUrl||'',notes:'',prereqs:[],cat:cur[0]?cur[0].k:'',term:y.term||'',targetId:matchId||'',assessments:parsed.assessments};
+    y.err=parsed.assessments.length?'':'No weight percentages were found automatically — you can add rows below.';
+    render();
   },
   async sylRead(){
     const y=U.syl;y.text=($('#syl-text')||{}).value||y.text;y.term=val('syl-term');
@@ -351,6 +424,7 @@ const CHG={
   plancfg(e,d,v){S.ui.plan[d.f]=v},
   catcat(e,d,v){U.catCat=v},
   dashnote(e,d,v){S.ui.dash.note=v},
+  ctxmove(e,d,v){const c=getC(d.id);U.ctx=null;if(c){pushUndo('Moved '+c.code);c.term=v||null;toast('Moved '+c.code,true)}},
 };
 async function onFiles(e){
   const files=Array.from(e.target.files||[]),y=U.syl;let msg=[];
@@ -388,6 +462,13 @@ document.addEventListener('click',e=>{
   if(el.tagName==='A'&&el.getAttribute('href')==='#')e.preventDefault();
   f(e,el.dataset);
 });
+document.addEventListener('contextmenu',e=>{
+  const el=e.target.closest&&e.target.closest('[data-cid]');
+  if(!el||e.target.closest('input,textarea,select'))return;
+  e.preventDefault();
+  U.ctx={id:el.dataset.cid,x:e.clientX,y:e.clientY,ay:e.clientY};
+  render();
+});
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if(U.cmdOpen){U.cmdOpen=false;render()}else ACT.opencmd();return}
   if(U.cmdOpen){
@@ -397,6 +478,7 @@ document.addEventListener('keydown',e=>{
     if(e.key==='ArrowUp'){e.preventDefault();if(items.length){U.cmdIdx=((U.cmdIdx||0)-1+items.length)%items.length;const cl=$('#cmd-list');if(cl){cl.innerHTML=cmdListHtml(items);const on=cl.querySelector('.cmd-item.on');if(on)on.scrollIntoView({block:'nearest'})}}return}
     if(e.key==='Enter'){e.preventDefault();const it=items[Math.min(U.cmdIdx||0,items.length-1)];U.cmdOpen=false;if(it&&it.act)it.act();else render();return}
   }
+  if(e.key==='Escape'&&U.ctx){U.ctx=null;render();return}
   if(e.key==='Escape'&&U.moreOpen){U.moreOpen=false;render();return}
   if(e.key==='Escape'&&U.course){U.course=null;render()}
   if(e.key==='Enter'&&e.target.matches&&e.target.matches('.ir input[data-f="s"]')){
@@ -414,19 +496,25 @@ document.addEventListener('input',e=>{
   if(e.target.id==='cmd-q'){U.cmdQ=e.target.value;U.cmdIdx=0;const cl=$('#cmd-list');if(cl)cl.innerHTML=cmdListHtml(cmdItems(U.cmdQ));return}
   if(e.target.id==='course-q'){U.courseQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#course-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
   if(e.target.id==='cat-q'){U.catQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#cat-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
+  if(e.target.id==='enr-q'){U.enrQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#enr-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
   if(e.target.dataset&&e.target.dataset.c==='dashnote'){S.ui.dash.note=e.target.value;return}
-  if(e.target.dataset&&e.target.dataset.c==='syltext')U.syl.text=e.target.value;
+  if(e.target.dataset&&e.target.dataset.c==='syltext'){U.syl.text=e.target.value;return}
+  if(e.target.dataset&&e.target.dataset.c==='cvtext'){U.cvText=e.target.value;return}
+  if(e.target.dataset&&e.target.dataset.c==='enrpref'){U.enrPrefs=U.enrPrefs||{};U.enrPrefs[e.target.dataset.f]=e.target.value;return}
 });
 document.addEventListener('change',e=>{
   const t=e.target,k=t.dataset&&t.dataset.c;if(!k)return;
   if(k==='syltext'){U.syl.text=t.value;return}
+  if(k==='cvtext'){U.cvText=t.value;return}
+  if(k==='enrpref'){U.enrPrefs=U.enrPrefs||{};U.enrPrefs[t.dataset.f]=t.value;return}
+  if(k==='dashnote'){S.ui.dash.note=t.value;persist();return}
   if(k==='sylf'){onFiles(e);return}
   if(k==='impf'){onImport(e);return}
   if(k==='enrf'){onOffers(e);return}
   if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=AI.key?8:0;render();return}
   const f=CHG[k]||CHG2[k];if(!f)return;
   try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
-  if(k==='syl'||k==='sylA'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
+  if(k==='syl'||k==='sylA'||k==='sylimp'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
   persist();render();
 });
 let dragId=null;

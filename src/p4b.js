@@ -23,17 +23,19 @@ function vGpa(){
   const pr=gpaOf(doneCourses().concat(lab),true,over);
   const ladder=[maxP,3.7,3.3,3,2.7].map(x=>({x,f:o.R>0?(o.base.pts+x*o.R)/o.N:cum.gpa}));
   const tr=trend();
+  const tp=typeof termPlan==='function'?termPlan():null;
   const curCr=curCourses().filter(c=>!(termOf(c.term)||{}).cr).reduce((a,c)=>a+c.credits,0);
-  const thisNeed=curCr>0&&cum.cr>0?(tg*(cum.cr+curCr)-cum.pts)/curCr:null;
-  const thisBest=curCr>0&&cum.cr>0?(cum.pts+maxP*curCr)/(cum.cr+curCr):null;
-  const far=o.need!=null&&o.need>maxP+1e-6,farT=thisNeed!=null&&thisNeed>maxP+1e-6;
+  const thisNeed=tp?tp.need:(curCr>0&&cum.cr>0?(tg*(cum.cr+curCr)-cum.pts)/curCr:null);
+  const thisMaxTerm=tp?tp.best:maxP;
+  const thisBestCum=curCr>0&&cum.cr>0?(cum.pts+thisMaxTerm*curCr)/(cum.cr+curCr):null;
+  const far=o.need!=null&&o.need>maxP+1e-6,farT=thisNeed!=null&&thisNeed>thisMaxTerm+1e-6;
   const rtNote=o.retakes.length?` It counts your retake${o.retakes.length>1?'s':''} of ${o.retakes.map(r=>esc((getC(r.retakeOf)||{}).code||r.code)).join(', ')}, which replace${o.retakes.length>1?'':'s'} the old grade.`:'';
   const card2=o.need==null?`<div class="num" style="margin:12px 0 8px">–</div><div class="small muted">Every degree credit is graded.</div>`:
     far?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Out of reach</div><div class="small muted">Would take an average of ${fmt(o.need)} (max ${fmt(maxP,1)}). Best finish: <b>${fmt(o.best)}</b> with straight ${fmt(maxP,1)}s.${rtNote}</div>`:
     `<div class="num" style="margin:12px 0 8px">${o.need<=0?'0.00':fmt(o.need)}</div><div class="small muted">${o.need<=0?'Already secured.':`Average over remaining ${o.R} credits · max finish <b class="mono">${fmt(o.best)}</b>.`}${rtNote}</div>`;
   const card3=thisNeed==null?`<div class="num" style="margin:12px 0 8px">–</div><div class="small muted">No graded credits yet.</div>`:
-    farT?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Not this term</div><div class="small muted">Straight ${fmt(maxP,1)}s lift you to <b>${fmt(thisBest)}</b> this term. ${fmt(tg)} is a goal for later terms.</div>`:
-    `<div class="num" style="margin:12px 0 8px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">To sit at ${fmt(tg)} when this term posts · max <b class="mono">${fmt(thisBest)}</b>.</div>`;
+    farT?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Not this term</div><div class="small muted">Would take ${fmt(thisNeed)} this term (best possible: <b class="mono">${fmt(thisMaxTerm)}</b>, lifting overall to <b class="mono">${fmt(thisBestCum)}</b>). ${fmt(tg)} is a goal for later terms.</div>`:
+    `<div class="num" style="margin:12px 0 8px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">Term average to reach ${fmt(tg)} overall · max term <b class="mono">${fmt(thisMaxTerm)}</b> (overall <b class="mono">${fmt(thisBestCum)}</b>).</div>`;
   const d=cum.gpa==null?null:cum.gpa-tg;
   return head('GPA lab','See where your GPA stands, what the rest of the degree has to average to reach your target, and what a few grades would do.')+
   `<div class="grid g3">
@@ -42,7 +44,7 @@ function vGpa(){
     <div class="card kpi-card ${farT?'kpi-warn':'kpi-good'}"><div class="lbl">Needed this term</div>${card3}</div>
   </div>
   <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
-  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="pill good">+${fmt(x.gain)}</span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
+  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv" data-cid="${x.c.id}"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="row" style="gap:6px"><span class="pill good">+${fmt(x.gain)}</span><button type="button" class="btn sm soft" data-a="retakecourse" data-id="${x.c.id}" title="Copy &amp; link as a retake in your next term">Retake</button></span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
   <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
 `+termPlanSection()+((S.ui&&S.ui.modules&&S.ui.modules.whatif!==false)?whatIf(cum):'')+transcriptSection();
 }
@@ -51,12 +53,12 @@ function vGpa(){
 function vReq(){
   const cp=catProgress().filter(x=>!(x.k.k==='minor'&&!S.courses.some(c=>c.cat==='minor')));
   const placed=placedCredits(),tot=S.settings.totalCredits,diff=tot-placed;
-  const chips=k=>S.courses.filter(c=>c.cat===k).map(c=>`<button class="pill ${status(c)==='done'?'good':status(c)==='current'?'acc':''}" data-a="open" data-id="${c.id}" style="cursor:pointer">${esc(c.code)}</button>`).join(' ');
+  const chips=k=>S.courses.filter(c=>c.cat===k).map(c=>`<button class="pill ${status(c)==='done'?'good':status(c)==='current'?'acc':''}" data-a="open" data-id="${c.id}" data-cid="${c.id}" style="cursor:pointer">${esc(c.code)}</button>`).join(' ');
   const state=x=>x.k.req<=0?`<span class="mono small muted">${x.e+x.cu+x.pl} cr</span>`:`<span class="mono small muted">${x.e} earned · ${x.cu} now · ${x.pl} planned · ${x.over>0?`<b style="color:var(--warn)">${x.over} over</b>`:x.left>0?`<b style="color:var(--warn)">${x.left} not yet in a term</b>`:'<b style="color:var(--good)">fully planned</b>'}</span>`;
   const free=S.courses.filter(c=>isFree(c)&&isPh(c));
   const pct=Math.min(100,placed/tot*100);
   return head('Requirements','Credits by category, and how a minor would fit around them.')+
-  `<div class="grid g2">
+  `<div class="grid g2" style="align-items:start">
     <div class="card" style="display:flex;flex-direction:column;gap:18px">
       <div class="legend" style="padding-bottom:10px;border-bottom:1px solid var(--line)"><span><i style="background:var(--good);border-color:var(--good)"></i>Earned</span><span><i style="background:var(--accent);border-color:var(--accent)"></i>In progress</span><span><i style="background:var(--accent-soft);border-color:var(--accent-border)"></i>Planned</span></div>
       ${cp.map(x=>`<div><div class="row between"><h3>${esc(x.k.n)}</h3>${state(x)}</div>${x.k.req>0?`<div class="bar" style="margin:8px 0 10px"><i class="d" style="width:${Math.min(100,x.e/x.k.req*100)}%"></i><i style="width:${Math.min(100,x.cu/x.k.req*100)}%"></i><i class="p" style="width:${Math.min(100,x.pl/x.k.req*100)}%"></i></div>`:'<div style="height:8px"></div>'}<div class="row" style="gap:6px">${chips(x.k.k)||'<span class="small muted">No courses yet</span>'}</div></div>`).join('')}

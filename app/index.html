@@ -269,13 +269,13 @@ label.f>span,.f>.lbl{font:500 10.5px var(--f-mono);letter-spacing:.07em;text-tra
 .sec-chip{
   display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:7px 10px;
   border-radius:8px;border:1px solid var(--line-strong);background:var(--surface-2);
-  cursor:pointer;text-align:left;transition:all .14s ease;max-width:100%;
+  cursor:pointer;text-align:left;transition:all .14s ease;max-width:100%;min-width:0;
 }
 .sec-chip:hover{border-color:var(--accent);background:var(--accent-soft)}
 .sec-chip.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
-.sec-chip .sc-top{display:flex;align-items:center;gap:6px;font:600 12px/1.2 var(--f-mono);color:var(--ink)}
+.sec-chip .sc-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font:600 12px/1.2 var(--f-mono);color:var(--ink)}
 .sec-chip.on .sc-top{color:var(--accent)}
-.sec-chip .sc-sub{font-size:11.5px;color:var(--muted);line-height:1.3}
+.sec-chip .sc-sub{font-size:11.5px;color:var(--muted);line-height:1.3;max-width:100%;overflow-wrap:anywhere}
 
 /* File dropzone */
 .dropzone{
@@ -388,9 +388,11 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
   .tabs a{padding:5px 9px;font-size:12.5px}
   .head-left .row{flex-wrap:nowrap}
 }
-@media (max-width:500px){
-  .tabs{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
-  .tabs a{padding:6px 4px;font-size:11.5px;text-align:center}
+@media (max-width:540px){
+  .tabs{width:100%;display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .tabs::-webkit-scrollbar{display:none}
+  .plan-bar .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible}
+  .plan-bar .tabs a{padding:6px 3px;font-size:11px;text-align:center;overflow:hidden;text-overflow:ellipsis}
 }
 
 /* Customizable Widget Dashboard */
@@ -448,8 +450,10 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 .kv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
 .kv:last-child{border:0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:99px;font-size:13.5px;font-weight:500;box-shadow:var(--sh-md);z-index:40;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px)}
-.toast-btn{border:1px solid color-mix(in srgb,var(--bg) 35%,transparent);background:color-mix(in srgb,var(--bg) 14%,transparent);color:var(--bg);border-radius:99px;padding:3px 10px;font:600 12px/1.2 var(--f-mono);cursor:pointer}
-.toast-btn:hover{background:color-mix(in srgb,var(--bg) 25%,transparent)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .toast{background:var(--surface-2);color:var(--ink);border:1px solid var(--accent-border)}}
+:root[data-theme="dark"] .toast{background:var(--surface-2);color:var(--ink);border:1px solid var(--accent-border)}
+.toast-btn{border:1px solid currentColor;background:transparent;color:inherit;border-radius:99px;padding:3px 10px;font:600 12px/1.2 var(--f-mono);cursor:pointer;opacity:.9}
+.toast-btn:hover{opacity:1;background:var(--accent-soft)}
 .pre{white-space:pre-wrap;font:400 13px/1.5 var(--f-mono);background:var(--sunk);border-radius:8px;padding:12px;max-height:260px;overflow:auto}
 
 /* Command Palette & Mobile More Sheet */
@@ -509,6 +513,51 @@ table.t{width:100%;border-collapse:collapse;font-size:14px}
 .wkb{position:absolute;left:2px;right:2px;background:var(--accent-soft);border:1px solid var(--accent-border);border-left:3px solid var(--accent);border-radius:6px;padding:3px 6px;overflow:hidden;line-height:1.25}
 .wkb.bad{background:var(--bad-soft);border-color:var(--bad-border);border-left-color:var(--bad)}
 .wkb span{color:var(--muted);font-size:11px}
+
+/* Quick Action / Context Menu */
+.ctx-btn{border:0;background:transparent;color:var(--muted);width:26px;height:26px;padding:0;border-radius:6px;display:inline-grid;place-items:center;cursor:pointer;flex:none;font-size:15px;line-height:1;transition:background-color .12s,color .12s,opacity .12s}
+.ctx-btn:hover,.ctx-btn:focus-visible{background:var(--sunk);color:var(--ink)}
+.cc .ctx-btn{width:20px;height:20px;font-size:13px;opacity:.55}
+.cc:hover .ctx-btn,.cc .ctx-btn:focus-visible{opacity:1}
+.ctx-backdrop{position:fixed;inset:0;z-index:48;background:transparent}
+.ctx-menu{position:fixed;z-index:50;width:264px;max-width:calc(100vw - 16px);max-height:calc(100vh - 24px);overflow-y:auto;background:var(--surface);border:1px solid var(--line-strong);border-radius:12px;box-shadow:var(--sh-md);padding:6px;display:flex;flex-direction:column;gap:2px}
+@media (max-width:860px){.ctx-menu{max-height:calc(100vh - 96px)}}
+.ctx-head{padding:6px 8px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.ctx-head b{font:600 12px/1.2 var(--f-mono);color:var(--ink);display:block}
+.ctx-head span{font-size:12px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.ctx-sec{padding:4px 6px 6px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.ctx-sec .lbl{display:block;margin-bottom:5px;font-size:9.5px}
+.ctx-grades{display:flex;flex-wrap:wrap;gap:3px}
+.ctx-grades .opt-pill{padding:2.5px 6px;font-size:10.5px;border-radius:5px}
+.ctx-item{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:7px 9px;border:0;border-radius:7px;background:transparent;color:var(--ink);font-size:13px;font-weight:500;text-align:left;cursor:pointer;transition:background-color .1s,color .1s}
+.ctx-item:hover{background:var(--accent-soft);color:var(--accent)}
+.ctx-item.danger{color:var(--bad)}
+.ctx-item.danger:hover{background:var(--bad-soft);color:var(--bad)}
+.ctx-item small{font:400 11px var(--f-mono);color:var(--muted)}
+.ctx-sep{height:1px;background:var(--line);margin:4px 0}
+
+/* Multi-component enrollment */
+.comp-box{margin-top:10px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;min-width:0;max-width:100%}
+.comp-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;min-width:0}
+.comp-head select.sel-pill,.enr-sel{max-width:100%;min-width:0;width:min(100%,300px);overflow:hidden;text-overflow:ellipsis}
+.comp-title{font:600 11px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+
+/* Interactive Tour & Setup Checklist */
+.tour-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:16px}
+.tour-tab{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:pointer;text-align:left;transition:all .14s ease}
+.tour-tab:hover{border-color:var(--accent);background:var(--surface-2)}
+.tour-tab.on{border-color:var(--accent);background:var(--accent-soft)}
+.tour-tab span{font:600 10px var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.tour-tab.on span{color:var(--accent)}
+.tour-tab b{font-size:13.5px;color:var(--ink)}
+.check-list{display:flex;flex-direction:column;gap:8px}
+.check-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2)}
+.check-row.done{border-color:var(--good-border);background:var(--good-soft)}
+.check-row.next{border-color:var(--accent-border);background:var(--accent-soft)}
+.check-mark{width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;font:600 11px var(--f-mono);flex:none;background:var(--sunk);color:var(--muted);border:1px solid var(--line-strong)}
+.check-row.done .check-mark{background:var(--good);color:#fff;border-color:var(--good)}
+.check-row.next .check-mark{background:var(--accent);color:#fff;border-color:var(--accent)}
+@media (max-width:860px){.cc .ctx-btn{opacity:1}}
 </style>
 <div id="app"></div><script>
 (function(){
@@ -747,20 +796,40 @@ function attention(){
   return out;
 }
 
+function setupChecklist(onTour){
+  const hasPlan=S.courses.length>0;
+  const hasCanvas=!!(S.links&&S.links.canvas&&S.links.canvas.at);
+  const hasGrades=doneCourses().some(c=>!!c.grade);
+  const hasSyl=S.courses.some(c=>!!c.syllabusUrl);
+  const hasEnroll=!!(S.enroll&&Object.keys(S.enroll.picks||{}).length);
+  const steps=[
+    {done:hasPlan,title:'1. Build your courses',sub:hasPlan?`${S.courses.length} courses in your plan`:'Connect Canvas once (auto-builds your term) or load a Dossier below.',act:DESKTOP_HOST?`<button type="button" class="btn primary sm" data-a="quickcanvas">Sign in to Canvas</button>`:`<a class="btn primary sm" href="#canvas">Link Canvas</a>`},
+    {done:hasCanvas,title:'2. Sync live Canvas grades & due dates',sub:hasCanvas?`Last synced ${new Date(S.links.canvas.at).toLocaleDateString()}`:'Pulls assignments, weights, scores, and upcoming deadlines automatically.',act:`<a class="btn sm" href="#canvas">Sync Canvas</a>`},
+    {done:hasGrades,title:'3. Import past grades (PSCS)',sub:hasGrades?'Official finished grades recorded':'Send your PSCS Course History once to populate past terms & cumulative GPA.',act:`<a class="btn sm" href="#canvas">Import PSCS</a>`},
+    {done:hasSyl,title:'4. Link Simple Syllabus',sub:hasSyl?'Syllabus links attached to courses':'Open any course on Simple Syllabus and click “Send to Atlas” to grab its URL & weights.',act:`<a class="btn sm" href="#canvas">Link Syllabus</a>`},
+    {done:hasEnroll,title:'5. Pick enrollment sections',sub:hasEnroll?'Weekly timetable configured':'Drop the registrar schedule CSV to pick Lectures, Seminars/Labs & check clashes.',act:`<a class="btn sm" href="#enroll">Enrollment</a>`},
+  ];
+  const nextIdx=steps.findIndex(x=>!x.done);
+  const doneCnt=steps.filter(x=>x.done).length;
+  return`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Your setup progress</h2><div class="row" style="gap:6px"><span class="pill ${doneCnt===steps.length?'good':'acc'}">${doneCnt} / ${steps.length} done</span>${onTour?'':`<a class="btn sm soft" href="#tour">Take the 1-min Tour →</a>`}</div></div>
+    <div class="check-list">${steps.map((st,i)=>{const isNext=i===nextIdx;return`<div class="check-row ${st.done?'done':isNext?'next':''}"><div class="row" style="gap:10px;flex-wrap:nowrap;min-width:0"><span class="check-mark">${st.done?'✓':(i+1)}</span><div style="min-width:0"><b class="small">${st.title}</b><div class="small muted">${st.sub}</div></div></div>${st.done?'<span class="pill good">Done</span>':st.act}</div>`}).join('')}</div>
+  </div>`;
+}
 function setupPanel(isGuide){
   const y=new Date().getFullYear(),ds=getDossiers();
-  const tour=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Quick Start Tour</h2><span class="pill acc">3 ways to start</span></div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
-      <div class="stat"><div class="lbl">1 · Curriculum</div><div class="small" style="margin-top:4px">Load a <b>Dossier</b> (EE/CS 2029) or import your <b>Stellic</b> degree audit for any batch.</div></div>
-      <div class="stat"><div class="lbl">2 · Past Grades</div><div class="small" style="margin-top:4px">Paste or send <b>PSCS Course History</b> to auto-create past terms and official grades.</div></div>
-      <div class="stat"><div class="lbl">3 · Current Term</div><div class="small" style="margin-top:4px">Use <b>Sync Canvas</b> to pull live courses, assignment weights, due dates, and scores.</div></div>
-      <div class="stat"><div class="lbl">4 · Plan &amp; Track</div><div class="small" style="margin-top:4px">Explore your <b>4-Year Grid</b>, <b>Prerequisite Roadmap</b>, <b>Minors</b>, and <b>GPA Lab</b>.</div></div>
+  const fastTrack=`<div class="card kpi-card kpi-acc" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Fastest Start · Link Canvas Once</h2><span class="pill acc">Recommended</span></div>
+    <p class="sub" style="margin:0 0 14px">Don’t want to set up terms and courses by hand? Connect Canvas once and Atlas automatically creates your current term, courses, instructors, assignment groups, weights, and due dates.</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      ${DESKTOP_HOST?`<button type="button" class="btn primary" data-a="quickcanvas">${U.hostBusy==='canvas'?'Waiting for Canvas sign-in…':'Sign in to Canvas & Build Plan'}</button>`:`<a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it once while signed into Canvas!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>`}
+      <a class="btn" href="#canvas">Open Sync &amp; Import</a>
+      <a class="btn soft" href="#tour">Interactive Tour →</a>
     </div>
   </div>`;
 
   const pathA=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path A · Load from a University Dossier</h2><span class="pill">Zero setup</span></div>
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path A · Load from a University Dossier</h2><span class="pill">Full 4-year grid</span></div>
     <p class="sub" style="margin:0 0 12px">Start with an official curriculum grid (no personal data or grades). Pick how many regular semesters you have already finished:</p>
     <div class="row" style="margin-bottom:14px;gap:10px"><label class="f" style="max-width:220px"><span>Terms finished so far</span><input id="su-d-done" type="number" min="0" max="12" value="0"></label></div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
@@ -773,18 +842,17 @@ function setupPanel(isGuide){
   </div>`;
 
   const pathB=`<div class="card" style="margin-bottom:16px">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path B · Auto-Build from Portals (Any Batch)</h2><span class="pill acc">Stellic + PSCS + Canvas</span></div>
-    <p class="sub" style="margin:0 0 12px">Works for any graduating batch or major—even if your curriculum changed. Drag the bookmarklet to your Bookmarks bar, open <b>Stellic</b> (Degree Audit), <b>PSCS</b> (Course History), or <b>Canvas</b>, and click it once—or paste the export below.</p>
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path B · Import from PSCS, Simple Syllabus, or Stellic</h2><span class="pill acc">Any batch</span></div>
+    <p class="sub" style="margin:0 0 12px">The same <b>✦ Send to Atlas</b> bookmarklet works on <b>Canvas</b>, <b>PSCS</b> (Course History / Grades), <b>Simple Syllabus</b> (links + grading weights), and <b>Stellic</b> (Degree Audit). Click it on any portal or paste the export below.</p>
     <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap">
-      <a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it while viewing Stellic, PSCS, or Canvas!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>
+      <a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it while viewing Canvas, PSCS, Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>
       <a class="btn" href="#canvas">Open Sync &amp; Import →</a>
     </div>
-    <textarea id="su-portal-text" rows="3" placeholder="Paste a Stellic Degree Audit, PSCS Course History, or Canvas JSON export here…"></textarea>
+    <textarea id="su-portal-text" rows="3" placeholder="Paste a Canvas JSON, PSCS Course History, Simple Syllabus report, or Stellic Degree Audit here…"></textarea>
     <div class="row" style="margin-top:10px"><button type="button" class="btn primary" data-a="suimport">Import &amp; Build</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div>
   </div>`;
 
-  const pathC=`<div class="card">
-    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path C · Build Custom Degree (Any University)</h2><span class="pill">Blank slate</span></div>
+  const pathC=`<details class="card"><summary>Path C · Build Custom Degree (Any University)</summary>
     <p class="sub" style="margin:0 0 16px">Tell Atlas how your degree runs, pick a grading scale, and add courses manually or from syllabi.</p>
     <div class="fgrid">
       <label class="f"><span>Programme</span><input id="su-prog" placeholder="B.S. Electrical Engineering"></label>
@@ -796,12 +864,56 @@ function setupPanel(isGuide){
       <label class="f"><span>Credits to graduate</span><input id="su-cr" type="number" value="134"></label>
     </div>
     <div class="row" style="margin-top:18px"><button type="button" class="btn primary" data-a="setup">Create my terms</button>${isGuide&&S.terms.length?`<a class="btn" href="#overview">Back to Overview</a>`:''}</div>
-  </div>`;
+  </details>`;
 
-  return tour+pathA+pathB+pathC;
+  return fastTrack+setupChecklist()+pathA+pathB+pathC;
 }
 function vSetup(){
-  return head('Setup Guide','Start from a university dossier, auto-build from Stellic/PSCS/Canvas, or configure a custom degree.')+setupPanel(true);
+  return head('Setup Guide','Link Canvas once to auto-build your term, load a university dossier, or import from PSCS & Simple Syllabus.',`<a class="btn soft" href="#tour">Interactive Tour</a>`)+setupPanel(true);
+}
+const TOUR_STEPS=[
+  {k:'start',lbl:'Step 1',title:'One-Click Setup',badge:'Zero manual entry',
+    body:'New to Atlas? You don’t need to type your courses one by one. Link <b>Canvas</b> once and Atlas automatically builds your current term, courses, instructors, assignment weights, and due dates. Add a <b>Dossier</b> for a full 4-year roadmap or send <b>PSCS Course History</b> for past grades.',
+    tips:['Desktop app: click <b>Sign in to Canvas</b> — sign in normally and Atlas reads your courses privately.','Web / PWA: drag <b>✦ Send to Atlas</b> to your Bookmarks bar and click it once on Canvas.','Your passwords are never seen or stored by Atlas.'],
+    cta:`<a class="btn primary" href="#setup">Go to Setup Guide</a><a class="btn" href="#canvas">Open Sync &amp; Import</a>`},
+  {k:'quick',lbl:'Step 2',title:'Quick Course Actions',badge:'1-click grading & retakes',
+    body:'Common actions are always 1 click away — no digging through drawers. Click the <b>⋮</b> button or <b>right-click</b> any course card, list row, table row, or 4-Year Grid card.',
+    tips:['<b>Set Final Grade</b> right from the popup pills (works for finished and current courses).','<b>Retake Course (Copy &amp; Link)</b> clones every detail without old scores, links it as a retake, and schedules it in your next term.','<b>Duplicate</b>, <b>Move to term</b>, or <b>Delete</b> with instant Undo (<code>Ctrl+Z</code>).'],
+    cta:`<a class="btn primary" href="#courses">Try on Courses</a><a class="btn" href="#gpa">Check GPA Lab</a>`},
+  {k:'plan',lbl:'Step 3',title:'4-Year Plan & Roadmap',badge:'Drag, drop & prereqs',
+    body:'Organize your entire degree in <b>Plan → Four years</b>. Drag courses between terms (or tap ⇄ on mobile) — Atlas highlights valid, warning, and prerequisite-conflict drops in real time.',
+    tips:['Click <b>+</b> on any term header to add a course straight into that semester.','Switch to <b>Roadmap</b> to trace prerequisite chains left-to-right and see which courses unlock the most later courses.','Track <b>Minors</b> and degree credit categories under <b>Requirements</b>.'],
+    cta:`<a class="btn primary" href="#grid">Open Four-Year Plan</a><a class="btn" href="#roadmap">View Roadmap</a>`},
+  {k:'enroll',lbl:'Step 4',title:'Enrollment & Multi-Component Courses',badge:'Lectures + Seminars/Labs',
+    body:'Drop the registrar’s schedule spreadsheet (.csv or .xlsx) into <b>Plan → Enrollment</b> to build a clash-free weekly timetable and PSCS shopping cart.',
+    tips:['Courses with multiple components (like <b>Hikma</b> with Lecture <code>L1</code> + Seminar <code>S3</code>, or <b>Calculus</b> with <code>L</code> + <code>R</code>) automatically split into separate pickers so you can select both.','If a component has only one common section (like Hikma’s <code>L1</code>), picking your Seminar automatically selects the Lecture too.','Use <b>Auto-schedule</b> to generate clash-free combinations ranked by time, instructor, and seat reservations.'],
+    cta:`<a class="btn primary" href="#enroll">Open Enrollment</a>`},
+  {k:'sync',lbl:'Step 5',title:'Canvas, PSCS & Simple Syllabus',badge:'One universal bookmarklet',
+    body:'One single <b>✦ Send to Atlas</b> bookmarklet understands all four Habib portals automatically — no separate tools to juggle.',
+    tips:['<b>Canvas</b>: syncs live scores, weights, and upcoming due dates.','<b>PSCS</b>: reads Course History / Grades and updates or creates finished terms.','<b>Simple Syllabus</b>: grabs the exact syllabus URL, instructor, and grading breakdown and links them straight to your existing course.','<b>Stellic</b>: imports degree audit requirements for any batch.'],
+    cta:`<a class="btn primary" href="#canvas">Set up Bookmarklet</a><a class="btn" href="#overview">Go to Overview</a>`}
+];
+function vTour(){
+  const idx=Math.max(0,Math.min(TOUR_STEPS.length-1,U.tourStep||0));
+  const st=TOUR_STEPS[idx];
+  const tabs=`<div class="tour-steps">${TOUR_STEPS.map((x,i)=>`<button type="button" class="tour-tab ${i===idx?'on':''}" data-a="tourstep" data-v="${i}"><span>${x.lbl}</span><b>${x.title}</b></button>`).join('')}</div>`;
+  const card=`<div class="card kpi-card kpi-acc">
+    <div class="row between" style="margin-bottom:10px"><span class="pill acc">${st.lbl} of ${TOUR_STEPS.length}</span><span class="pill">${st.badge}</span></div>
+    <h1 style="font-size:clamp(24px,3vw,34px);margin-bottom:10px">${st.title}</h1>
+    <p style="margin:0 0 16px;font-size:15px;line-height:1.6;max-width:68ch">${st.body}</p>
+    <div class="card" style="background:var(--surface-2);padding:14px 16px;margin-bottom:18px;box-shadow:none">
+      <div class="lbl" style="margin-bottom:8px">How it works</div>
+      <ul class="small" style="margin:0;padding-left:18px;line-height:1.7">${st.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+    </div>
+    <div class="row between" style="padding-top:12px;border-top:1px solid var(--line);gap:10px;flex-wrap:wrap">
+      <div class="row" style="gap:8px">${st.cta}</div>
+      <div class="row" style="gap:6px">
+        <button type="button" class="btn sm" data-a="tourstep" data-v="${idx-1}" ${idx===0?'disabled':''}>← Previous</button>
+        ${idx<TOUR_STEPS.length-1?`<button type="button" class="btn primary sm" data-a="tourstep" data-v="${idx+1}">Next →</button>`:`<button type="button" class="btn primary sm" data-a="go" data-v="setup">Finish &amp; Set Up →</button>`}
+      </div>
+    </div>
+  </div>`;
+  return head('Welcome to Atlas','A 1-minute interactive tour of how Atlas keeps your grades, 4-year plan, and enrollment effortless.',`<a class="btn" href="#setup">Setup Guide</a>`)+tabs+card+`<div class="sec">${setupChecklist(true)}</div>`;
 }
 
 /* ---------- views & customizable widgets ---------- */
@@ -846,7 +958,7 @@ const WIDGETS={
   }},
   inprog:{title:'In progress',render(){
     const cur=curCourses();
-    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div style="text-align:right;flex:none"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(st.letter)}</div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
+    return`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">In progress</h2><a class="btn ghost sm" href="#courses">All ›</a></div>${cur.length?`<div class="list">${cur.map(c=>{const st=standing(c);return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0;flex:1"><div class="row" style="gap:6px;margin-bottom:2px"><span class="code">${esc(c.code)}</span><span class="pill" style="padding:2px 7px;font-size:10px">${c.credits} cr</span></div><h3>${esc(c.title)}</h3><div class="bar" style="margin-top:7px;width:min(240px,100%)"><i class="d" style="width:${st.W?st.gw/st.W*100:0}%"></i></div></div><div class="row" style="gap:6px;flex:none"><div style="text-align:right"><div class="mono small" style="margin-bottom:4px;font-weight:500">${st.pct==null?'–':fmt(st.pct,1)+'%'}</div>${lpill(c.grade||st.letter)}</div><button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`}).join('')}</div>`:'<div class="empty">No course is in progress. Move courses into your current term on the Plan page.</div>'}</div>`;
   }},
   duenext:{title:'Due next',render(){
     const dl=deadlines().slice(0,5);
@@ -908,15 +1020,15 @@ function courseRow(c){
   const st=standing(c),is=prereqIssues(c).filter(i=>i.kind!=='missing'),l=effLetter(c),s=status(c);
   const rt=S.courses.find(o=>o.retakeOf===c.id);
   const gcls=gradeCls(c.grade);
-  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
-  return`<div class="li click" data-a="open" data-id="${c.id}"><div style="min-width:0"><span class="code row" style="gap:6px"><i class="cat-dot" style="background:${esc(catColor(c.cat))}" title="${esc(catName(c.cat))}"></i>${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${s==='done'?gsel:(l?lpill(l):stPill(c))}</div></div>`;
+  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?(s==='current'&&st.letter?'Now '+st.letter:'Grade'):g}</option>`).join('')}</select>`;
+  return`<div class="li click" data-a="open" data-id="${c.id}" data-cid="${c.id}"><div style="min-width:0"><span class="code row" style="gap:6px"><i class="cat-dot" style="background:${esc(catColor(c.cat))}" title="${esc(catName(c.cat))}"></i>${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div class="row" style="gap:6px;justify-content:flex-end">${c.retakeOf?'<span class="pill acc">retake</span>':''}${c.was?`<span class="pill">in place of ${esc(c.was.code)}</span>`:''}${rt?`<span class="pill">retaken ${esc((termOf(rt.term)||{}).name||'')}</span>`:''}${is.length?'<span class="pill warn">prereq order</span>':''}${s==='current'&&st.pct!=null?`<span class="mono small muted">${fmt(st.pct,1)}%</span>`:''}${(s==='done'||s==='current')?gsel:(l?lpill(l):stPill(c))}<button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions (grade, retake, copy, delete)" aria-label="Actions for ${esc(c.code)}">⋮</button></div></div>`;
 }
 function courseTableRow(c){
   const st=standing(c),l=effLetter(c),s=status(c),t=termOf(c.term);
   const gcls=gradeCls(c.grade);
-  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Grade':g}</option>`).join('')}</select>`;
-  const stand=s==='current'&&st.pct!=null?`<span class="mono small">${fmt(st.pct,1)}%</span> ${lpill(st.letter)}`:(l?lpill(l):stPill(c));
-  return`<tr class="click" data-a="open" data-id="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r">${s==='done'?gsel:stand}</td></tr>`;
+  const gsel=`<select class="sel-pill ${gcls}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?(s==='current'&&st.letter?'Now '+st.letter:'Grade'):g}</option>`).join('')}</select>`;
+  const stand=s==='current'&&st.pct!=null?`<span class="mono small">${fmt(st.pct,1)}%</span> ${gsel}`:(s==='done'||s==='current'?gsel:(l?lpill(l):stPill(c)));
+  return`<tr class="click" data-a="open" data-id="${c.id}" data-cid="${c.id}" style="cursor:pointer"><td class="mono small" style="white-space:nowrap"><b>${esc(c.code)}</b></td><td><b>${esc(c.title)}</b>${c.instructor?`<div class="small muted">${esc(c.instructor)}</div>`:''}</td><td class="small muted" style="white-space:nowrap">${esc(t?t.name:'Catalog')}</td><td class="small" style="white-space:nowrap"><i class="cat-dot" style="background:${esc(catColor(c.cat))};margin-right:6px"></i>${esc(catName(c.cat))}</td><td class="r mono">${c.credits}</td><td class="r" style="white-space:nowrap">${stand} <button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions" aria-label="Actions for ${esc(c.code)}">⋮</button></td></tr>`;
 }
 function vCourses(){
   const add=`<button class="btn primary" data-a="go" data-v="add">+ Add course</button>`,mods=(S.ui&&S.ui.modules)||{};
@@ -925,6 +1037,7 @@ function vCourses(){
   const T=S.terms,ci=T.findIndex(t=>t.status==='current');
   const ni=T.findIndex((t,i)=>t.status==='planned'&&i>ci);
   let li=-1;T.forEach((t,i)=>{if(t.status==='done'&&(ci<0||i<ci))li=i});
+  if(li<0)T.forEach((t,i)=>{if(t.status==='done')li=i});
   const view=U.cview&&(U.cview==='all'||T.some(t=>t.id===U.cview))?U.cview:'now';
   let shown=view==='all'?T.slice():view==='now'?T.filter((t,i)=>i===li||i===ci||i===ni):T.filter(t=>t.id===view);
   if(!shown.length)shown=T.slice(0,2);
@@ -1009,11 +1122,37 @@ function drawer(){
     <label class="f" style="margin-bottom:14px"><span>Syllabus link (optional https://…)</span><input data-c="cf" data-f="syllabusUrl" data-id="${c.id}" value="${esc(c.syllabusUrl||'')}" placeholder="https://…"></label>
     <label class="f" style="margin-bottom:18px"><span>Notes</span><textarea rows="4" data-c="cf" data-f="notes" data-id="${c.id}">${esc(c.notes||'')}</textarea></label>
     ${dep.length?`<h2>Unlocks</h2><div class="row" style="margin-bottom:22px">${dep.map(o=>`<button class="btn sm" data-a="open" data-id="${o.id}">${esc(o.code)}</button>`).join('')}</div>`:''}
-    <button class="btn danger" data-a="delcourse" data-id="${c.id}">Delete this course</button>`;
+    <div class="row" style="gap:8px;flex-wrap:wrap"><button type="button" class="btn soft" data-a="retakecourse" data-id="${c.id}">Retake (copy &amp; link)</button><button type="button" class="btn" data-a="dupcourse" data-id="${c.id}">Duplicate</button><button type="button" class="btn danger" data-a="delcourse" data-id="${c.id}">Delete this course</button></div>`;
   }
   const cvLink=c.canvasId?`<a class="btn sm soft" href="${esc(canvasPortalUrl()+'/courses/'+c.canvasId)}" target="_blank" rel="noopener">Canvas ↗</a>`:'';
   const sylLink=c.syllabusUrl?`<a class="btn sm" href="${esc(c.syllabusUrl)}" target="_blank" rel="noopener">Syllabus ↗</a>`:'';
-  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}${cvLink}${sylLink}</div>${tabs}${body}</div></div>`;
+  const hdrGrade=`<select class="sel-pill ${gradeCls(c.grade)}" data-c="cf" data-f="grade" data-id="${c.id}" aria-label="Final grade for ${esc(c.code)}">${gradeOpts(c).map(g=>`<option value="${esc(g)}" ${(c.grade||'')===g?'selected':''}>${g===''?'Final grade…':g}</option>`).join('')}</select>`;
+  return`<div class="veil" data-a="closebg"><div class="drawer" role="dialog" aria-label="${esc(c.code)}"><div class="row between" style="align-items:flex-start;margin-bottom:8px"><div><span class="code">${esc(c.code)} · ${c.credits} credits · ${esc(catName(c.cat))}</span><h1 style="margin-top:6px">${esc(c.title)}</h1></div><button class="btn ghost" data-a="close" aria-label="Close">✕</button></div><div class="row" style="margin:10px 0 18px;gap:8px">${stPill(c)}${hdrGrade}<button type="button" class="btn sm" data-a="retakecourse" data-id="${c.id}" title="Copy &amp; link as a retake">Retake</button>${c.instructor?`<span class="pill">${esc(c.instructor)}</span>`:''}${cvLink}${sylLink}</div>${tabs}${body}</div></div>`;
+}
+
+/* ---------- quick action / context menu ---------- */
+function ctxMenu(){
+  const ctx=U.ctx;if(!ctx)return'';
+  const c=getC(ctx.id);if(!c)return'';
+  const vw=typeof window!=='undefined'?window.innerWidth:1200,vh=typeof window!=='undefined'?window.innerHeight:800;
+  const mw=268,mh=360;
+  const left=Math.max(8,Math.min(ctx.x,vw-mw-8));
+  const top=Math.max(8,Math.min(ctx.y,vh-mh-8));
+  const gOpts=gradeOpts(c);
+  const gPills=gOpts.map(l=>{const on=(c.grade||'')===l;const cl=l?gradeCls(l):'subtle';return`<button type="button" class="opt-pill ${on?'on '+cl:''}" data-a="ctxgrade" data-id="${c.id}" data-v="${esc(l)}">${l===''?'Clear':esc(l)}</button>`}).join('');
+  const termOpts=`<option value="">Catalog (unscheduled)</option>`+S.terms.map(t=>`<option value="${t.id}" ${c.term===t.id?'selected':''}>${esc(t.name)}</option>`).join('');
+  return`<div class="ctx-backdrop" data-a="closectx"></div><div class="ctx-menu" role="menu" aria-label="Actions for ${esc(c.code)}" style="left:${left}px;top:${top}px">
+    <div class="ctx-head"><b>${esc(c.code)} · ${c.credits} cr</b><span>${esc(c.title)}</span></div>
+    <div class="ctx-sec"><span class="lbl">Quick final grade</span><div class="ctx-grades">${gPills}</div></div>
+    <div class="ctx-sec"><span class="lbl">Move to term</span><select class="sel-pill" style="width:100%" data-c="ctxmove" data-id="${c.id}" aria-label="Move ${esc(c.code)} to term">${termOpts}</select></div>
+    <button type="button" class="ctx-item" data-a="retakecourse" data-id="${c.id}"><span>Retake course</span><small>copy &amp; link</small></button>
+    <button type="button" class="ctx-item" data-a="dupcourse" data-id="${c.id}"><span>Duplicate course</span><small>copy</small></button>
+    <div class="ctx-sep"></div>
+    <button type="button" class="ctx-item" data-a="ctxopen" data-id="${c.id}" data-v="assess"><span>Open grades</span><small>breakdown</small></button>
+    <button type="button" class="ctx-item" data-a="ctxopen" data-id="${c.id}" data-v="details"><span>Edit details</span><small>prereqs, notes</small></button>
+    <div class="ctx-sep"></div>
+    <button type="button" class="ctx-item danger" data-a="ctxdel" data-id="${c.id}"><span>Delete course</span><small>undoable</small></button>
+  </div>`;
 }
 /* ---------- roadmap ---------- */
 const ORD=['Entry courses','Second step','Third step','Fourth step','Fifth step','Sixth step','Seventh step','Eighth step'];
@@ -1053,7 +1192,9 @@ function vRoadmap(){
   const downList=Object.keys(down).map(getC).filter(Boolean);
   const info=s?`<div class="card" style="margin-top:16px;border-color:var(--accent-border)"><div class="row between" style="align-items:flex-start"><div style="min-width:0"><span class="code">${esc(s.code)} · ${s.credits} cr · ${esc(catName(s.cat))}</span><h3>${esc(s.title)}</h3><div class="small muted" style="margin-top:4px">Needs ${upList.length} course${upList.length===1?'':'s'} before it · opens the way to ${downList.length}</div></div><div class="row">${stPill(s)}<button class="btn primary sm" data-a="open" data-id="${s.id}">Open</button><button class="btn ghost sm" data-a="sel" data-id="">Clear</button></div></div>${(upList.length||downList.length)?`<div class="grid g2" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line);gap:12px"><div><div class="lbl" style="margin-bottom:6px">Prerequisites</div><div class="opt-pills compact">${upList.length?upList.map(x=>`<button type="button" class="opt-pill" data-a="sel" data-id="${x.id}">${esc(x.code)}</button>`).join(''):'<span class="small muted">None</span>'}</div></div><div><div class="lbl" style="margin-bottom:6px">Unlocks</div><div class="opt-pills compact">${downList.length?downList.map(x=>`<button type="button" class="opt-pill" data-a="sel" data-id="${x.id}">${esc(x.code)}</button>`).join(''):'<span class="small muted">None</span>'}</div></div></div>`:''}</div>`:'';
   const open=S.courses.filter(c=>counts(c)&&nodeState(c,m)==='open').map(c=>({c,n:Object.keys(chain(c.id,m,'down')).length})).sort((a,b)=>b.n-a.n||a.c.code.localeCompare(b.c.code));
-  return head('Roadmap','Read left to right. Each course sits one step after the longest chain of prerequisites that leads to it. Select a course to trace what it needs and what it opens.',`<button class="btn" data-a="hidedone">${U.hideDone?'Show finished courses':'Hide finished courses'}</button>`)+
+  const hasAnyPrereq=S.courses.some(c=>(c.prereqs||[]).length>0);
+  const noPrereqHint=!hasAnyPrereq?`<div class="banner"><span><b>No prerequisites listed yet.</b> Click any course (or right-click → Edit details) to add prerequisites and see dependency arrows draw automatically.</span></div>`:'';
+  return head('Roadmap','Read left to right. Each course sits one step after the longest chain of prerequisites that leads to it. Select a course to trace what it needs and what it opens.',`<button class="btn" data-a="hidedone">${U.hideDone?'Show finished courses':'Hide finished courses'}</button>`)+noPrereqHint+
   `<div class="map"><svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
     <marker id="arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5.5" markerHeight="5.5" orient="auto"><path d="M0 1L7 4L0 7Z" style="fill:var(--muted)" opacity=".55"/></marker>
@@ -1115,14 +1256,14 @@ function gcard(c,P){
   const catStyle=P.colorBy==='cat'?` style="border-left:3.5px solid ${esc(catColor(c.cat))};border-left-style:solid"`:'';
   const cls=P.colorBy==='status'?status(c):gcls;
   const mv=U.moveCourseId===c.id?'moving':'';
-  const tip=(c.title||'')+(is.length?' · Prerequisite order warning':'')+' · Drag or click to open';
-  return`<div class="cc ${cls} ${is.length?'warn':''} ${mv}"${catStyle} draggable="true" data-drag="${c.id}" data-a="open" data-id="${c.id}" title="${esc(tip)}"><div class="t1"><span class="code">${esc(c.code)}</span><span class="row" style="gap:3px;flex-wrap:nowrap"><span class="mono small" style="font-size:11px;color:var(--muted)">${c.credits}${l?' · <b style="color:var(--ink)">'+esc(l)+'</b>':''}</span><button type="button" class="cc-mv" data-a="startmove" data-id="${c.id}" title="Move to another term" aria-label="Move ${esc(c.code)}">⇄</button></span></div><div class="t2">${esc(c.title)}</div></div>`;
+  const tip=(c.title||'')+(is.length?' · Prerequisite order warning':'')+' · Drag, click to open, or right-click for actions';
+  return`<div class="cc ${cls} ${is.length?'warn':''} ${mv}"${catStyle} draggable="true" data-drag="${c.id}" data-cid="${c.id}" data-a="open" data-id="${c.id}" title="${esc(tip)}"><div class="t1"><span class="code">${esc(c.code)}</span><span class="row" style="gap:2px;flex-wrap:nowrap"><span class="mono small" style="font-size:11px;color:var(--muted)">${c.credits}${l?' · <b style="color:var(--ink)">'+esc(l)+'</b>':''}</span><button type="button" class="cc-mv" data-a="startmove" data-id="${c.id}" title="Move to another term" aria-label="Move ${esc(c.code)}">⇄</button><button type="button" class="ctx-btn" data-a="ctx" data-id="${c.id}" title="Quick actions (grade, retake, copy, delete)" aria-label="Actions for ${esc(c.code)}">⋮</button></span></div><div class="t2">${esc(c.title)}</div></div>`;
 }
 function termBoxHtml(t,P,isYear){
   const maxLoad=S.settings.maxLoad||18;
   const cs=S.courses.filter(c=>c.term===t.id),cr=loadOf(t.id),all=termCredits(t.id),g=termGpa(t);
   const over=cr>maxLoad&&t.status!=='done',barW=Math.min(100,cr/maxLoad*100);
-  const mvBtn=U.moveCourseId?`<button type="button" class="btn sm mv-here mv-${canDropTerm(U.moveCourseId,t.id)}" data-a="moveto" data-term="${t.id}">Place</button>`:'';
+  const mvBtn=U.moveCourseId?`<button type="button" class="btn sm mv-here mv-${canDropTerm(U.moveCourseId,t.id)}" data-a="moveto" data-term="${t.id}">Place</button>`:`<button type="button" class="cc-mv" data-a="addinterm" data-term="${t.id}" title="Add a course to ${esc(t.name)}" aria-label="Add course to ${esc(t.name)}">+</button>`;
   const cardsCls=isYear?'term-cards':'';
   return`<div class="term ${isYear?'term-yr':''}" data-drop="${t.id}"><header><b>${esc(t.name)}</b><span class="row" style="gap:6px;flex-wrap:nowrap"><span class="mono small" style="color:var(--${over?'warn':'muted'})">${cr}${all>cr?`+${all-cr}`:''}/${maxLoad} cr</span>${mvBtn}</span></header>
   <div class="bar" style="height:4px;margin-bottom:8px"><i class="${over?'w':t.status==='done'?'d':''}" style="width:${barW}%"></i></div>
@@ -1201,17 +1342,19 @@ function vGpa(){
   const pr=gpaOf(doneCourses().concat(lab),true,over);
   const ladder=[maxP,3.7,3.3,3,2.7].map(x=>({x,f:o.R>0?(o.base.pts+x*o.R)/o.N:cum.gpa}));
   const tr=trend();
+  const tp=typeof termPlan==='function'?termPlan():null;
   const curCr=curCourses().filter(c=>!(termOf(c.term)||{}).cr).reduce((a,c)=>a+c.credits,0);
-  const thisNeed=curCr>0&&cum.cr>0?(tg*(cum.cr+curCr)-cum.pts)/curCr:null;
-  const thisBest=curCr>0&&cum.cr>0?(cum.pts+maxP*curCr)/(cum.cr+curCr):null;
-  const far=o.need!=null&&o.need>maxP+1e-6,farT=thisNeed!=null&&thisNeed>maxP+1e-6;
+  const thisNeed=tp?tp.need:(curCr>0&&cum.cr>0?(tg*(cum.cr+curCr)-cum.pts)/curCr:null);
+  const thisMaxTerm=tp?tp.best:maxP;
+  const thisBestCum=curCr>0&&cum.cr>0?(cum.pts+thisMaxTerm*curCr)/(cum.cr+curCr):null;
+  const far=o.need!=null&&o.need>maxP+1e-6,farT=thisNeed!=null&&thisNeed>thisMaxTerm+1e-6;
   const rtNote=o.retakes.length?` It counts your retake${o.retakes.length>1?'s':''} of ${o.retakes.map(r=>esc((getC(r.retakeOf)||{}).code||r.code)).join(', ')}, which replace${o.retakes.length>1?'':'s'} the old grade.`:'';
   const card2=o.need==null?`<div class="num" style="margin:12px 0 8px">–</div><div class="small muted">Every degree credit is graded.</div>`:
     far?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Out of reach</div><div class="small muted">Would take an average of ${fmt(o.need)} (max ${fmt(maxP,1)}). Best finish: <b>${fmt(o.best)}</b> with straight ${fmt(maxP,1)}s.${rtNote}</div>`:
     `<div class="num" style="margin:12px 0 8px">${o.need<=0?'0.00':fmt(o.need)}</div><div class="small muted">${o.need<=0?'Already secured.':`Average over remaining ${o.R} credits · max finish <b class="mono">${fmt(o.best)}</b>.`}${rtNote}</div>`;
   const card3=thisNeed==null?`<div class="num" style="margin:12px 0 8px">–</div><div class="small muted">No graded credits yet.</div>`:
-    farT?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Not this term</div><div class="small muted">Straight ${fmt(maxP,1)}s lift you to <b>${fmt(thisBest)}</b> this term. ${fmt(tg)} is a goal for later terms.</div>`:
-    `<div class="num" style="margin:12px 0 8px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">To sit at ${fmt(tg)} when this term posts · max <b class="mono">${fmt(thisBest)}</b>.</div>`;
+    farT?`<div class="num" style="margin:12px 0 8px;color:var(--bad);font-size:34px;line-height:1.25">Not this term</div><div class="small muted">Would take ${fmt(thisNeed)} this term (best possible: <b class="mono">${fmt(thisMaxTerm)}</b>, lifting overall to <b class="mono">${fmt(thisBestCum)}</b>). ${fmt(tg)} is a goal for later terms.</div>`:
+    `<div class="num" style="margin:12px 0 8px">${thisNeed<=0?'0.00':fmt(thisNeed)}</div><div class="small muted">Term average to reach ${fmt(tg)} overall · max term <b class="mono">${fmt(thisMaxTerm)}</b> (overall <b class="mono">${fmt(thisBestCum)}</b>).</div>`;
   const d=cum.gpa==null?null:cum.gpa-tg;
   return head('GPA lab','See where your GPA stands, what the rest of the degree has to average to reach your target, and what a few grades would do.')+
   `<div class="grid g3">
@@ -1220,7 +1363,7 @@ function vGpa(){
     <div class="card kpi-card ${farT?'kpi-warn':'kpi-good'}"><div class="lbl">Needed this term</div>${card3}</div>
   </div>
   <div class="grid g2 sec"><div><h2>If you average…</h2><div class="card" style="padding:4px 18px">${ladder.map(l=>`<div class="kv"><span><b class="mono">${fmt(l.x,1)}</b> on the remaining ${o.R} credits</span><span class="pill ${l.f>=tg?'good':'bad'}">${fmt(l.f)}</span></div>`).join('')}${o.ung?`<div class="small muted" style="padding:10px 0">Includes ${o.ung} credits of finished courses with no grade entered yet.</div>`:''}</div>
-  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="pill good">+${fmt(x.gain)}</span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
+  ${o.cands.length?`<h2 style="margin-top:22px">Worth retaking</h2><div class="card" style="padding:4px 18px">${o.cands.map(x=>`<div class="kv" data-cid="${x.c.id}"><span><b>${esc(x.c.code)}</b> · ${lpill(x.c.grade)} · ${x.c.credits} cr</span><span class="row" style="gap:6px"><span class="pill good">+${fmt(x.gain)}</span><button type="button" class="btn sm soft" data-a="retakecourse" data-id="${x.c.id}" title="Copy &amp; link as a retake in your next term">Retake</button></span></div>`).join('')}<div class="small muted" style="padding:10px 0">Potential cumulative lift if retaken for ${fmt(maxP,1)}.</div></div>`:''}</div>
   <div><h2>By term</h2><div class="card scroll" style="padding:8px 18px"><table class="t"><thead><tr><th>Term</th><th class="r">Credits</th><th class="r">GPA</th><th class="r">Cumulative</th></tr></thead><tbody>${tr.map(r=>{const t=S.terms.find(x=>x.name===r.name);return`<tr><td><b>${esc(r.name)}</b>${r.cur?' <span class="pill acc">so far</span>':''}</td><td class="r mono">${t?termCredits(t.id):''}</td><td class="r mono">${fmt(r.term)}</td><td class="r mono"><b>${fmt(r.cum)}</b></td></tr>`}).join('')||'<tr><td colspan="4" class="muted">No graded terms yet</td></tr>'}</tbody></table></div></div></div>
 `+termPlanSection()+((S.ui&&S.ui.modules&&S.ui.modules.whatif!==false)?whatIf(cum):'')+transcriptSection();
 }
@@ -1229,12 +1372,12 @@ function vGpa(){
 function vReq(){
   const cp=catProgress().filter(x=>!(x.k.k==='minor'&&!S.courses.some(c=>c.cat==='minor')));
   const placed=placedCredits(),tot=S.settings.totalCredits,diff=tot-placed;
-  const chips=k=>S.courses.filter(c=>c.cat===k).map(c=>`<button class="pill ${status(c)==='done'?'good':status(c)==='current'?'acc':''}" data-a="open" data-id="${c.id}" style="cursor:pointer">${esc(c.code)}</button>`).join(' ');
+  const chips=k=>S.courses.filter(c=>c.cat===k).map(c=>`<button class="pill ${status(c)==='done'?'good':status(c)==='current'?'acc':''}" data-a="open" data-id="${c.id}" data-cid="${c.id}" style="cursor:pointer">${esc(c.code)}</button>`).join(' ');
   const state=x=>x.k.req<=0?`<span class="mono small muted">${x.e+x.cu+x.pl} cr</span>`:`<span class="mono small muted">${x.e} earned · ${x.cu} now · ${x.pl} planned · ${x.over>0?`<b style="color:var(--warn)">${x.over} over</b>`:x.left>0?`<b style="color:var(--warn)">${x.left} not yet in a term</b>`:'<b style="color:var(--good)">fully planned</b>'}</span>`;
   const free=S.courses.filter(c=>isFree(c)&&isPh(c));
   const pct=Math.min(100,placed/tot*100);
   return head('Requirements','Credits by category, and how a minor would fit around them.')+
-  `<div class="grid g2">
+  `<div class="grid g2" style="align-items:start">
     <div class="card" style="display:flex;flex-direction:column;gap:18px">
       <div class="legend" style="padding-bottom:10px;border-bottom:1px solid var(--line)"><span><i style="background:var(--good);border-color:var(--good)"></i>Earned</span><span><i style="background:var(--accent);border-color:var(--accent)"></i>In progress</span><span><i style="background:var(--accent-soft);border-color:var(--accent-border)"></i>Planned</span></div>
       ${cp.map(x=>`<div><div class="row between"><h3>${esc(x.k.n)}</h3>${state(x)}</div>${x.k.req>0?`<div class="bar" style="margin:8px 0 10px"><i class="d" style="width:${Math.min(100,x.e/x.k.req*100)}%"></i><i style="width:${Math.min(100,x.cu/x.k.req*100)}%"></i><i class="p" style="width:${Math.min(100,x.pl/x.k.req*100)}%"></i></div>`:'<div style="height:8px"></div>'}<div class="row" style="gap:6px">${chips(x.k.k)||'<span class="small muted">No courses yet</span>'}</div></div>`).join('')}
@@ -1274,25 +1417,28 @@ const catSel=(id,val)=>`<select id="${id}">${S.settings.cats.map(k=>`<option val
 function sylPreview(){
   const o=U.syl.out;if(!o)return'';
   const W=o.assessments.reduce((a,x)=>a+(+x.weight||0),0);
-  return`<div class="card kpi-card kpi-acc" style="margin-top:16px"><h2>Check what was read</h2><p class="small muted" style="margin-top:-4px;margin-bottom:14px">Fix anything that looks off, then add it. Nothing is saved until you do.</p>
+  const existingOpts=`<option value="">+ Create new course</option>`+S.courses.map(c=>`<option value="${c.id}" ${o.targetId===c.id?'selected':''}>Update ${esc(c.code)} · ${esc(c.title)}</option>`).join('');
+  return`<div class="card kpi-card kpi-acc" style="margin-top:16px"><h2>Check what was read</h2><p class="small muted" style="margin-top:-4px;margin-bottom:14px">Fix anything that looks off, then add or link it. Nothing is saved until you click below.</p>
+  <label class="f" style="margin-bottom:12px"><span>Apply to</span><select data-c="syl" data-f="targetId">${existingOpts}</select></label>
   <div class="fgrid"><label class="f"><span>Code</span><input data-c="syl" data-f="code" value="${esc(o.code)}"></label><label class="f"><span>Credits</span><input type="number" step="any" data-c="syl" data-f="credits" value="${o.credits}"></label><label class="f"><span>Counts toward</span><select data-c="syl" data-f="cat">${S.settings.cats.map(k=>`<option value="${esc(k.k)}" ${o.cat===k.k?'selected':''}>${esc(k.n)}</option>`).join('')}</select></label><label class="f"><span>Term</span><select data-c="syl" data-f="term"><option value="">Not scheduled</option>${S.terms.map(t=>`<option value="${t.id}" ${o.term===t.id?'selected':''}>${esc(t.name)}</option>`).join('')}</select></label></div>
   <label class="f" style="margin-top:12px"><span>Title</span><input data-c="syl" data-f="title" value="${esc(o.title)}"></label>
+  <div class="fgrid" style="margin-top:12px"><label class="f"><span>Instructor</span><input data-c="syl" data-f="instructor" value="${esc(o.instructor||'')}"></label><label class="f"><span>Syllabus link (https://…)</span><input data-c="syl" data-f="syllabusUrl" value="${esc(o.syllabusUrl||'')}" placeholder="https://habib.simplesyllabus.com/…"></label></div>
   <label class="f" style="margin-top:12px"><span>Prerequisites</span><input data-c="syl" data-f="prereqs" value="${esc(o.prereqs.join(', '))}"></label>
   <div class="scroll" style="margin-top:14px"><table class="t"><thead><tr><th>Group</th><th>Type</th><th class="r">Weight %</th><th class="r">Items</th><th class="r">Drop lowest</th><th></th></tr></thead><tbody>${o.assessments.map((a,i)=>`<tr><td><input data-c="sylA" data-f="name" data-i="${i}" value="${esc(a.name)}" style="min-width:110px"></td><td><select class="sel-pill" data-c="sylA" data-f="type" data-i="${i}">${ATYPES.map(t=>`<option ${a.type===t?'selected':''}>${t}</option>`).join('')}</select></td><td class="r"><input class="w" type="number" step="any" data-c="sylA" data-f="weight" data-i="${i}" value="${a.weight==null?'':a.weight}"></td><td class="r"><input class="w" type="number" min="1" data-c="sylA" data-f="count" data-i="${i}" value="${a.count||1}"></td><td class="r"><input class="w" type="number" min="0" data-c="sylA" data-f="drop" data-i="${i}" value="${a.drop||0}"></td><td><button class="btn ghost danger sm" data-a="sylDel" data-i="${i}" aria-label="Remove">✕</button></td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2" class="small muted">Total weight</td><td class="r mono" style="font-weight:600;${Math.abs(W-100)>0.01?'color:var(--warn)':''}">${fmt(W,0)}%</td><td colspan="3"></td></tr></tfoot></table></div>
   ${o.notes?`<div class="small muted" style="margin-top:10px"><b>Policies noticed:</b> ${esc(o.notes)}</div>`:''}
-  <div class="row" style="margin-top:16px"><button class="btn primary" data-a="sylAdd">Add this course</button><button class="btn" data-a="sylRow">+ Add a row</button><button class="btn ghost" data-a="sylDiscard">Discard</button></div></div>`;
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-a="sylAdd">${o.targetId?'Update existing course':'Add this course'}</button><button class="btn" data-a="sylRow">+ Add a row</button><button class="btn ghost" data-a="sylDiscard">Discard</button></div></div>`;
 }
 function vAdd(){
   if(!S.terms.length)return head('Add a course','From a syllabus, or by hand.')+setupPanel();
-  const y=U.syl,can=!!AI.key;
-  const imp=can?`<div class="card"><h2>From a syllabus</h2><p class="small muted" style="margin:-4px 0 14px">Paste the text, or drop in a text file, a PDF${U.imgMax?' or photos of the pages':''}. It reads the grading breakdown, dates, credits and prerequisites and builds the course for you to check.</p>
-  <textarea id="syl-text" rows="7" data-c="syltext" placeholder="Paste the syllabus here…">${esc(y.text)}</textarea>
+  const y=U.syl,can=!!AI.key,defTerm=U.addTerm||(S.terms.find(t=>t.status==='current')||{}).id||'';
+  const imp=`<div class="card"><div class="row between" style="margin-bottom:6px"><h2 style="margin:0">From a syllabus</h2><a class="btn sm soft" href="#canvas">Import from Simple Syllabus →</a></div><p class="small muted" style="margin:0 0 14px">Paste syllabus text or drop a file (.pdf, .txt, .md${U.imgMax?', or page photos':''}). Atlas extracts grading weights automatically${can?' with Gemini AI':' locally — no API key needed (or add a free Gemini key in Settings for PDF/photo reading)'}.</p>
+  <textarea id="syl-text" rows="6" data-c="syltext" placeholder="Paste the syllabus text or grading breakdown here (e.g. Quizzes 20%, Midterm 30%, Final 50%)…">${esc(y.text)}</textarea>
   <label class="dropzone" style="margin-top:12px"><input type="file" id="syl-file" data-c="sylf" multiple accept="${U.imgMax?'image/*,':''}.pdf,.txt,.md,text/plain,application/pdf" hidden><span class="dz-title">${y.files.length?`${y.files.length} image${y.files.length>1?'s':''} attached`:'Choose syllabus files'}</span><span class="dz-sub">Supports .pdf, .txt, .md${U.imgMax?' or page photos':''}</span></label>
   ${y.files.length||y.msg?`<div class="row" style="margin-top:10px">${y.files.length?`<button class="btn ghost sm" data-a="sylClearImg">Remove attached images</button>`:''}<span class="small muted" id="syl-msg">${esc(y.msg||'')}</span></div>`:''}
-  <div class="row" style="margin-top:14px"><label class="f" style="min-width:170px"><span>Term</span>${termSel('syl-term',y.term||(S.terms.find(t=>t.status==='current')||{}).id,'Not scheduled')}</label><button class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read syllabus'}</button></div>
-  ${y.err?`<p class="small" style="color:var(--bad);margin-top:10px">${esc(y.err)}</p>`:''}</div>${sylPreview()}`:`<div class="card"><h2>From a syllabus</h2><p class="small muted" style="margin-bottom:14px">Reading a syllabus uses a free Gemini API key stored locally in your browser. You can also add the course by hand below.</p><button class="btn" data-a="go" data-v="settings">Set up syllabus reading</button></div>`;
+  <div class="row" style="margin-top:14px"><label class="f" style="min-width:170px"><span>Term</span>${termSel('syl-term',y.term||defTerm,'Not scheduled')}</label>${can?`<button class="btn primary" data-a="sylRead" ${y.loading?'disabled':''} style="align-self:flex-end">${y.loading?'Reading…':'Read with AI'}</button>`:''}<button class="btn ${can?'':'primary'}" data-a="sylreadlocal" style="align-self:flex-end">Extract weights locally</button>${!can?`<button class="btn ghost sm" data-a="go" data-v="settings" style="align-self:flex-end">Add Gemini key</button>`:''}</div>
+  ${y.err?`<p class="small" style="color:var(--bad);margin-top:10px">${esc(y.err)}</p>`:''}</div>${sylPreview()}`;
   return head('Add a course','Build a course from its syllabus, or fill it in yourself.')+imp+
-  `<div class="card" style="margin-top:20px"><h2>By hand</h2><div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Counts toward</span>${catSel('ma-cat')}</label><label class="f"><span>Term</span>${termSel('ma-term','','Not scheduled')}</label></div><label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics"></label><label class="f" style="margin-top:12px"><span>Prerequisites</span><input id="ma-pre" placeholder="EE 202, MTH 202"></label><div style="margin-top:16px"><button class="btn primary" data-a="manual">Add course</button></div></div>`;
+  `<div class="card" style="margin-top:20px"><h2>By hand</h2><div class="fgrid"><label class="f"><span>Code</span><input id="ma-code" placeholder="EE 301"></label><label class="f"><span>Credits</span><input id="ma-cr" type="number" step="any" value="3"></label><label class="f"><span>Counts toward</span>${catSel('ma-cat')}</label><label class="f"><span>Term</span>${termSel('ma-term',U.addTerm||'','Not scheduled')}</label></div><label class="f" style="margin-top:12px"><span>Title</span><input id="ma-title" placeholder="Electronics"></label><label class="f" style="margin-top:12px"><span>Prerequisites</span><input id="ma-pre" placeholder="EE 202, MTH 202"></label><div style="margin-top:16px"><button class="btn primary" data-a="manual">Add course</button></div></div>`;
 }
 
 /* ---------- settings ---------- */
@@ -1384,7 +1530,7 @@ const UNIVERSAL_BOOKMARK_FN=async(ATLAS_URL)=>{try{
     });
     const loc=location.hostname+' '+location.href;
     const kind=/stellic/i.test(loc)?'stellic':/pscs|peoplesoft/i.test(loc)?'pscs':'syllabus';
-    payload={v:2,kind,at:Date.now(),url:location.origin+location.pathname,title:document.title,tables,text:texts.join('\n')};
+    payload={v:2,kind,at:Date.now(),url:location.href,title:document.title,tables,text:texts.join('\n')};
   }
   const j=JSON.stringify(payload);
   const b64=btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -1424,12 +1570,52 @@ function cvGroup(c,name){
   return bs>=3?best:null;
 }
 function cvGuessType(n){const l=String(n).toLowerCase();for(const [k,ty] of KW)if(l.includes(k))return ty;return 'Other'}
+function guessCat(code){
+  const cats=S.settings.cats||[];if(!cats.length)return 'core';
+  const sub=(String(code||'').trim().match(/^([A-Za-z]+)/)||['',''])[1].toUpperCase();
+  const findKey=rxs=>{for(const rx of rxs){const hit=cats.find(c=>rx.test((c.k||'')+' '+(c.n||'')));if(hit)return hit.k}return''};
+  if(/^(CORE|HUM|HIST|URDU|ISLM|PHIL|ARAB|LIT|REL)$/.test(sub))return findKey([/\bcore\b|habib|liberal/i,/\bgen/i])||cats[0].k;
+  if(/^(SOC|ANTH|ECON|POL|SDP|COM|CND|DES|ART)$/.test(sub))return findKey([/\bgen/i,/hum|soc|design/i,/\belec/i,/\bcore\b/i])||cats[0].k;
+  if(/^(MATH|MTH|PHY|BIO|CHEM)$/.test(sub))return findKey([/\bmath\b|science|computing/i,/\bmajor\b/i,/tech|eng/i])||cats[0].k;
+  if(/^(EE|CE|CS|ENGR|DS|ME)$/.test(sub))return findKey([new RegExp('\\b'+sub+'\\b','i'),/\bmajor\b/i,/engineering|computing|tech/i])||cats[0].k;
+  return cats[0].k;
+}
+function cvParseCode(cv){
+  const src=(cv.code||'')+' '+(cv.name||'');
+  const m=src.match(/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/i);
+  if(m)return (m[1]+' '+m[2]).toUpperCase();
+  const c=String(cv.code||'').trim().split(/[-–—]/)[0].trim();
+  return c?c.slice(0,14):'COURSE';
+}
+function cvCleanTitle(cv,code){
+  let t=String(cvBase(cv.name||'')||cv.name||'').trim();
+  if(code){const re=new RegExp('^'+code.replace(/\s+/g,'\\s*[- ]?')+'\\s*[:\\-–—·]*\\s*','i');t=t.replace(re,'').trim()}
+  return t||cv.name||code||'Untitled Course';
+}
 function cvApply(){
-  let upd=0,add=0,un=0;
+  let upd=0,add=0,un=0,crt=0;
   S.links=S.links||{canvas:{at:0,map:{}},pscs:{at:0}};
   S.links.canvas=S.links.canvas||{at:0,map:{}};
   S.links.canvas.map=S.links.canvas.map||{};
-  (U.cv||[]).forEach(cv=>{const c=getC(cv.target);if(!c)return;
+  const creating=(U.cv||[]).some(cv=>cv.target==='__new__');
+  if(creating&&!S.terms.length){
+    if(!S.settings.school)S.settings.school='Habib University';
+    if(!S.settings.program)S.settings.program='My Degree Plan';
+    if(/habib/i.test(S.settings.school))S.settings.scale=HABIB_SCALE.map(x=>Object.assign({},x));
+  }
+  (U.cv||[]).forEach(cv=>{
+    let c=null;
+    if(cv.target==='__new__'){
+      const code=cvParseCode(cv),title=cvCleanTitle(cv,code);
+      const tName=parseTermTok(cv.term||cv.name||'')||('Current Term');
+      const t=ensureTerm(tName,'current');
+      const isLab=/\d{3}L\b|\blab\b/i.test(code+' '+title);
+      c={id:uid(),code,title,credits:isLab?1:3,term:t?t.id:null,cat:guessCat(code),prereqs:[],coreqs:[],grade:null,assess:[],notes:'',instructor:(cv.teachers||[]).join(', '),canvasId:cv.id||''};
+      S.courses.push(c);crt++;
+    }else{
+      c=getC(cv.target);
+    }
+    if(!c)return;
     if(cv.id){S.links.canvas.map[cv.id]=c.id;c.canvasId=cv.id}
     if(!c.instructor&&cv.teachers&&cv.teachers.length)c.instructor=cv.teachers.join(', ');
     if(!(c.assess||[]).length){
@@ -1444,7 +1630,7 @@ function cvApply(){
     }));
   });
   S.links.canvas.at=Date.now();
-  return{upd,add,un};
+  return{upd,add,un,crt};
 }
 function cvAutoSync(rawJson){
   try{
@@ -1496,7 +1682,11 @@ function parsePscsGrades(obj){
     }
     const crMatch=rowText.match(/\b([0-6](?:\.\d+)?)\s*(?:cr|credits?|units?)\b/i)||(cells||[]).map(x=>x.match(/^[0-6](?:\.0+)?$/)).find(Boolean);
     const cr=crMatch?parseFloat(crMatch[1]||crMatch[0]):3;
-    const title=(cells||[]).filter(c=>c&&!codeRe.test(c)&&!gradeTok(c)&&!/^[0-6](?:\.0+)?$/.test(c)&&!parseTermTok(c)&&!/^(taken|transferred|in progress|enrolled)$/i.test(c)).sort((a,b)=>b.length-a.length)[0]||normCode;
+    let title=(cells||[]).filter(c=>c&&!codeRe.test(c)&&!gradeTok(c)&&!/^[0-6](?:\.\d+)?$/.test(c)&&!parseTermTok(c)&&!/^(taken|transferred|in progress|enrolled)$/i.test(c)).sort((a,b)=>b.length-a.length)[0]||'';
+    if(!title){
+      title=rowText.replace(codeRe,'').replace(/\b(Fall|Spring|Summer)\s+\d{4}\b/gi,'').replace(/\b[0-6](?:\.\d+)?(?:\s*(?:cr|credits?|units?))?\b/gi,'').replace(new RegExp('\\b'+gStr.replace('+','\\+')+'\\b','gi'),'').replace(/\s+/g,' ').trim();
+    }
+    title=title||normCode;
     const tName=termGuess||'Imported Term';
     const uidKey='new:'+key+':'+tName.toLowerCase();
     found[uidKey]={id:uidKey,code:normCode,title:title.slice(0,80),credits:isNaN(cr)?3:cr,term:tName,curGrade:'',pscsGrade:gStr==='IP'?'':gStr,status:'create',apply:true,create:true};
@@ -1578,6 +1768,18 @@ function applyStellicImport(prev){
   });
   return added;
 }
+function matchCourseByCodeOrTitle(code,title){
+  const k=NC(code),t=nn(title);
+  if(k){
+    const hits=S.courses.filter(c=>NC(c.code)===k);
+    if(hits.length)return (hits.find(c=>status(c)==='current')||hits.find(c=>status(c)==='planned')||hits[0]).id;
+  }
+  if(t){
+    const hit=S.courses.find(c=>nn(c.title)===t||nn(c.title).includes(t)||t.includes(nn(c.title)));
+    if(hit)return hit.id;
+  }
+  return '';
+}
 function parseSyllabusDeterministic(obj){
   const textLines=[];
   if(obj.title)textLines.push(obj.title);
@@ -1585,59 +1787,79 @@ function parseSyllabusDeterministic(obj){
   if(obj.text)textLines.push(obj.text);
   const fullText=textLines.join('\n').slice(0,120000);
   const codeM=fullText.match(/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/);
-  const code=codeM?(codeM[1]+' '+codeM[2]):'';
+  const code=codeM?(codeM[1]+' '+codeM[2]).toUpperCase():'';
+  const crM=fullText.match(/\b(?:credit(?:s|\s*hours?)?|units?)\s*[:\-–]?\s*([0-6](?:\.\d+)?)\b/i)||fullText.match(/\b([0-6](?:\.\d+)?)\s*(?:credit(?:s|\s*hours?)?|cr\.?)\b/i);
+  const credits=crM?parseFloat(crM[1]):(/\d{3}L\b/i.test(code)?1:3);
+  const insM=fullText.match(/(?:instructor|faculty|professor|taught by)\s*[:\-–]\s*([A-Z][A-Za-z .,'\-]{2,50})/i);
+  const instructor=insM?insM[1].replace(/\s*(?:email|office|hours|phone|room).*$/i,'').trim():'';
   const assessments=[];
   const seen=new Set();
   const scanRow=(label,wStr)=>{
-    const w=parseFloat(wStr),nm=String(label||'').replace(/\b\d+(?:\.\d+)?\s*%/g,'').replace(/[:\-–·]+$/,'').trim();
-    if(!nm||isNaN(w)||w<=0||w>=100||/^total\b/i.test(nm))return;
+    const w=parseFloat(wStr),nm=String(label||'').replace(/\b\d+(?:\.\d+)?\s*%/g,'').replace(/[()\[\]]/g,'').replace(/^[:\-–·\s•*]+|[:\-–·\s]+$/g,'').trim();
+    if(!nm||nm.length<2||isNaN(w)||w<=0||w>=100||/^(total|sum|grading|scale|grade|letter|percentage|weight|component)\b/i.test(nm))return;
     const k=nm.toLowerCase();if(seen.has(k))return;seen.add(k);
     assessments.push({name:nm.slice(0,60),type:cvGuessType(nm),weight:w,count:1,drop:0});
   };
-  ((obj&&obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>{
-    const pctCell=r.find(c=>/\b(\d{1,3}(?:\.\d+)?)\s*%/.test(String(c||'')));
-    if(!pctCell)return;
-    const m=String(pctCell).match(/\b(\d{1,3}(?:\.\d+)?)\s*%/);
-    const lbl=r.find(c=>c!==pctCell&&String(c||'').trim().length>1)||'';
-    if(m&&lbl)scanRow(lbl,m[1]);
-  }));
+  ((obj&&obj.tables)||[]).forEach(tb=>{
+    const rows=tb.rows||[];if(!rows.length)return;
+    const hdr=rows[0].map(c=>String(c||'').toLowerCase());
+    const wCol=hdr.findIndex(h=>/weight|%|percent/.test(h));
+    const nCol=hdr.findIndex(h=>/assess|component|item|category|grading|deliverable|type|name/.test(h));
+    rows.forEach((r,ri)=>{
+      if(ri===0&&wCol>=0)return;
+      const pctCell=r.find(c=>/\b(\d{1,3}(?:\.\d+)?)\s*%/.test(String(c||'')));
+      if(pctCell){
+        const m=String(pctCell).match(/\b(\d{1,3}(?:\.\d+)?)\s*%/);
+        const lbl=(nCol>=0&&r[nCol]&&r[nCol]!==pctCell?r[nCol]:r.find(c=>c!==pctCell&&String(c||'').trim().length>1&&!/^\d+(?:\.\d+)?$/.test(String(c||'').trim())))||'';
+        if(m&&lbl)scanRow(lbl,m[1]);
+      }else if(wCol>=0&&r[wCol]){
+        const m=String(r[wCol]).trim().match(/^(\d{1,3}(?:\.\d+)?)\s*%?$/);
+        const lbl=r[nCol>=0?nCol:0]||'';
+        if(m&&lbl)scanRow(lbl,m[1]);
+      }
+    });
+  });
   if(!assessments.length){
     fullText.split(/\r?\n/).forEach(line=>{
-      const m=line.match(/^(.{2,50}?)\s+(\d{1,3}(?:\.\d+)?)\s*%/);
+      const s=line.trim();if(!s||s.length>100)return;
+      const m=s.match(/^([A-Za-z][A-Za-z0-9 &\/\-,'()]{1,48}?)\s*(?:[:\-–|·]|\s+)\s*\(?(\d{1,3}(?:\.\d+)?)\s*%\)?/);
       if(m)scanRow(m[1],m[2]);
     });
   }
-  return{fullText,code,title:String(obj.title||'').replace(/\s*[-|].*$/,'').trim(),assessments};
+  const cleanTitle=String(obj.title||'').replace(/\s*[-|–—]\s*(?:Simple\s*Syllabus|Syllabus).*$/i,'').replace(code?new RegExp('^'+code.replace(/\s+/g,'\\s*[- ]?')+'\\s*[:\\-–—·]*\\s*','i'):/^$/,'').trim();
+  const syllabusUrl=/^https?:\/\//i.test(String(obj.url||''))?String(obj.url).trim():'';
+  return{fullText,code,title:cleanTitle||code,credits:isNaN(credits)?3:credits,instructor,syllabusUrl,assessments};
 }
 function routeImportedObj(j,rawStr){
   if(j&&Array.isArray(j.courses)){
-    U.pscsDiff=null;U.stellicPrev=null;
-    U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)}));
-    render();return true;
+    U.pscsDiff=null;U.stellicPrev=null;U.sylImport=null;
+    U.cv=j.courses.map(cv=>{
+      const m=cvMatch(cv);
+      return Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:m||'__new__'});
+    });
+    location.hash='canvas';render();return true;
   }
   if(j&&(j.kind==='stellic'||/stellic/i.test((j.url||'')+(j.title||'')))){
-    U.cv=[];U.pscsDiff=null;
+    U.cv=[];U.pscsDiff=null;U.sylImport=null;
     const prev=parseStellicAudit(j);
     if(!prev.courses.length){U.stellicPrev=null;U.cvErr='No courses or requirements found in that Stellic export. Open your Degree Audit / Progress page first.';render();return true}
     U.stellicPrev=prev;U.cvErr='';location.hash='canvas';render();return true;
   }
   if(j&&(j.kind==='pscs'||/pscs|peoplesoft/i.test(j.url||''))){
-    U.cv=[];U.stellicPrev=null;
+    U.cv=[];U.stellicPrev=null;U.sylImport=null;
     const diffs=parsePscsGrades(j);
     if(!diffs.length){U.pscsDiff=null;U.cvErr='No course grades found in that PSCS page. Open Academic Records → Course History or Grades first.';render();return true}
     U.pscsDiff=diffs;U.cvErr='';location.hash='canvas';render();return true;
   }
   if(j&&(j.kind==='syllabus'||/syllabus/i.test((j.url||'')+(j.title||'')))){
+    U.cv=[];U.pscsDiff=null;U.stellicPrev=null;
     const parsed=parseSyllabusDeterministic(j);
-    U.syl.text=parsed.fullText;
-    U.syl.err='';
-    if(!AI.key&&parsed.assessments.length){
-      const cur=S.settings.cats;
-      U.syl.out={code:parsed.code,title:parsed.title,credits:3,instructor:'',notes:'',prereqs:[],cat:cur[0]?cur[0].k:'',term:(S.terms.find(t=>t.status==='current')||{}).id||'',assessments:parsed.assessments};
-    }
-    location.hash='add';
-    toast('Syllabus imported — review and add');
-    return true;
+    const targetId=matchCourseByCodeOrTitle(parsed.code,parsed.title);
+    U.sylImport=Object.assign({},parsed,{target:targetId||'__new__',applyWeights:parsed.assessments.length>0});
+    U.syl.text=parsed.fullText;U.syl.err='';
+    U.cvErr='';location.hash='canvas';
+    toast(targetId?'Simple Syllabus matched — review & link':'Simple Syllabus read — pick a course or create new');
+    render();return true;
   }
   return false;
 }
@@ -1650,17 +1872,30 @@ function handleIncomingImport(jsonStr){
   ACT2.cvread();
 }
 function vCanvas(){
-  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],st=U.stellicPrev||null,lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
+  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],st=U.stellicPrev||null,syl=U.sylImport||null,lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
   const baseHint=atlasBaseUrl().replace(/\/+$/,'')||'http://127.0.0.1:3000';
-  const opts=sel=>`<option value="">Skip this one</option>`+S.courses.filter(c=>status(c)!=='done'||c.id===sel).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('');
-  return head('Sync & Import','Sync scores from Canvas, import PSCS Course History, build from Stellic, or import a syllabus.',`<a class="btn" href="#setup">Setup Guide</a>`)+
+  const opts=sel=>`<option value="">Skip this one</option><option value="__new__" ${sel==='__new__'?'selected':''}>+ Create new course</option>`+S.courses.filter(c=>status(c)!=='done'||c.id===sel).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('');
+  const allOpts=sel=>`<option value="__new__" ${sel==='__new__'?'selected':''}>+ Create new course</option>`+S.courses.map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)} (${esc((termOf(c.term)||{}).name||'Catalog')})</option>`).join('');
+  const sylCard=syl?`<div class="card kpi-card kpi-good" style="margin-top:16px">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Simple Syllabus link &amp; grading breakdown</h2>${syl.syllabusUrl?`<a class="btn sm soft" href="${esc(syl.syllabusUrl)}" target="_blank" rel="noopener">Open syllabus ↗</a>`:''}</div>
+    <p class="small muted" style="margin:0 0 12px">Detected <b>${esc(syl.code||'Course')}</b>${syl.title?' — '+esc(syl.title):''}${syl.instructor?' · '+esc(syl.instructor):''}. Pick which course to link it to, or create a new one.</p>
+    <div class="fgrid" style="margin-bottom:12px">
+      <label class="f"><span>Link to course</span><select data-c="sylimp" data-f="target">${allOpts(syl.target)}</select></label>
+      <label class="f"><span>Syllabus URL</span><input data-c="sylimp" data-f="syllabusUrl" value="${esc(syl.syllabusUrl||'')}" placeholder="https://habib.simplesyllabus.com/…"></label>
+    </div>
+    ${syl.assessments.length?`<div class="scroll" style="margin-bottom:10px"><table class="t"><thead><tr><th>Grading group</th><th>Type</th><th class="r">Weight</th></tr></thead><tbody>${syl.assessments.map(a=>`<tr><td><b>${esc(a.name)}</b></td><td class="small muted">${esc(a.type)}</td><td class="r mono">${fmt(a.weight,0)}%</td></tr>`).join('')}</tbody></table></div>
+    <label class="row small" style="margin-bottom:12px;cursor:pointer"><input type="checkbox" data-c="sylimp" data-f="applyWeights" ${syl.applyWeights?'checked':''}> Apply these grading weights to the course</label>`:'<p class="small muted">No weight table was detected on this page — linking will still save the Syllabus URL and instructor.</p>'}
+    <div class="row"><button type="button" class="btn primary" data-a="sylimportapply">${syl.target==='__new__'?'Create course with syllabus':'Link syllabus to course'}</button><button type="button" class="btn" data-a="sylimportedit">Edit in Add Course…</button><button type="button" class="btn ghost" data-a="sylimportclear">Dismiss</button></div>
+  </div>`:'';
+  return head('Sync & Import','Sync scores from Canvas, import PSCS Course History, build from Stellic, or link Simple Syllabus.',`<a class="btn" href="#setup">Setup Guide</a><a class="btn soft" href="#tour">Tour</a>`)+
   (DESKTOP_HOST?hostCanvasCard():'')+`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">One-click “Send to Atlas” bookmark</h2><span class="pill">Last Canvas sync: ${lastAt?esc(new Date(lastAt).toLocaleString()):'Never'}</span></div>
-  <p class="small muted" style="margin:0 0 12px">Drag this button onto your browser Bookmarks bar once. Then whenever you are signed into <b>Stellic</b>, <b>PSCS</b>, <b>Canvas</b>, or <b>Simple Syllabus</b>, click it once to export the page straight to Atlas.</p>
-  <div class="row" style="margin-bottom:12px"><a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Stellic, Canvas, PSCS, or Simple Syllabus!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button class="btn" data-a="copybm">Copy bookmark code</button></div>
+  <p class="small muted" style="margin:0 0 12px">Drag this button onto your browser Bookmarks bar once. Then whenever you are signed into <b>Canvas</b>, <b>PSCS</b>, <b>Simple Syllabus</b>, or <b>Stellic</b>, click it once to send the page straight to Atlas.</p>
+  <div class="row" style="margin-bottom:12px"><a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Canvas, PSCS, Simple Syllabus, or Stellic!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button class="btn" data-a="copybm">Copy bookmark code</button></div>
   <details><summary>Manual code</summary><textarea id="bm-code" rows="3" readonly class="mono small">${esc(bmCode())}</textarea></details></div>
-  <div class="card" style="margin-top:16px"><h2>Paste export or page report</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Paste Canvas JSON, Stellic Degree Audit, PSCS Course History/Grades, or a Simple Syllabus report here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  <div class="card" style="margin-top:16px"><h2>Paste export or page report</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Paste Canvas JSON, PSCS Course History/Grades, Simple Syllabus report, or Stellic Degree Audit here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  sylCard+
   (st?`<div class="card" style="margin-top:16px"><h2>Stellic degree audit preview</h2><p class="small muted" style="margin:-4px 0 12px">Detected <b>${st.courses.length}</b> courses across <b>${st.cats.length}</b> requirement categories (${st.totalCredits} cr).</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Title</th><th>Term</th><th class="r">Cr</th><th>Grade</th></tr></thead><tbody>${st.courses.slice(0,40).map(c=>`<tr><td class="mono small"><b>${esc(c.code)}</b></td><td>${esc(c.title)}</td><td class="small muted">${esc(c.termName)}</td><td class="r mono">${c.credits}</td><td>${lpill(c.grade)}</td></tr>`).join('')}</tbody></table></div>${st.courses.length>40?`<p class="small muted">Showing first 40 of ${st.courses.length} courses.</p>`:''}<div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="stellicapply">Build / Merge into Atlas</button></div></div>`:'')+
-  (list.length?`<div class="card" style="margin-top:16px"><h2>Match Canvas courses</h2><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Your course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td>${esc(cv.name)}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into the matched courses</button></div><p class="small muted">Your course matching is remembered for next time. Items that do not fit a group go into “Unsorted from Canvas” with no weight.</p></div>`:'')+
+  (list.length?`<div class="card kpi-card kpi-acc" style="margin-top:16px"><h2>Match or create Canvas courses</h2><p class="small muted" style="margin:-4px 0 12px">Existing courses update automatically; unmatched Canvas courses default to <b>+ Create new course</b> so your term builds itself in one click.</p><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Action / Course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td><b>${esc(cv.name)}</b>${cv.term?`<div class="small muted">${esc(cv.term)}</div>`:''}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into Atlas</button></div><p class="small muted">Your course matching is remembered for next time. Items that do not fit a group go into “Unsorted from Canvas” with no weight.</p></div>`:'')+
   (pscs.length?`<div class="card" style="margin-top:16px"><h2>PSCS grade &amp; history import</h2><p class="small muted" style="margin:-4px 0 12px">Found ${pscs.length} course${pscs.length===1?'':'s'}. Existing courses update grades; new courses auto-create their terms.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':r.status==='create'?'Create':'New'}</span></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply selected</button></div></div>`:'')+
   `<div class="card" style="margin-top:16px"><h2>Calendar feed &amp; companion extension</h2><p class="small muted" style="margin:-4px 0 12px">Export an .ics file for Apple/Google Calendar, or load the unpacked companion browser extension for background Canvas auto-sync.</p>
   <div class="row"><button type="button" class="btn" data-a="calics">Download .ics calendar</button>${typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft" data-a="copycalurl">Copy calendar subscription URL</button>`:''}</div>
@@ -1684,23 +1919,67 @@ const ACT2={
   copybm(){const t=$('#bm-code');if(!t)return;t.select();let ok=false;try{ok=navigator.clipboard&&navigator.clipboard.writeText(t.value)}catch(e){}Promise.resolve(ok).then(()=>toast('Code copied'),()=>toast('Press Ctrl+C to copy the selected code'))},
   cvread(rawOverride){
     const t=typeof rawOverride==='string'?rawOverride:(($('#cv-text')||{}).value||U.cvText||'');
-    U.cvText=t;U.cvErr='';U.pscsDiff=null;U.stellicPrev=null;
+    U.cvText=t;U.cvErr='';U.pscsDiff=null;U.stellicPrev=null;U.sylImport=null;
     try{
       const j=JSON.parse(t.trim());
       if(routeImportedObj(j,t))return;
       throw 0;
     }catch(e){
-      if(/stellic|degree audit|core|elective|credits?/i.test(t)&&!/grade\s*points/i.test(t)){
+      const isExplicitStellic=/\bstellic\b|degree\s+audit|requirement(?:s)?\s+(?:met|unmet|progress)|\b\d+\s*\/\s*\d+\s*credits?\b/i.test(t)&&!/grade\s*points/i.test(t);
+      if(isExplicitStellic){
         const prev=parseStellicAudit({tables:[],text:t});
         if(prev.courses.length>=2){U.cv=[];U.stellicPrev=prev;location.hash='canvas';render();return}
       }
       const diffs=parsePscsGrades({tables:[],text:t});
       if(diffs.length){U.cv=[];U.pscsDiff=diffs;location.hash='canvas';render();return}
-      U.cv=[];U.cvErr='That does not look like a Canvas, Stellic, PSCS, or Simple Syllabus export.';
+      const prev=parseStellicAudit({tables:[],text:t});
+      if(prev.courses.length>=2){U.cv=[];U.stellicPrev=prev;location.hash='canvas';render();return}
+      const syl=parseSyllabusDeterministic({tables:[],text:t,title:''});
+      if(syl.assessments.length){
+        const targetId=matchCourseByCodeOrTitle(syl.code,syl.title);
+        U.cv=[];U.sylImport=Object.assign({},syl,{target:targetId||'__new__',applyWeights:true});
+        location.hash='canvas';render();return;
+      }
+      U.cv=[];U.cvErr='That does not look like a Canvas, PSCS, Simple Syllabus, or Stellic export.';
     }
     render();
   },
-  cvapply(){const r=cvApply();U.cv=[];U.cvText='';persist();toast(`Updated ${r.upd} items, added ${r.add}${r.un?`, ${r.un} unsorted`:''}`);render()},
+  cvapply(){const r=cvApply();U.cv=[];U.cvText='';persist();const msg=(r.crt?`Created ${r.crt} course${r.crt>1?'s':''}, `:'')+`updated ${r.upd} items, added ${r.add}${r.un?`, ${r.un} unsorted`:''}`;if(r.crt)location.hash='overview';toast(msg,true);render()},
+  sylimportapply(){
+    const s=U.sylImport;if(!s)return;
+    pushUndo('Link Simple Syllabus');
+    let c=null;
+    if(s.target&&s.target!=='__new__')c=getC(s.target);
+    if(!c){
+      const curTerm=(S.terms.find(t=>t.status==='current')||S.terms[0]||{}).id||null;
+      c={id:uid(),code:s.code||'NEW 101',title:s.title||s.code||'Untitled Course',credits:s.credits||3,term:curTerm,cat:guessCat(s.code),prereqs:[],coreqs:[],grade:null,assess:[],notes:'',instructor:s.instructor||'',syllabusUrl:s.syllabusUrl||''};
+      S.courses.push(c);
+    }else{
+      if(s.syllabusUrl)c.syllabusUrl=s.syllabusUrl;
+      if(s.instructor&&!c.instructor)c.instructor=s.instructor;
+    }
+    if(s.applyWeights&&s.assessments&&s.assessments.length){
+      const existingByName=n=>(c.assess||[]).find(g=>nn(g.n)===nn(n));
+      if(!(c.assess||[]).length){
+        c.assess=s.assessments.map(a=>({id:uid(),n:a.name,type:a.type||'Other',w:+a.weight||0,cnt:a.count||1,drop:a.drop||0,items:[]}));
+      }else{
+        s.assessments.forEach(a=>{
+          const g=existingByName(a.name);
+          if(g)g.w=+a.weight||g.w;
+          else c.assess.push({id:uid(),n:a.name,type:a.type||'Other',w:+a.weight||0,cnt:a.count||1,drop:a.drop||0,items:[]});
+        });
+      }
+    }
+    U.sylImport=null;U.cvText='';persist();U.course=c.id;U.tab='assess';
+    toast('Syllabus linked to '+c.code,true);render();
+  },
+  sylimportedit(){
+    const s=U.sylImport;if(!s)return;
+    const cur=S.settings.cats;
+    U.syl.out={code:s.code,title:s.title,credits:s.credits||3,instructor:s.instructor||'',syllabusUrl:s.syllabusUrl||'',notes:'',prereqs:[],cat:cur[0]?cur[0].k:'',term:(S.terms.find(t=>t.status==='current')||{}).id||'',targetId:s.target!=='__new__'?s.target:'',assessments:s.assessments||[]};
+    U.sylImport=null;location.hash='add';render();
+  },
+  sylimportclear(){U.sylImport=null;render()},
   stellicapply(){
     const n=applyStellicImport(U.stellicPrev);
     if(!n)return toast('No new courses to add');
@@ -1717,7 +1996,7 @@ const ACT2={
       if(r.create){
         const t=ensureTerm(r.term,r.pscsGrade?'done':'current');
         if(!S.courses.some(c=>NC(c.code)===NC(r.code)&&(!t||c.term===t.id))){
-          S.courses.push({id:uid(),code:r.code,title:r.title||r.code,credits:r.credits||3,term:t?t.id:'',cat:(S.settings.cats[0]&&S.settings.cats[0].k)||'core',prereqs:[],coreqs:[],grade:r.pscsGrade||null,assess:[],notes:'',instructor:''});
+          S.courses.push({id:uid(),code:r.code,title:r.title||r.code,credits:r.credits||3,term:t?t.id:'',cat:guessCat(r.code),prereqs:[],coreqs:[],grade:r.pscsGrade||null,assess:[],notes:'',instructor:''});
           crt++;
         }
       }else{
@@ -1736,7 +2015,7 @@ const ACT2={
     else toast(u);
   },
 };
-const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v},pscsrow(e,d){const r=(U.pscsDiff||[])[+d.i];if(r)r.apply=!!e.target.checked}};
+const CHG2={cvmap(e,d,v){U.cv[+d.i].target=v},cvtext(e,d,v){U.cvText=v},pscsrow(e,d){const r=(U.pscsDiff||[])[+d.i];if(r)r.apply=!!e.target.checked},sylimp(e,d,v){if(!U.sylImport)return;if(d.f==='applyWeights')U.sylImport.applyWeights=!!e.target.checked;else U.sylImport[d.f]=v}};
 
 /* ---------- transcript ---------- */
 function transcript(){
@@ -2053,17 +2332,102 @@ async function onOffers(e){
     else{if(!window.XLSX)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js');
       const wb=window.XLSX.read(await f.arrayBuffer(),{type:'array'});rows=window.XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
     const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);
-    o.picks={};Object.keys(keep).forEach(id=>{if(o.sections.some(s=>s.k===keep[id]))o.picks[id]=keep[id]});
+    o.picks=preserveEnrollPicks(keep,o.sections);
     S.enroll=o;persist();
   }catch(err){U.enrMsg=err&&(err.message==='columns'||err.message==='empty')?'That file does not look like a schedule of classes. It needs the columns Subject, Catalog, Course Title, Class Nbr, Day, Start Time and End Time.':'The file could not be read ('+(err&&err.message||'unknown')+')';}
   render();
 }
+const COMP_NAMES={L:'Lecture',S:'Seminar',R:'Recitation',T:'Lab / Tutorial',D:'Studio',C:'Capstone'};
+const COMP_ORD=['L','D','S','R','T','C'];
+const secPrefix=s=>{const m=String((s&&s.sec)||'').trim().match(/^([A-Za-z]+)/);return m?m[1].toUpperCase():'SEC'};
+const compLabel=p=>COMP_NAMES[p]||('Component '+p);
+function secComponents(sections){
+  const map={};
+  (sections||[]).forEach(s=>{const p=secPrefix(s);(map[p]=map[p]||[]).push(s)});
+  return Object.keys(map).sort((a,b)=>{
+    const ia=COMP_ORD.indexOf(a),ib=COMP_ORD.indexOf(b);
+    return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b);
+  }).map(p=>({comp:p,label:compLabel(p),sections:map[p]}));
+}
+function getCoursePickMap(courseId){
+  const raw=(S.enroll&&S.enroll.picks||{})[courseId];
+  if(!raw)return{};
+  if(typeof raw==='string'){
+    const sec=((S.enroll&&S.enroll.sections)||[]).find(s=>s.k===raw);
+    return sec?{[secPrefix(sec)]:raw}:{SEC:raw};
+  }
+  return typeof raw==='object'?Object.assign({},raw):{};
+}
+function setCoursePick(courseId,comp,secKey){
+  if(!S.enroll)return;
+  S.enroll.picks=S.enroll.picks||{};
+  const c=getC(courseId);
+  const comps=c?secComponents(offered(c)):[];
+  if(comps.length<=1){
+    if(secKey)S.enroll.picks[courseId]=secKey;
+    else delete S.enroll.picks[courseId];
+    return;
+  }
+  const map=getCoursePickMap(courseId);
+  if(secKey){
+    map[comp]=secKey;
+    /* Auto-select any required sibling component that has only 1 option (e.g. Hikma's single common Lecture L1) */
+    comps.forEach(g=>{if(g.comp!==comp&&!map[g.comp]&&g.sections.length===1)map[g.comp]=g.sections[0].k});
+  }else{
+    delete map[comp];
+  }
+  if(Object.keys(map).length)S.enroll.picks[courseId]=map;
+  else delete S.enroll.picks[courseId];
+}
+function preserveEnrollPicks(keep,sections){
+  const out={},has=k=>sections.some(s=>s.k===k);
+  Object.keys(keep||{}).forEach(id=>{
+    const v=keep[id];
+    if(typeof v==='string'){if(has(v))out[id]=v}
+    else if(v&&typeof v==='object'){
+      const m={};Object.keys(v).forEach(p=>{if(has(v[p]))m[p]=v[p]});
+      if(Object.keys(m).length)out[id]=m;
+    }
+  });
+  return out;
+}
 const offered=c=>{const mine=aliases(c.code);const t=nn(c.title);return((S.enroll&&S.enroll.sections)||[]).filter(s=>aliases(s.code).some(a=>mine.indexOf(a)>=0)||(t&&nn(s.title)===t))};
-const secLabel=s=>`${s.sec} · ${s.ins||'TBA'} · ${s.meets.length?groupMeets(s.meets):'time TBA'}${s.tot?' · '+s.tot+' enrolled':''}`;
+function cleanInsList(raw){
+  const seen=new Set(),out=[];
+  String(raw||'').split(';').forEach(x=>{
+    const s=x.replace(/,\s*/g,', ').replace(/\s+/g,' ').trim();
+    if(!s)return;
+    const k=s.toLowerCase();if(seen.has(k))return;seen.add(k);out.push(s);
+  });
+  return out;
+}
+function fmtIns(raw,maxShow){
+  const list=cleanInsList(raw);
+  if(!list.length)return'TBA';
+  const lim=maxShow||2;
+  if(list.length<=lim)return list.join('; ');
+  return list[0]+' +'+(list.length-1)+' others';
+}
+function fmtEnrollTerm(raw){
+  const s=String(raw||'').trim();if(!s)return'Schedule';
+  const m=s.match(/^(\d{2})([123])\d$/);
+  if(m){const yr=2000+parseInt(m[1],10),sea=m[2]==='1'?'Spring':m[2]==='2'?'Summer':'Fall';return`${sea} ${yr}`}
+  return s;
+}
+const secLabel=s=>`${s.sec} · ${fmtIns(s.ins,1)} · ${s.meets.length?groupMeets(s.meets):'time TBA'}${s.tot?' · '+s.tot+' enrolled':''}`;
 function groupMeets(ms){const g={};ms.forEach(m=>{const k=m.s+'-'+m.e;(g[k]=g[k]||{s:m.s,e:m.e,d:[]}).d.push(m.d)});return Object.values(g).map(x=>x.d.sort((a,b)=>DAYN.indexOf(a)-DAYN.indexOf(b)).join('')+' '+hm(x.s)+'–'+hm(x.e)).join(', ')}
 function enrollTerm(){const ts=S.terms.filter(t=>t.status!=='done'),ci=S.terms.findIndex(t=>t.status==='current');
   return S.terms.find(t=>t.id===U.enrTerm)||S.terms.find((t,i)=>t.status==='planned'&&i>ci)||ts[0]||S.terms[0]}
-function picked(){const E=S.enroll||{},out=[];Object.keys(E.picks||{}).forEach(id=>{const c=getC(id),s=(E.sections||[]).find(x=>x.k===E.picks[id]);if(c&&s)out.push({c,s})});return out}
+function picked(){
+  const E=S.enroll||{},out=[],secs=E.sections||[];
+  Object.keys(E.picks||{}).forEach(id=>{
+    const c=getC(id);if(!c)return;
+    const raw=E.picks[id];
+    const keys=typeof raw==='string'?[raw]:(raw&&typeof raw==='object'?Object.values(raw):[]);
+    keys.forEach(k=>{const s=secs.find(x=>x.k===k);if(s)out.push({c,s,comp:secPrefix(s)})});
+  });
+  return out;
+}
 function clashes(list){
   const out=[];
   for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++)list[i].s.meets.forEach(a=>list[j].s.meets.forEach(b=>{if(a.d===b.d&&a.s<b.e&&b.s<a.e)out.push({a:list[i],b:list[j],d:a.d,at:Math.max(a.s,b.s)})}));
@@ -2072,9 +2436,9 @@ function clashes(list){
 function weekGrid(list,bad){
   const ms=[];list.forEach(x=>x.s.meets.forEach(m=>ms.push(m)));if(!ms.length)return'';
   const a=Math.floor(Math.min.apply(null,ms.map(m=>m.s))/60),b=Math.ceil(Math.max.apply(null,ms.map(m=>m.e))/60),H=46,days=DAYN.filter(d=>d!=='Su'&&(d!=='Sa'||ms.some(m=>m.d==='Sa')));
-  const badIds={};bad.forEach(x=>{badIds[x.a.c.id]=1;badIds[x.b.c.id]=1});
+  const badIds={};bad.forEach(x=>{badIds[x.a.c.id+':'+x.a.s.k]=1;badIds[x.b.c.id+':'+x.b.s.k]=1});
   const hours=[];for(let h=a;h<b;h++)hours.push(h);
-  return`<div class="wk" style="grid-template-columns:44px repeat(${days.length},minmax(0,1fr))"><div></div>${days.map(d=>`<div class="wkh">${DAYL[d]}</div>`).join('')}<div style="position:relative;height:${(b-a)*H}px">${hours.map(h=>`<span class="wkt" style="top:${(h-a)*H}px">${hm(h*60)}</span>`).join('')}</div>${days.map(d=>`<div class="wkc" style="height:${(b-a)*H}px">${hours.map(h=>`<i style="top:${(h-a)*H}px"></i>`).join('')}${list.map(x=>x.s.meets.filter(m=>m.d===d).map(m=>`<div class="wkb${badIds[x.c.id]?' bad':''}" style="top:${(m.s/60-a)*H}px;height:${Math.max(18,(m.e-m.s)/60*H-2)}px"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)}<br><span>${hm(m.s)} ${esc(m.r)}</span></div>`).join('')).join('')}</div>`).join('')}</div>`;
+  return`<div class="wk" style="grid-template-columns:44px repeat(${days.length},minmax(0,1fr))"><div></div>${days.map(d=>`<div class="wkh">${DAYL[d]}</div>`).join('')}<div style="position:relative;height:${(b-a)*H}px">${hours.map(h=>`<span class="wkt" style="top:${(h-a)*H}px">${hm(h*60)}</span>`).join('')}</div>${days.map(d=>`<div class="wkc" style="height:${(b-a)*H}px">${hours.map(h=>`<i style="top:${(h-a)*H}px"></i>`).join('')}${list.map(x=>x.s.meets.filter(m=>m.d===d).map(m=>`<div class="wkb${badIds[x.c.id+':'+x.s.k]?' bad':''}" style="top:${(m.s/60-a)*H}px;height:${Math.max(18,(m.e-m.s)/60*H-2)}px"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)}<br><span>${hm(m.s)} ${esc(m.r)}</span></div>`).join('')).join('')}</div>`).join('')}</div>`;
 }
 
 /* ---------- seat reservations (hardcoded from Spring 2027 PDF) ---------- */
@@ -2175,19 +2539,27 @@ function scoreSchedule(combo,prefs){
   return score;
 }
 
+function enrollSlots(cs){
+  const slots=[];
+  cs.forEach(c=>{
+    const comps=secComponents(offered(c));
+    comps.forEach(g=>{
+      const opts=g.sections.filter(s=>s.meets.length);
+      if(opts.length)slots.push({c,comp:g.comp,label:g.label,multi:comps.length>1,options:opts});
+    });
+  });
+  return slots;
+}
 function findSchedules(){
   const E=S.enroll;if(!E)return[];
   const t=enrollTerm();if(!t)return[];
   const cs=S.courses.filter(c=>c.term===t.id);
-  const courseList=cs.map(c=>{
-    const opts=offered(c);
-    return{c,options:opts.filter(s=>s.meets.length)};
-  }).filter(x=>x.options.length);
+  const courseList=enrollSlots(cs);
   if(!courseList.length)return[];
   const combos=autoSchedule(courseList);
   const prefs=U.enrPrefs||{};
   const scored=combos.map(combo=>{
-    const items=combo.map((sec,i)=>({c:courseList[i].c,s:sec}));
+    const items=combo.map((sec,i)=>({c:courseList[i].c,comp:courseList[i].comp,s:sec}));
     const sc=scoreSchedule(combo,prefs);
     return{items,score:sc};
   });
@@ -2200,7 +2572,7 @@ function applySchedule(idx){
   if(!scheds[idx])return;
   const E=S.enroll;
   E.picks={};
-  scheds[idx].items.forEach(x=>{E.picks[x.c.id]=x.s.k});
+  scheds[idx].items.forEach(x=>{setCoursePick(x.c.id,x.comp||secPrefix(x.s),x.s.k)});
   persist();render();
 }
 
@@ -2210,7 +2582,8 @@ function cartSection(){
   const nums=pk.map(x=>x.s.k);
   const cartHTML=pk.map(x=>{
     const rb=resBadge(x.s);
-    return`<div class="kv"><span><b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')}</span><span class="mono">${esc(x.s.k)} ${rb}</span></div>`;
+    const fullIns=cleanInsList(x.s.ins).join('; ');
+    return`<div class="kv"><span title="${esc(fullIns)}"><b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))}</span><span class="row" style="gap:8px;flex:none;justify-content:flex-end">${rb}<span class="mono" style="min-width:44px;text-align:right;font-weight:600">${esc(x.s.k)}</span></span></div>`;
   }).join('');
   return`<div class="sec"><h2>Shopping cart</h2><div class="card" style="padding:4px 16px">${cartHTML}
   <div class="row between" style="padding:10px 0;border-top:1px solid var(--line);margin-top:6px"><div><div class="lbl">Class numbers for PSCS</div><div class="mono" style="margin-top:4px;user-select:all">${nums.join(', ')}</div></div><button class="btn" data-a="copycart" style="flex:none">Copy</button></div></div></div>`;
@@ -2221,13 +2594,14 @@ function backupSection(){
   const pk=picked();if(!pk.length)return'';
   const E=S.enroll;if(!E)return'';
   const rows=pk.map(x=>{
-    const all=offered(x.c).filter(s=>s.k!==x.s.k&&s.meets.length);
+    const comp=secPrefix(x.s);
+    const all=offered(x.c).filter(s=>s.k!==x.s.k&&secPrefix(s)===comp&&s.meets.length);
     if(!all.length)return'';
-    const others=pk.filter(p=>p.c.id!==x.c.id);
+    const others=pk.filter(p=>!(p.c.id===x.c.id&&p.s.k===x.s.k));
     const alts=all.map(s=>{
       const ok=!others.some(o=>o.s.meets.some(a=>s.meets.some(b=>a.d===b.d&&a.s<b.e&&b.s<a.e)));
       const rb=resBadge(s);
-      return`<div class="small" style="padding:4px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(s.ins||'TBA')} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
+      return`<div class="small" style="padding:4px 0"><span class="${ok?'':'muted'}" style="${ok?'':'text-decoration:line-through'}">${esc(s.sec)} · ${esc(fmtIns(s.ins,1))} · ${groupMeets(s.meets)} · #${esc(s.k)} ${rb}</span> ${ok?'<span class="pill good">fits</span>':'<span class="pill warn">clashes</span>'}</div>`;
     }).join('');
     return`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>${esc(x.c.code)}</b> <span class="muted">if ${esc(x.s.sec)} is full:</span>${alts}</div>`;
   }).filter(Boolean).join('');
@@ -2240,22 +2614,20 @@ function autoScheduleSection(){
   const E=S.enroll;if(!E)return'';
   const t=enrollTerm();if(!t)return'';
   const cs=S.courses.filter(c=>c.term===t.id);
-  const courseList=cs.map(c=>{
-    const opts=offered(c).filter(s=>s.meets.length);
-    return{c,options:opts};
-  }).filter(x=>x.options.length);
-  if(courseList.length<2)return''; /* need at least 2 courses to auto-schedule */
+  const courseList=enrollSlots(cs);
+  if(courseList.length<2)return''; /* need at least 2 slots to auto-schedule */
+  const uniqueCourses=new Set(courseList.map(x=>x.c.id)).size;
 
   const prefs=U.enrPrefs||{};
   const timeSeg=[['','Any time'],['morning','Morning'],['afternoon','Afternoon'],['evening','Evening']].map(([k,l])=>`<button type="button" class="${(prefs.time||'')===k?'on':''}" data-a="enrtime" data-v="${k}">${l}</button>`).join('');
   const prefsUI=`<div class="card" style="margin-bottom:14px"><h3 style="margin-bottom:12px">Preferences</h3>
+  <div class="f" style="margin-bottom:12px"><span class="lbl" style="display:block;margin-bottom:5px">Preferred times</span><div class="seg">${timeSeg}</div></div>
   <div class="fgrid" style="align-items:end">
-    <div class="f"><span class="lbl" style="display:block;margin-bottom:5px">Preferred times</span><div class="seg">${timeSeg}</div></div>
     <label class="f"><span>Preferred instructor</span><input data-c="enrpref" data-f="prefInstructor" value="${esc(prefs.prefInstructor||'')}" placeholder="Partial name"></label>
     <label class="f"><span>Avoid instructor</span><input data-c="enrpref" data-f="avoidInstructor" value="${esc(prefs.avoidInstructor||'')}" placeholder="Partial name"></label>
   </div></div>`;
 
-  if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${courseList.length} courses with sections. Atlas will generate all valid combinations and rank them by your preferences and seat reservations.</p></div>`;
+  if(!U.showAutoSched)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<button class="btn primary" data-a="autosched">Find clash-free schedules</button><p class="small muted">${uniqueCourses} course${uniqueCourses===1?'':'s'} (${courseList.length} section component${courseList.length===1?'':'s'}) with offered times. Atlas generates clash-free combinations ranked by your preferences and seat reservations.</p></div>`;
 
   const scheds=findSchedules();
   if(!scheds.length)return`<div class="sec"><h2>Auto-schedule</h2>${prefsUI}<div class="card"><div class="empty">No clash-free combination found. Try reducing courses or adding sections with different times.</div></div><button class="btn" data-a="autosched" style="margin-top:12px">Try again</button></div>`;
@@ -2263,7 +2635,7 @@ function autoScheduleSection(){
   const rows=scheds.map((sch,idx)=>{
     const bad=clashes(sch.items);
     return`<div class="card kpi-card kpi-acc" style="margin-bottom:14px"><div class="row between" style="margin-bottom:10px"><h3 style="margin:0">Option ${idx+1} <span class="pill acc">score ${sch.score}</span></h3><button class="btn primary sm" data-a="applysched" data-v="${idx}">Use this</button></div>
-    <div class="small" style="margin-bottom:10px;line-height:1.6">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(x.s.ins||'TBA')} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
+    <div class="small" style="margin-bottom:10px;line-height:1.6">${sch.items.map(x=>{const rb=resBadge(x.s);return`<b>${esc(x.c.code)}</b> ${esc(x.s.sec)} · ${esc(fmtIns(x.s.ins,1))} · #${esc(x.s.k)} ${rb}`}).join('<br>')}</div>
     ${weekGrid(sch.items,bad)}</div>`;
   }).join('');
 
@@ -2272,30 +2644,43 @@ function autoScheduleSection(){
 
 /* ---------- main enrollment view ---------- */
 function vEnroll(){
-  const E=S.enroll,t=enrollTerm();
+  const E=S.enroll,t=enrollTerm(),eTermLabel=E?fmtEnrollTerm(E.term):'';
   const srvBtn=typeof location!=='undefined'&&/^https?:$/i.test(location.protocol)?`<div class="row" style="margin-top:12px"><button class="btn soft sm" data-a="loadsrvsched">Load Spring 2027 schedule from server</button></div>`:'';
   const up=`<div class="card"><h3 style="margin-bottom:6px">${E?'Update the offerings':'Import the course offerings'}</h3><p class="small muted" style="margin:0 0 14px">When the registrar publishes the schedule of classes for a term, drop the spreadsheet here (.xlsx or .csv). Atlas finds your planned courses in it, lets you pick sections, and warns you about clashes.</p>
-  <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">${E?`Loaded: ${esc(E.term||'Schedule')} (${E.sections.length} sections)`:'Choose schedule spreadsheet'}</span><span class="dz-sub">${E?'Click to replace with a newer .xlsx or .csv file':'Supports .xlsx, .xls, and .csv exports from PSCS'}</span></label>${srvBtn}
+  <label class="dropzone"><input type="file" accept=".xlsx,.xls,.csv" data-c="enrf" aria-label="Schedule of classes" hidden><span class="dz-title">${E?`Loaded: ${esc(eTermLabel)} (${E.sections.length} sections)`:'Choose schedule spreadsheet'}</span><span class="dz-sub">${E?'Click to replace with a newer .xlsx or .csv file':'Supports .xlsx, .xls, and .csv exports from PSCS'}</span></label>${srvBtn}
   ${U.enrMsg?`<div class="small" style="color:var(--bad);margin-top:10px">${esc(U.enrMsg)}</div>`:''}</div>`;
   if(!E)return up;
   const cs=t?S.courses.filter(c=>c.term===t.id):[];
   const pk=picked(),bad=clashes(pk);
   const rowsH=cs.map(c=>{
-    const ss=offered(c),cur=(E.picks||{})[c.id]||'';
-    const selSec=ss.find(s=>s.k===cur);
-    const rb=selSec?resBadge(selSec):'';
-    const ctl=!ss.length?`<span class="pill warn">not offered in this file</span>`:`<select class="sel-pill ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${ss.length})</option>${ss.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
-    const chips=ss.length?`<div class="sec-chips">${ss.map(s=>{const on=cur===s.k;return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-v="${esc(s.k)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(s.ins||'TBA')} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`:'';
-    const mine=pk.find(x=>x.c.id===c.id);
-    const resH=selSec?resDetail(selSec):'';
-    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${ctl}</div></div>${chips}${rb&&!ss.length?`<div style="margin-top:4px">${rb}</div>`:''}${resH}${mine&&mine.s.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(mine.s.meets))} · ${esc(mine.s.meets[0].r)}</div>`:''}</div>`}).join('');
+    const ss=offered(c),comps=secComponents(ss),pmap=getCoursePickMap(c.id);
+    if(!ss.length){
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div><span class="pill warn">not offered in this file</span></div></div></div>`;
+    }
+    if(comps.length===1){
+      const g=comps[0],cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
+      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="Section for ${esc(c.code)}"><option value="">Choose a section (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
+      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
+      const resH=selSec?resDetail(selSec):'';
+      return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div style="min-width:0;max-width:100%">${ctl}</div></div>${chips}${resH}${selSec&&selSec.meets.length?`<div class="small muted" style="margin-top:6px">${esc(groupMeets(selSec.meets))} · ${esc(selSec.meets[0].r)}</div>`:''}</div>`;
+    }
+    const pickedCnt=comps.filter(g=>!!pmap[g.comp]).length;
+    const statusPill=pickedCnt===comps.length?`<span class="pill good">${pickedCnt}/${comps.length} picked</span>`:`<span class="pill warn">Pick ${comps.map(g=>g.label).join(' + ')} (${pickedCnt}/${comps.length})</span>`;
+    const compBlocks=comps.map(g=>{
+      const cur=pmap[g.comp]||'',selSec=g.sections.find(s=>s.k===cur);
+      const ctl=`<select class="sel-pill enr-sel ${cur?'acc':''}" data-c="enrpick" data-id="${c.id}" data-comp="${esc(g.comp)}" aria-label="${esc(g.label)} for ${esc(c.code)}"><option value="">Choose ${esc(g.label)} (${g.sections.length})</option>${g.sections.map(s=>`<option value="${s.k}" ${cur===s.k?'selected':''}>${esc(secLabel(s))}</option>`).join('')}</select>`;
+      const chips=`<div class="sec-chips">${g.sections.map(s=>{const on=cur===s.k;const fullIns=cleanInsList(s.ins).join('; ');return`<button type="button" class="sec-chip ${on?'on':''}" data-a="picksec" data-id="${c.id}" data-comp="${esc(g.comp)}" data-v="${esc(s.k)}" title="${esc(fullIns)}"><span class="sc-top">${esc(s.sec)} <span class="muted" style="font-weight:400">#${esc(s.k)}</span> ${resBadge(s)}</span><span class="sc-sub">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'time TBA')}</span></button>`}).join('')}</div>`;
+      return`<div class="comp-box"><div class="comp-head"><span class="comp-title">${esc(g.label)}${g.sections.length===1?' · required common section':''}</span>${ctl}</div>${chips}${selSec?resDetail(selSec):''}</div>`;
+    }).join('');
+    return`<div style="padding:12px 0;border-bottom:1px solid var(--line)"><div class="row between" style="gap:10px;flex-wrap:wrap"><div style="min-width:0;flex:1 1 180px"><span class="code">${esc(c.code)} · ${c.credits} cr</span><h3>${esc(c.title)}</h3></div><div>${statusPill}</div></div>${compBlocks}</div>`;
+  }).join('');
   const clashH=bad.length?`<div class="card" style="border-color:var(--bad);background:var(--bad-soft);margin-bottom:16px"><b style="color:var(--bad)">Schedule Clashes</b><div class="small" style="margin-top:6px">${bad.map(x=>`${esc(x.a.c.code)} ${esc(x.a.s.sec)} and ${esc(x.b.c.code)} ${esc(x.b.s.sec)} overlap on ${DAYL[x.d]} around ${hm(x.at)}`).join('<br>')}</div></div>`:'';
   const q=(U.enrQ||'').trim().toLowerCase(),found=q.length>1?E.sections.filter(s=>(s.code+' '+s.title+' '+s.ins+' '+s.prog).toLowerCase().includes(q)).slice(0,30):[];
   const open=[];S.minors.forEach(mn=>minorStat(mn).open.forEach(r=>{const opts=(r.sl.opts||[]);const hits=opts.map(o=>({o,n:E.sections.filter(s=>aliases(o).some(a=>aliases(s.code).indexOf(a)>=0)).length}));open.push({mn,r,hits})}));
   const minorH=open.filter(x=>x.hits.length).length?`<div class="sec"><h2>Minor courses on offer</h2><div class="card" style="padding:4px 16px">${open.filter(x=>x.hits.length).map(x=>`<div class="kv"><span>${esc(x.mn.name)} · ${esc(slotName(x.r.sl))}</span><span class="mono small">${x.hits.map(h=>esc(primary(h.o))+(h.n?' ✓':' ✗')).join('  ')}</span></div>`).join('')}<div class="small muted" style="padding:8px 0">✓ means a section is in the file you loaded.</div></div></div>`:'';
   return up+`<div class="sec"><div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Choose sections for ${esc(t?t.name:'')}</h2><select class="sel-pill" data-c="enrterm" aria-label="Term">${S.terms.filter(x=>x.status!=='done').map(x=>`<option value="${x.id}" ${t&&t.id===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>${clashH}
-  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:10px 0">The file is for ${esc(E.term||'one term')}. Pick the term your courses sit in, then choose sections.</div></div><div class="card" style="position:sticky;top:20px">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
-  <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(s.ins||'TBA')} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
+  <div class="grid g2" style="align-items:start"><div class="card" style="padding:4px 16px;min-width:0">${rowsH||'<div class="empty" style="margin:12px 0">No courses are planned in this term.</div>'}<div class="small muted" style="padding:10px 0">Offerings loaded for <b>${esc(eTermLabel)}</b>. Pick the term your courses sit in, then choose sections.</div></div><div class="card" style="position:sticky;top:20px;min-width:0">${pk.length?weekGrid(pk,bad):'<div class="empty">Choose sections to see your week.</div>'}</div></div></div>${cartSection()}${autoScheduleSection()}${backupSection()}${minorH}
+  <div class="sec"><h2>Search the offerings</h2><input id="enr-q" data-c="enrq" placeholder="Course code, title, instructor or program" value="${esc(U.enrQ||'')}" style="width:100%;max-width:420px"><div class="card" style="padding:4px 16px;margin-top:12px">${found.length?found.map(s=>{const rb=resBadge(s);return`<div class="kv"><span><b>${esc(s.code)}</b> ${esc(s.title)} <span class="muted small">${esc(s.sec)} · ${esc(s.prog)}</span></span><span class="mono small">${esc(fmtIns(s.ins,1))} · ${esc(s.meets.length?groupMeets(s.meets):'TBA')} ${rb}</span></div>`}).join(''):`<div class="small muted" style="padding:10px 0">${q.length>1?'Nothing matched.':'Type at least two letters.'}</div>`}</div></div>`;
 }
 
 function resDetail(section){
@@ -2309,11 +2694,11 @@ Object.assign(ACT2,{
   autosched(){U.showAutoSched=true;render()},
   applysched(e,d){applySchedule(+d.v);U.showAutoSched=false},
   enrtime(e,d){U.enrPrefs=U.enrPrefs||{};U.enrPrefs.time=d.v;render()},
-  picksec(e,d){S.enroll.picks=S.enroll.picks||{};if(S.enroll.picks[d.id]===d.v)delete S.enroll.picks[d.id];else S.enroll.picks[d.id]=d.v;persist();render()},
-  async loadsrvsched(){U.enrMsg='';try{const b=(typeof WEB_BASE==='string'?WEB_BASE:'');const r=await fetch(b+'/api/offerings/default');if(!r.ok)throw new Error('HTTP '+r.status);const rows=parseCsvRows(await r.text());const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);o.picks={};Object.keys(keep).forEach(id=>{if(o.sections.some(s=>s.k===keep[id]))o.picks[id]=keep[id]});S.enroll=o;persist();toast('Loaded '+(o.term||'schedule')+' ('+o.sections.length+' sections)')}catch(err){U.enrMsg='Could not load server schedule ('+(err&&err.message||'error')+')'}render()},
+  picksec(e,d){const comp=d.comp||'SEC',cur=getCoursePickMap(d.id)[comp]||'';setCoursePick(d.id,comp,cur===d.v?'':d.v);persist();render()},
+  async loadsrvsched(){U.enrMsg='';try{const b=(typeof WEB_BASE==='string'?WEB_BASE:'');const r=await fetch(b+'/api/offerings/default');if(!r.ok)throw new Error('HTTP '+r.status);const rows=parseCsvRows(await r.text());const keep=(S.enroll&&S.enroll.picks)||{};const o=parseOffers(rows);o.picks=preserveEnrollPicks(keep,o.sections);S.enroll=o;persist();toast('Loaded '+fmtEnrollTerm(o.term)+' ('+o.sections.length+' sections)')}catch(err){U.enrMsg='Could not load server schedule ('+(err&&err.message||'error')+')'}render()},
 });
 Object.assign(CHG2,{
-  enrpick(e,d,v){S.enroll.picks=S.enroll.picks||{};if(v)S.enroll.picks[d.id]=v;else delete S.enroll.picks[d.id]},
+  enrpick(e,d,v){setCoursePick(d.id,d.comp||'SEC',v||'')},
   enrterm(e,d,v){U.enrTerm=v},
   enrq(e,d,v){U.enrQ=v},
   enrpref(e,d,v){U.enrPrefs=U.enrPrefs||{};U.enrPrefs[d.f]=v},
@@ -2560,7 +2945,7 @@ const ICONS={
   portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
 };
 const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
-const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,setup:vSetup,settings:vSettings};
+const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,setup:vSetup,tour:vTour,settings:vSettings};
 const LSTHEME='course-atlas.theme';
 const LSRAIL='course-atlas.rail';
 function applyTheme(t){U.theme=t||'';if(U.theme)document.documentElement.dataset.theme=U.theme;else delete document.documentElement.dataset.theme}
@@ -2583,7 +2968,8 @@ function cmdItems(q){
     {id:'r:gpa',lbl:'GPA lab',sub:'Target calculator & what-if',act:()=>location.hash='gpa'},
     {id:'r:add',lbl:'Add course',sub:'From syllabus or manually',act:()=>location.hash='add'},
     mods.canvas!==false?{id:'r:canvas',lbl:'Sync from Canvas',sub:'Import scores & due dates',act:()=>location.hash='canvas'}:null,
-    {id:'r:setup',lbl:'Setup guide & tour',sub:'Dossiers, Stellic/PSCS auto-build & custom degree',act:()=>location.hash='setup'},
+    {id:'r:setup',lbl:'Setup guide',sub:'Canvas fast-start, dossiers & portal import',act:()=>location.hash='setup'},
+    {id:'r:tour',lbl:'Interactive tour',sub:'1-minute walkthrough of Atlas',act:()=>location.hash='tour'},
     {id:'r:settings',lbl:'Settings',sub:'Degree, portals, appearance & sync',act:()=>location.hash='settings'},
   ].filter(Boolean);
   if(mods.portals!==false)(S.settings.portals||[]).filter(p=>p.on).forEach(p=>all.push({id:'p:'+p.id,lbl:'Open '+p.name,sub:'Portal · '+p.url,act:()=>ACT.openportal(null,{id:p.id})}));
@@ -2620,6 +3006,7 @@ function moreSheet(){
       <a class="more-tile" href="#add" data-a="closemore">${ICONS.plus}<span>Add course</span></a>
       ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync Canvas</span></a>`:''}
       <a class="more-tile" href="#setup" data-a="closemore">${ICONS.info}<span>Setup guide</span></a>
+      <a class="more-tile" href="#tour" data-a="closemore">${ICONS.portal}<span>Tour</span></a>
       <button type="button" class="more-tile" data-a="opencmd">${ICONS.search}<span>Search (⌘K)</span></button>
       <a class="more-tile" href="#settings" data-a="closemore">${ICONS.settings}<span>Settings</span></a>
       ${UNDO.length?`<button type="button" class="more-tile" data-a="undo">${ICONS.undo}<span>Undo</span></button>`:''}
@@ -2638,20 +3025,36 @@ function render(){
   const dotCls=/offline|could not|conflict/i.test(U.sync||'')?'warn':'';
   const themeSeg=`<div class="theme-seg" role="group" aria-label="Theme">${[['','Auto'],['light','Light'],['dark','Dark']].map(([v,l])=>`<button type="button" class="${th===v?'on':''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div>`;
   const deskRoutes=ROUTES;
-  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='settings'?'nav-settings':''}" title="${r[1]}" ${U.route===r[0]||(r[0]==='courses'&&(U.route==='add'||U.route==='canvas'))?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')+
-    `<button type="button" class="nav-more ${U.moreOpen||U.route==='settings'||U.route==='add'||U.route==='canvas'?'on':''}" data-a="togglemore" aria-label="More">${ICONS.more}<span>More</span></button>`;
+  const navLinks=deskRoutes.map(r=>`<a href="${r[2]}" class="${r[0]==='settings'?'nav-settings':''}" title="${r[1]}" ${U.route===r[0]?'aria-current="page"':''}>${ICONS[r[0]]||''}<span>${r[1]}</span></a>`).join('')+
+    `<button type="button" class="nav-more ${U.moreOpen||U.route==='settings'||U.route==='add'||U.route==='canvas'||U.route==='setup'||U.route==='tour'?'on':''}" data-a="togglemore" aria-label="More">${ICONS.more}<span>More</span></button>`;
   const portals=mods.portals!==false?(S.settings.portals||[]).filter(p=>p.on):[];
   const dockHtml=portals.length?`<div class="side-dock"><div class="side-lbl">Portals</div>${portals.map(p=>`<div class="dock-row"><button type="button" class="dock-btn" data-a="openportal" data-id="${esc(p.id)}" title="Open ${esc(p.name)}"><span class="p-tile" style="--pc:${esc(p.color||'#2945B8')}">${esc((p.short||p.name||'P').slice(0,2))}</span><span class="dock-name">${esc(p.name)}</span></button>${p.kind==='canvas'&&mods.canvas!==false?`<button type="button" class="dock-act" data-a="quickcanvas" title="Sync Canvas" aria-label="Sync Canvas">${ICONS.sync}</button>`:''}</div>`).join('')}</div>`:'';
+  const mobAddBtn=(U.route==='courses'||U.route==='add')?'':`<a class="btn sm" href="#add">+ Add</a>`;
   const side=`<aside class="side"><div class="side-card">
-    <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button><a class="btn sm" href="#add">+ Add</a><button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
+    <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button>${mobAddBtn}<button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
     <nav class="nav" aria-label="Sections">${navLinks}</nav>
     ${dockHtml}
-    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}<a class="side-btn" href="#setup" title="Setup guide" ${U.route==='setup'?'aria-current="page"':''}>${ICONS.info}<span>Setup guide</span></a></div>
+    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}<a class="side-btn" href="#setup" title="Setup guide" ${U.route==='setup'?'aria-current="page"':''}>${ICONS.info}<span>Setup guide</span></a><a class="side-btn" href="#tour" title="Interactive tour" ${U.route==='tour'?'aria-current="page"':''}>${ICONS.portal}<span>Tour</span></a></div>
     <div class="side-foot">${themeSeg}<div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
   </div></aside>`;
   const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
-  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
+  app.innerHTML=`<div class="shell${U.railCollapsed?' rail-c':''}">${side}<main class="main">${conflictHtml}${view}</main></div>${U.course?drawer():''}${U.ctx?ctxMenu():''}${U.cmdOpen?cmdModal():''}${U.moreOpen?moreSheet():''}${U.toast?`<div class="toast" role="status"><span>${esc(U.toast)}</span>${U.toastUndo&&UNDO.length?`<button type="button" class="toast-btn" data-a="undo">Undo</button>`:''}</div>`:''}`;
   window.scrollTo(0,sy);const nd=$('.drawer');if(nd)nd.scrollTop=dy;
+  if(U.ctx){
+    const cm=$('.ctx-menu');
+    if(cm&&cm.getBoundingClientRect){
+      const rect=cm.getBoundingClientRect(),vw=window.innerWidth||1200,vh=window.innerHeight||800;
+      const safeBottom=vh-(vw<=860?80:12);
+      let top=rect.top;
+      if(rect.bottom>safeBottom){
+        const flipped=(U.ctx.ay||U.ctx.y)-rect.height-6;
+        top=flipped>=8?flipped:Math.max(8,safeBottom-rect.height);
+      }
+      const left=Math.max(8,Math.min(rect.left,vw-rect.width-8));
+      cm.style.top=Math.round(top)+'px';
+      cm.style.left=Math.round(left)+'px';
+    }
+  }
 }
 function toast(t,withUndo){U.toast=t;U.toastUndo=!!withUndo;render();clearTimeout(toast.t);toast.t=setTimeout(()=>{U.toast='';U.toastUndo=false;render()},withUndo?4000:2200)}
 function routeFromHash(){const h=(location.hash||'').replace('#','');
@@ -2669,7 +3072,7 @@ function routeFromHash(){const h=(location.hash||'').replace('#','');
     }catch(e){toast('Could not read incoming import link')}
   }
   if(h==='grid'||h==='roadmap'||h==='req'||h==='enroll'){U.route='plan';U.planTab=h}else U.route=VIEWS[h]?h:'overview';
-  U.course=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
+  U.course=null;U.ctx=null;U.showHelp=false;U.moreOpen=false;render();window.scrollTo(0,0)}
 
 /* ---------- file export & Gemini syllabus reader ---------- */
 const LSAI='course-atlas.ai';let AI={key:'',model:'gemini-2.5-flash'};
@@ -2730,9 +3133,42 @@ const ACT={
   wsize(e,d){const m=U.dashEditMode||'desktop',it=(S.ui.dash[m]||[]).find(x=>x.w===d.w);if(it){it.size=d.v;persist();render()}},
   wmove(e,d){const m=U.dashEditMode||'desktop',arr=S.ui.dash[m]||[];const i=arr.findIndex(x=>x.w===d.w),j=i+(+d.dir||0);if(i>=0&&j>=0&&j<arr.length){const tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;persist();render()}},
   go(e,d){location.hash=d.v},
-  open(e,d){U.course=d.id;U.tab='assess';render()},
+  open(e,d){U.ctx=null;U.course=d.id;U.tab='assess';render()},
   close(){U.course=null;render()},
   closebg(e){if(e.target.classList.contains('veil')){U.course=null;render()}},
+  ctx(e,d){
+    e.stopPropagation();
+    const r=e.target.closest('[data-a="ctx"]').getBoundingClientRect();
+    U.ctx=(U.ctx&&U.ctx.id===d.id)?null:{id:d.id,x:r.right-264,y:r.bottom+6,ay:r.top};
+    render();
+  },
+  closectx(){U.ctx=null;render()},
+  ctxgrade(e,d){
+    const c=getC(d.id);U.ctx=null;
+    if(c){pushUndo('Grade for '+c.code);c.grade=d.v||null;persist();toast(c.grade?(c.code+': '+c.grade):('Cleared grade for '+c.code),true)}else render();
+  },
+  ctxopen(e,d){U.ctx=null;U.course=d.id;U.tab=d.v||'assess';render()},
+  ctxdel(e,d){
+    const c=getC(d.id);U.ctx=null;
+    if(c){pushUndo('Deleted '+c.code);S.courses=S.courses.filter(x=>x.id!==d.id);if(U.course===d.id)U.course=null;persist();toast('Deleted '+c.code,true)}else render();
+  },
+  retakecourse(e,d){
+    const orig=getC(d.id);U.ctx=null;if(!orig)return render();
+    const oi=orig.term?termIdx(orig.term):-1;
+    const ci=S.terms.findIndex(t=>t.status==='current');
+    const nextT=S.terms.find((t,i)=>t.status==='planned'&&i>Math.max(oi,ci))||S.terms.find((t,i)=>t.status!=='done'&&i>oi)||S.terms.find(t=>t.status==='current')||S.terms[S.terms.length-1];
+    const copy={id:uid(),code:orig.code,title:orig.title,credits:orig.credits,term:nextT?nextT.id:null,cat:orig.cat,prereqs:(orig.prereqs||[]).slice(),coreqs:(orig.coreqs||[]).slice(),retakeOf:orig.id,grade:null,assess:[],notes:orig.notes||'',instructor:orig.instructor||'',syllabusUrl:orig.syllabusUrl||''};
+    pushUndo('Retake '+orig.code);S.courses.push(copy);persist();
+    toast(`Scheduled retake of ${orig.code}${nextT?' in '+nextT.name:''}`,true);
+  },
+  dupcourse(e,d){
+    const orig=getC(d.id);U.ctx=null;if(!orig)return render();
+    const copy={id:uid(),code:orig.code,title:orig.title,credits:orig.credits,term:orig.term||null,cat:orig.cat,prereqs:(orig.prereqs||[]).slice(),coreqs:(orig.coreqs||[]).slice(),grade:null,assess:[],notes:orig.notes||'',instructor:orig.instructor||'',syllabusUrl:orig.syllabusUrl||''};
+    pushUndo('Copied '+orig.code);S.courses.push(copy);persist();
+    toast('Copied '+orig.code,true);
+  },
+  addinterm(e,d){U.addTerm=d.term||'';location.hash='add';render()},
+  tourstep(e,d){U.tourStep=Math.max(0,Math.min(TOUR_STEPS.length-1,parseInt(d.v,10)||0));render();window.scrollTo(0,0)},
   tab(e,d){e.preventDefault();U.tab=d.v;render()},
   sel(e,d){U.sel=(d.id&&U.sel!==d.id)?d.id:null;render()},
   hidedone(){U.hideDone=!U.hideDone;render()},
@@ -2827,9 +3263,31 @@ const ACT={
   sylDel(e,d){U.syl.out.assessments.splice(+d.i,1);render()},
   sylRow(){U.syl.out.assessments.push({name:'',type:'Assignment',weight:0,count:1,drop:0});render()},
   sylAdd(){
-    const o=U.syl.out;if(!o.code||!o.title)return toast('The course needs a code and a title');
-    const c={id:uid(),code:o.code,title:o.title,credits:o.credits||3,term:o.term||null,cat:o.cat||S.settings.cats[0].k,prereqs:o.prereqs,grade:null,instructor:o.instructor||'',notes:o.notes||'',assess:o.assessments.filter(a=>a.name||a.weight).map(a=>{const n=Math.max(1,+a.count||1);return{id:uid(),n:a.name||'Group',type:a.type,w:+a.weight||0,cnt:n,drop:+a.drop||0,items:Array.from({length:n},(_,i)=>({id:uid(),n:n>1?(a.name||'Item')+' '+(i+1):(a.name||'Item'),s:null,m:100,due:'',st:'',late:false}))}})};
-    S.courses.push(c);U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
+    const o=U.syl.out;if(!o.targetId&&(!o.code||!o.title))return toast('The course needs a code and a title');
+    const buildAssess=()=>o.assessments.filter(a=>a.name||a.weight).map(a=>{const n=Math.max(1,+a.count||1);return{id:uid(),n:a.name||'Group',type:a.type,w:+a.weight||0,cnt:n,drop:+a.drop||0,items:Array.from({length:n},(_,i)=>({id:uid(),n:n>1?(a.name||'Item')+' '+(i+1):(a.name||'Item'),s:null,m:100,due:'',st:'',late:false}))}});
+    let c=o.targetId?getC(o.targetId):null;
+    pushUndo(c?('Updated '+c.code+' from syllabus'):('Added '+o.code));
+    if(c){
+      if(o.syllabusUrl)c.syllabusUrl=o.syllabusUrl;
+      if(o.instructor&&!c.instructor)c.instructor=o.instructor;
+      if(o.notes&&!c.notes)c.notes=o.notes;
+      const nw=buildAssess();
+      if(nw.length){if(!(c.assess||[]).length)c.assess=nw;else nw.forEach(g=>{const ex=c.assess.find(x=>nn(x.n)===nn(g.n));if(ex)ex.w=g.w;else c.assess.push(g)})}
+    }else{
+      c={id:uid(),code:o.code,title:o.title,credits:o.credits||3,term:o.term||null,cat:o.cat||S.settings.cats[0].k,prereqs:o.prereqs,coreqs:[],grade:null,instructor:o.instructor||'',syllabusUrl:o.syllabusUrl||'',notes:o.notes||'',assess:buildAssess()};
+      S.courses.push(c);
+    }
+    U.syl={text:'',files:[],out:null,err:'',loading:false,term:U.syl.term,msg:''};persist();U.course=c.id;U.tab='assess';render();
+  },
+  sylreadlocal(){
+    const y=U.syl;y.text=($('#syl-text')||{}).value||y.text;y.term=val('syl-term');
+    if(!y.text.trim()){y.err='Paste the syllabus text or grading breakdown first.';return render()}
+    const parsed=parseSyllabusDeterministic({text:y.text,title:''});
+    const cur=S.settings.cats;
+    const matchId=matchCourseByCodeOrTitle(parsed.code,parsed.title);
+    y.out={code:parsed.code,title:parsed.title,credits:parsed.credits||3,instructor:parsed.instructor||'',syllabusUrl:parsed.syllabusUrl||'',notes:'',prereqs:[],cat:cur[0]?cur[0].k:'',term:y.term||'',targetId:matchId||'',assessments:parsed.assessments};
+    y.err=parsed.assessments.length?'':'No weight percentages were found automatically — you can add rows below.';
+    render();
   },
   async sylRead(){
     const y=U.syl;y.text=($('#syl-text')||{}).value||y.text;y.term=val('syl-term');
@@ -2889,6 +3347,7 @@ const CHG={
   plancfg(e,d,v){S.ui.plan[d.f]=v},
   catcat(e,d,v){U.catCat=v},
   dashnote(e,d,v){S.ui.dash.note=v},
+  ctxmove(e,d,v){const c=getC(d.id);U.ctx=null;if(c){pushUndo('Moved '+c.code);c.term=v||null;toast('Moved '+c.code,true)}},
 };
 async function onFiles(e){
   const files=Array.from(e.target.files||[]),y=U.syl;let msg=[];
@@ -2926,6 +3385,13 @@ document.addEventListener('click',e=>{
   if(el.tagName==='A'&&el.getAttribute('href')==='#')e.preventDefault();
   f(e,el.dataset);
 });
+document.addEventListener('contextmenu',e=>{
+  const el=e.target.closest&&e.target.closest('[data-cid]');
+  if(!el||e.target.closest('input,textarea,select'))return;
+  e.preventDefault();
+  U.ctx={id:el.dataset.cid,x:e.clientX,y:e.clientY,ay:e.clientY};
+  render();
+});
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if(U.cmdOpen){U.cmdOpen=false;render()}else ACT.opencmd();return}
   if(U.cmdOpen){
@@ -2935,6 +3401,7 @@ document.addEventListener('keydown',e=>{
     if(e.key==='ArrowUp'){e.preventDefault();if(items.length){U.cmdIdx=((U.cmdIdx||0)-1+items.length)%items.length;const cl=$('#cmd-list');if(cl){cl.innerHTML=cmdListHtml(items);const on=cl.querySelector('.cmd-item.on');if(on)on.scrollIntoView({block:'nearest'})}}return}
     if(e.key==='Enter'){e.preventDefault();const it=items[Math.min(U.cmdIdx||0,items.length-1)];U.cmdOpen=false;if(it&&it.act)it.act();else render();return}
   }
+  if(e.key==='Escape'&&U.ctx){U.ctx=null;render();return}
   if(e.key==='Escape'&&U.moreOpen){U.moreOpen=false;render();return}
   if(e.key==='Escape'&&U.course){U.course=null;render()}
   if(e.key==='Enter'&&e.target.matches&&e.target.matches('.ir input[data-f="s"]')){
@@ -2952,19 +3419,25 @@ document.addEventListener('input',e=>{
   if(e.target.id==='cmd-q'){U.cmdQ=e.target.value;U.cmdIdx=0;const cl=$('#cmd-list');if(cl)cl.innerHTML=cmdListHtml(cmdItems(U.cmdQ));return}
   if(e.target.id==='course-q'){U.courseQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#course-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
   if(e.target.id==='cat-q'){U.catQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#cat-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
+  if(e.target.id==='enr-q'){U.enrQ=e.target.value;const pos=e.target.selectionStart;render();const el=$('#enr-q');if(el){el.focus();try{el.setSelectionRange(pos,pos)}catch(x){}}return}
   if(e.target.dataset&&e.target.dataset.c==='dashnote'){S.ui.dash.note=e.target.value;return}
-  if(e.target.dataset&&e.target.dataset.c==='syltext')U.syl.text=e.target.value;
+  if(e.target.dataset&&e.target.dataset.c==='syltext'){U.syl.text=e.target.value;return}
+  if(e.target.dataset&&e.target.dataset.c==='cvtext'){U.cvText=e.target.value;return}
+  if(e.target.dataset&&e.target.dataset.c==='enrpref'){U.enrPrefs=U.enrPrefs||{};U.enrPrefs[e.target.dataset.f]=e.target.value;return}
 });
 document.addEventListener('change',e=>{
   const t=e.target,k=t.dataset&&t.dataset.c;if(!k)return;
   if(k==='syltext'){U.syl.text=t.value;return}
+  if(k==='cvtext'){U.cvText=t.value;return}
+  if(k==='enrpref'){U.enrPrefs=U.enrPrefs||{};U.enrPrefs[t.dataset.f]=t.value;return}
+  if(k==='dashnote'){S.ui.dash.note=t.value;persist();return}
   if(k==='sylf'){onFiles(e);return}
   if(k==='impf'){onImport(e);return}
   if(k==='enrf'){onOffers(e);return}
   if(k==='ai'){AI[t.dataset.f]=t.value.trim();try{localStorage.setItem(LSAI,JSON.stringify(AI))}catch(x){}U.imgMax=AI.key?8:0;render();return}
   const f=CHG[k]||CHG2[k];if(!f)return;
   try{f(e,t.dataset,t.value)}catch(err){console.error(err);return}
-  if(k==='syl'||k==='sylA'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
+  if(k==='syl'||k==='sylA'||k==='sylimp'||k==='wi'||k==='wiall'||k==='enrterm'||k==='enrq'||k==='mpick'||k==='enrpref'||k==='catcat'||k==='coursecat'||k==='courseq'||k==='pscsrow'){render();return}
   persist();render();
 });
 let dragId=null;

@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-22 — Quick Course Actions, Multi-Component Enrollment, Simple Syllabus Linking & Tour
+### Summary
+- **Universal Course Context Menu & Quick Actions** (`src/p3.js`, `src/p4a.js`, `src/p4b.js`, `src/p5b.js`, `src/p1.html`): Added `⋮` quick-action buttons and right-click context menus across Courses (cards & table), Overview, Four-Year Grid, and Requirements chips with viewport-clamped upward flipping, 1-click final grade pills, Move to term, **Retake (Copy & Link)**, **Duplicate**, Open/Edit, and undoable Delete. Added inline final grading on current courses, drawer header quick-grade + Retake controls, 1-click Retake buttons in GPA Lab, and `+` quick-add buttons on Four-Year Grid term headers.
+- **Multi-Component Enrollment** (`src/p8.js`, `src/p1.html`): Grouped offered sections by component prefix (`L` Lecture, `S` Seminar, `R` Recitation, `T` Lab/Tutorial, `D` Studio, `C` Capstone) with backwards-compatible multi-pick storage, auto-pairing of single-option common lectures (e.g., `CORE 202` Hikma `L1` + `S3`), multi-component clash detection, Shopping Cart numbers, per-component Backup Sections, and multi-component Auto-Schedule. Added instructor deduplication/truncation (`fmtIns`) and human-readable PSCS term decoding (`2711` → `Spring 2027`).
+- **Simple Syllabus Linking & Offline Parsing** (`src/p6.js`, `src/p5a.js`, `src/p5b.js`, `main.js`): Preserved full `location.href` in the universal bookmarklet, upgraded deterministic syllabus parser (no AI key required), added Simple Syllabus course-matching & link preview card in Sync & Import, fixed Add Course preview without Gemini key, and populated default PSCS/Simple Syllabus URLs in `main.js`.
+- **One-Click Canvas Auto-Build, PSCS Fix & Interactive Tour** (`src/p6.js`, `src/p3.js`, `src/p5b.js`): Unmatched Canvas courses now default to `+ Create new course` with Habib scale & current term auto-initialization and smart category inference (`guessCat`). Fixed PSCS plain-text paste misrouting (`CORE 101` collision with Stellic), fixed `change`-vs-`click` first-click swallow on `#canvas` `Read export`, added the 5-step `#tour` walkthrough and live Setup Progress checklist, refined GPA Lab ceiling math, dark-mode toasts, and mobile Plan tab layout.
+
+### Rollback Steps
+1. Check out the previous commit on Starserver (`~/apps/atlas`) and run `~/ops/deploy.sh atlas`.
+2. Existing `~/apps/atlas/userData/atlas-data.json` is git-ignored and backwards-compatible (legacy single-string enrollment picks remain supported).
+
 ## 2026-11-22 — Clean Dossiers, 3-Path Setup Guide & Stellic/PSCS Auto-Build
 ### Summary
 - Removed hardcoded personal data (`seed()`) from `src/p2.js`, `src/p5b.js`, and `src/p6.js`; `boot()` now starts from `blank()` on fresh clones.

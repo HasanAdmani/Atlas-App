@@ -4,7 +4,12 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const DEFAULTS = { canvasUrl: 'https://hulms.instructure.com', pscsUrl: '', syllabusUrl: '', serverUrl: '' };
+const DEFAULTS = {
+  canvasUrl: 'https://hulms.instructure.com',
+  pscsUrl: 'https://pscs.habib.edu.pk/psc/CSPROD/EMPLOYEE/SA/c/NUI_FRAMEWORK.PT_LANDINGPAGE.GBL',
+  syllabusUrl: 'https://habib.simplesyllabus.com',
+  serverUrl: '',
+};
 const SOURCES = { canvas: 'canvasUrl', pscs: 'pscsUrl', syllabus: 'syllabusUrl' };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
