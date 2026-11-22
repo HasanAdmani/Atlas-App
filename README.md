@@ -50,6 +50,7 @@ Atlas-App/
 │   ├── p9.js         # Dual host bridge: Electron (window.atlasHost) & Web/PWA (/api/store)
 │   └── p5b.js        # Router, state actions, persistence & IIFE closure
 ├── app/              # Runtime bundle & PWA assets (index.html, manifest.webmanifest, sw.js, icon.svg)
+├── dossiers/         # Official curriculum dossiers & clean starter JSON templates (bundled at build time)
 ├── connectors/       # Scripts injected into portal sessions (Canvas, PSCS)
 ├── server.js         # Zero-dependency Node.js web & multi-device sync server
 ├── deploy.env        # Starserver deployment manifest (port 3000, route /atlas)
@@ -113,12 +114,17 @@ The output file will be generated in `dist/` (e.g., `dist/Atlas 1.1.0.exe`).
 
 ## 🛠️ Usage Guide
 
-### Starter Plan (Habib University — EE Class of 2029)
-If you are an Electrical Engineering student (Class of 2029) at Habib University:
-1. Open Atlas (desktop or browser).
-2. Go to **Settings → Restore from a backup**.
-3. Select [`starter-ee-class-of-2029.json`](starter-ee-class-of-2029.json) from the repository root.
-4. Your complete 4-year curriculum (all 44 courses, 134 credits, prerequisites, corequisites, and Habib Liberal Core categories) will load instantly with a clean slate for you to enter your own grades and plan electives!
+### First-Time Setup Guide (3 Paths)
+Every fresh clone starts completely blank with no personal data. Opening `app/index.html` (or `#setup` in the sidebar) shows the **Setup Guide & Tour** with three ways to get started:
+1. **Path A — Load from a University Dossier** *(Fastest for Habib University EE / CS Class of 2029)*: Pick your major and how many semesters you've finished so far. Atlas loads the clean 4-year curriculum grid, credit categories, and prerequisite graph from `dossiers/` with zero grades or personal info.
+2. **Path B — Auto-Build from Portals** *(Batch-agnostic — works for any graduating year or major)*:
+   - **Stellic**: Use the one-click *"Send to Atlas"* bookmarklet (or paste your Degree Audit) to build your requirement categories and course list.
+   - **PSCS**: Paste or send your *Course History / Grades* to auto-create past terms, courses, and official grades.
+   - **Canvas LMS**: Sync your current-semester courses, assignment weights, due dates, and live scores.
+3. **Path C — Custom Blank Setup** *(Any university)*: Pick a grading scale (Habib University or Standard US 4.0), enter your degree length and credits, and add courses manually or from syllabi.
+
+### Adding New Dossiers
+Store official curriculum PDFs and anonymized JSON templates inside `dossiers/`, register them in [`dossiers/index.json`](dossiers/index.json), and run `node build-page.js` (or `npm run build:page`). `build-page.js` bundles them into `app/index.html` so they work offline even when opened via `file://`.
 
 ### Moving Data From Web Version / Backups
 - **Web to Desktop**: In the web version, go to **Settings → Download a backup**. In Atlas desktop, open **Settings → Restore from a backup** and select the `.json` file.

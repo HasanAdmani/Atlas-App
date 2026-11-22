@@ -6,6 +6,19 @@ const path = require('path');
 const order = ['p1.html', 'p2.js', 'p3.js', 'p4a.js', 'p4b.js', 'p5a.js', 'p6.js', 'p7.js', 'p8.js', 'p9.js', 'p5b.js'];
 const body = order.map((f) => fs.readFileSync(path.join(__dirname, 'src', f), 'utf8')).join('');
 
+const dossiersDir = path.join(__dirname, 'dossiers');
+const dossiersPayload = [];
+if (fs.existsSync(path.join(dossiersDir, 'index.json'))) {
+  const index = JSON.parse(fs.readFileSync(path.join(dossiersDir, 'index.json'), 'utf8'));
+  index.forEach((entry) => {
+    const filePath = path.join(dossiersDir, entry.file);
+    if (fs.existsSync(filePath)) {
+      dossiersPayload.push(Object.assign({}, entry, { data: JSON.parse(fs.readFileSync(filePath, 'utf8')) }));
+    }
+  });
+}
+const dossiersScript = '<script>window.__ATLAS_DOSSIERS__=' + JSON.stringify(dossiersPayload).replace(/<\//g, '<\\/') + ';</script>';
+
 const headTags = [
   '<meta charset="utf-8">',
   '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
@@ -18,6 +31,7 @@ const headTags = [
   '<link rel="apple-touch-icon" href="icon.svg">',
   '<link rel="manifest" href="manifest.webmanifest">',
   '<style>:root{color-scheme:light dark}body{margin:0;font:14px system-ui}</style>',
+  dossiersScript,
 ].join('');
 
 const html = '<!doctype html>\n<html lang="en"><head>' + headTags + '</head><body>\n' + body + '\n</body></html>\n';

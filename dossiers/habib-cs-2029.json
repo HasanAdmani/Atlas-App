@@ -1,0 +1,894 @@
+{
+  "v": 5,
+  "sample": false,
+  "settings": {
+    "name": "",
+    "school": "Habib University",
+    "unit": "DSSE",
+    "program": "B.S. Computer Science, Class of 2029",
+    "totalCredits": 134,
+    "maxLoad": 20,
+    "targetGpa": 3.5,
+    "scale": [
+      {
+        "l": "A+",
+        "p": 4,
+        "min": 95
+      },
+      {
+        "l": "A",
+        "p": 4,
+        "min": 90
+      },
+      {
+        "l": "A-",
+        "p": 3.67,
+        "min": 85
+      },
+      {
+        "l": "B+",
+        "p": 3.33,
+        "min": 80
+      },
+      {
+        "l": "B",
+        "p": 3,
+        "min": 75
+      },
+      {
+        "l": "B-",
+        "p": 2.67,
+        "min": 70
+      },
+      {
+        "l": "C+",
+        "p": 2.33,
+        "min": 67
+      },
+      {
+        "l": "C",
+        "p": 2,
+        "min": 63
+      },
+      {
+        "l": "C-",
+        "p": 1.67,
+        "min": 60
+      },
+      {
+        "l": "F",
+        "p": 0,
+        "min": 0
+      }
+    ],
+    "cats": [
+      {
+        "k": "core",
+        "n": "Habib Liberal Core",
+        "req": 31,
+        "color": "#2945B8"
+      },
+      {
+        "k": "csf",
+        "n": "CS Foundation & Kernel (min C+)",
+        "req": 41,
+        "minGrade": "C+",
+        "color": "#16794F"
+      },
+      {
+        "k": "csreq",
+        "n": "CS Core, Kaavish & Khidmat",
+        "req": 10,
+        "color": "#B86B11"
+      },
+      {
+        "k": "math",
+        "n": "Mathematics & Natural Science",
+        "req": 19,
+        "color": "#7C3AED"
+      },
+      {
+        "k": "design",
+        "n": "Design & Professional Practice",
+        "req": 4,
+        "color": "#0284C7"
+      },
+      {
+        "k": "elec",
+        "n": "CS & Free Electives",
+        "req": 29,
+        "color": "#C02669"
+      }
+    ]
+  },
+  "terms": [
+    {
+      "id": "t1",
+      "name": "Fall 2025",
+      "status": "planned",
+      "cr": true
+    },
+    {
+      "id": "t2",
+      "name": "Spring 2026",
+      "status": "planned"
+    },
+    {
+      "id": "t3",
+      "name": "Fall 2026",
+      "status": "planned"
+    },
+    {
+      "id": "t4",
+      "name": "Spring 2027",
+      "status": "planned"
+    },
+    {
+      "id": "ts2",
+      "name": "Summer 2027",
+      "status": "planned"
+    },
+    {
+      "id": "t5",
+      "name": "Fall 2027",
+      "status": "planned"
+    },
+    {
+      "id": "t6",
+      "name": "Spring 2028",
+      "status": "planned"
+    },
+    {
+      "id": "t7",
+      "name": "Fall 2028",
+      "status": "planned"
+    },
+    {
+      "id": "t8",
+      "name": "Spring 2029",
+      "status": "planned"
+    }
+  ],
+  "courses": [
+    {
+      "id": "core_101_1",
+      "code": "CORE 101",
+      "title": "Rhetoric and Communication",
+      "credits": 4,
+      "term": "t1",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_2xx_1",
+      "code": "CORE 2XX",
+      "title": "Natural Science (HLC)",
+      "credits": 3,
+      "term": "t1",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_101_1",
+      "code": "CS 101",
+      "title": "Algorithmic Problem Solving",
+      "credits": 3,
+      "term": "t1",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_101l_1",
+      "code": "CS 101L",
+      "title": "Algorithmic Problem Solving Lab",
+      "credits": 1,
+      "term": "t1",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [
+        "CS 101"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "play_113_1",
+      "code": "PLAY 113",
+      "title": "Design Your Habib Experience",
+      "credits": 1,
+      "term": "t1",
+      "cat": "design",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_101_1",
+      "code": "MATH 101",
+      "title": "Calculus I",
+      "credits": 3,
+      "term": "t1",
+      "cat": "math",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_102_2",
+      "code": "CORE 102",
+      "title": "What is Modernity?",
+      "credits": 4,
+      "term": "t2",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "natural_science_ii_2",
+      "code": "Natural Science II",
+      "title": "Natural Science II",
+      "credits": 3,
+      "term": "t2",
+      "cat": "math",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_113_2",
+      "code": "CS 113",
+      "title": "Discrete Mathematics",
+      "credits": 3,
+      "term": "t2",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_102_2",
+      "code": "CS 102",
+      "title": "Data Structures and Algorithms",
+      "credits": 3,
+      "term": "t2",
+      "cat": "csf",
+      "prereqs": [
+        "CS 101"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_102l_2",
+      "code": "CS 102L",
+      "title": "Data Structures and Algorithms Lab",
+      "credits": 1,
+      "term": "t2",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [
+        "CS 102"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_102_2",
+      "code": "MATH 102",
+      "title": "Calculus II",
+      "credits": 3,
+      "term": "t2",
+      "cat": "math",
+      "prereqs": [
+        "MATH 101"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_201_3",
+      "code": "CORE 201",
+      "title": "PAMSA",
+      "credits": 4,
+      "term": "t3",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_130_3",
+      "code": "CS 130",
+      "title": "Digital Logic and Design",
+      "credits": 3,
+      "term": "t3",
+      "cat": "csreq",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_130l_3",
+      "code": "CS 130L",
+      "title": "Digital Logic and Design Lab",
+      "credits": 1,
+      "term": "t3",
+      "cat": "csreq",
+      "prereqs": [],
+      "coreqs": [
+        "CS 130"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_355_3",
+      "code": "CS 355",
+      "title": "Database Systems",
+      "credits": 3,
+      "term": "t3",
+      "cat": "csf",
+      "prereqs": [
+        "CS 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_355l_3",
+      "code": "CS 355L",
+      "title": "Database Systems Lab",
+      "credits": 1,
+      "term": "t3",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [
+        "CS 355"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_224_3",
+      "code": "CS 224",
+      "title": "Object-Oriented Programming and Design Methodologies",
+      "credits": 3,
+      "term": "t3",
+      "cat": "csf",
+      "prereqs": [
+        "CS 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_224l_3",
+      "code": "CS 224L",
+      "title": "Object-Oriented Programming Lab",
+      "credits": 1,
+      "term": "t3",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [
+        "CS 224"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_310_3",
+      "code": "MATH 310",
+      "title": "Introduction to Probability",
+      "credits": 3,
+      "term": "t3",
+      "cat": "math",
+      "prereqs": [
+        "MATH 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_202_4",
+      "code": "CORE 202",
+      "title": "Hikma",
+      "credits": 4,
+      "term": "t4",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_330_4",
+      "code": "CS 330",
+      "title": "Computer Architecture",
+      "credits": 3,
+      "term": "t4",
+      "cat": "csf",
+      "prereqs": [
+        "CS 130"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_330l_4",
+      "code": "CS 330L",
+      "title": "Computer Architecture Lab",
+      "credits": 1,
+      "term": "t4",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [
+        "CS 330"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_201_4",
+      "code": "CS 201",
+      "title": "Data Structures II",
+      "credits": 3,
+      "term": "t4",
+      "cat": "csf",
+      "prereqs": [
+        "CS 102",
+        "CS 113",
+        "CS 224"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_351_4",
+      "code": "CS 351",
+      "title": "Artificial Intelligence",
+      "credits": 3,
+      "term": "t4",
+      "cat": "csf",
+      "prereqs": [
+        "CS 201",
+        "MATH 310"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_205_4",
+      "code": "MATH 205",
+      "title": "Linear Algebra",
+      "credits": 3,
+      "term": "t4",
+      "cat": "math",
+      "prereqs": [
+        "MATH 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_291_s2",
+      "code": "CS 291",
+      "title": "Khidmat – Community Service",
+      "credits": 0,
+      "term": "ts2",
+      "cat": "csreq",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "Zero-credit mandatory field practice (40 hours).",
+      "instructor": ""
+    },
+    {
+      "id": "core_1xx_5",
+      "code": "CORE 1XX",
+      "title": "Societies: Ways of Life",
+      "credits": 3,
+      "term": "t5",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_2xx_p_5",
+      "code": "CORE 2XX P",
+      "title": "Polities: Forms of Government",
+      "credits": 3,
+      "term": "t5",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_212_5",
+      "code": "CS 212",
+      "title": "Nature of Computation",
+      "credits": 3,
+      "term": "t5",
+      "cat": "csf",
+      "prereqs": [
+        "CS 113"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_232_5",
+      "code": "CS 232",
+      "title": "Operating Systems",
+      "credits": 3,
+      "term": "t5",
+      "cat": "csf",
+      "prereqs": [
+        "CS 102",
+        "CS 330"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_232l_5",
+      "code": "CS 232L",
+      "title": "Operating Systems Lab",
+      "credits": 1,
+      "term": "t5",
+      "cat": "csf",
+      "prereqs": [],
+      "coreqs": [
+        "CS 232"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_elective_1_5",
+      "code": "CS Elective 1",
+      "title": "CS Elective",
+      "credits": 3,
+      "term": "t5",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_31x_5",
+      "code": "CS 31X",
+      "title": "Introduction to Statistics",
+      "credits": 3,
+      "term": "t5",
+      "cat": "math",
+      "prereqs": [
+        "MATH 310"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_121_6",
+      "code": "CORE 121",
+      "title": "Jehan-e-Urdu",
+      "credits": 4,
+      "term": "t6",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_2xx_d_6",
+      "code": "CORE 2XX D",
+      "title": "Design Course",
+      "credits": 3,
+      "term": "t6",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_353_6",
+      "code": "CS 353",
+      "title": "Software Engineering",
+      "credits": 3,
+      "term": "t6",
+      "cat": "csf",
+      "prereqs": [
+        "CS 224",
+        "CS 355"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_412_6",
+      "code": "CS 412",
+      "title": "Algorithms: Design and Analysis",
+      "credits": 3,
+      "term": "t6",
+      "cat": "csf",
+      "prereqs": [
+        "CS 201",
+        "MATH 310"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_elective_2_6",
+      "code": "CS Elective 2",
+      "title": "CS Elective",
+      "credits": 3,
+      "term": "t6",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "free_elective_1_6",
+      "code": "Free Elective 1",
+      "title": "Free Elective",
+      "credits": 3,
+      "term": "t6",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "mgmt_3xx_7",
+      "code": "MGMT 3XX",
+      "title": "Professional Practice Elective",
+      "credits": 3,
+      "term": "t7",
+      "cat": "design",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "Choose from MGMT 301, 304, 320, 321, 322, or 323.",
+      "instructor": ""
+    },
+    {
+      "id": "cs_491_7",
+      "code": "CS 491",
+      "title": "Kaavish I",
+      "credits": 3,
+      "term": "t7",
+      "cat": "csreq",
+      "prereqs": [
+        "CS 201",
+        "CS 353"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_elective_3_7",
+      "code": "CS Elective 3",
+      "title": "CS Elective",
+      "credits": 3,
+      "term": "t7",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_elective_4_7",
+      "code": "CS Elective 4",
+      "title": "CS Elective",
+      "credits": 3,
+      "term": "t7",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "free_elective_2_7",
+      "code": "Free Elective 2",
+      "title": "Free Elective",
+      "credits": 3,
+      "term": "t7",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_492_8",
+      "code": "CS 492",
+      "title": "Kaavish II",
+      "credits": 3,
+      "term": "t8",
+      "cat": "csreq",
+      "prereqs": [
+        "CS 491"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_elective_5_8",
+      "code": "CS Elective 5",
+      "title": "CS Elective",
+      "credits": 3,
+      "term": "t8",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "free_elective_3_8",
+      "code": "Free Elective 3",
+      "title": "Free Elective",
+      "credits": 3,
+      "term": "t8",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "free_elective_4_8",
+      "code": "Free Elective 4",
+      "title": "Free Elective",
+      "credits": 3,
+      "term": "t8",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    }
+  ],
+  "minors": []
+}

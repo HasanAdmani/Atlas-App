@@ -1,0 +1,1011 @@
+{
+  "v": 5,
+  "sample": false,
+  "settings": {
+    "name": "",
+    "school": "Habib University",
+    "unit": "DSSE",
+    "program": "B.S. Electrical Engineering, Class of 2029",
+    "totalCredits": 134,
+    "maxLoad": 20,
+    "targetGpa": 3.5,
+    "scale": [
+      {
+        "l": "A+",
+        "p": 4,
+        "min": 95
+      },
+      {
+        "l": "A",
+        "p": 4,
+        "min": 90
+      },
+      {
+        "l": "A-",
+        "p": 3.67,
+        "min": 85
+      },
+      {
+        "l": "B+",
+        "p": 3.33,
+        "min": 80
+      },
+      {
+        "l": "B",
+        "p": 3,
+        "min": 75
+      },
+      {
+        "l": "B-",
+        "p": 2.67,
+        "min": 70
+      },
+      {
+        "l": "C+",
+        "p": 2.33,
+        "min": 67
+      },
+      {
+        "l": "C",
+        "p": 2,
+        "min": 63
+      },
+      {
+        "l": "C-",
+        "p": 1.67,
+        "min": 60
+      },
+      {
+        "l": "F",
+        "p": 0,
+        "min": 0
+      }
+    ],
+    "cats": [
+      {
+        "k": "core",
+        "n": "Habib Liberal Core",
+        "req": 32,
+        "color": "#2945B8"
+      },
+      {
+        "k": "math",
+        "n": "Engineering Sciences & Computing",
+        "req": 27,
+        "color": "#16794F"
+      },
+      {
+        "k": "ee",
+        "n": "EE Core (Circuits, Digital, Systems, Power)",
+        "req": 45,
+        "color": "#B86B11"
+      },
+      {
+        "k": "design",
+        "n": "Design & Professional Practice",
+        "req": 12,
+        "color": "#7C3AED"
+      },
+      {
+        "k": "elec",
+        "n": "EE, IDEE & Free Electives",
+        "req": 18,
+        "color": "#C02669"
+      }
+    ]
+  },
+  "terms": [
+    {
+      "id": "t1",
+      "name": "Fall 2025",
+      "status": "planned",
+      "cr": true
+    },
+    {
+      "id": "t2",
+      "name": "Spring 2026",
+      "status": "planned",
+      "cr": false
+    },
+    {
+      "id": "t3",
+      "name": "Fall 2026",
+      "status": "planned",
+      "cr": false
+    },
+    {
+      "id": "t4",
+      "name": "Spring 2027",
+      "status": "planned",
+      "cr": false
+    },
+    {
+      "id": "t5",
+      "name": "Fall 2027",
+      "status": "planned",
+      "cr": false
+    },
+    {
+      "id": "t6",
+      "name": "Spring 2028",
+      "status": "planned",
+      "cr": false
+    },
+    {
+      "id": "t7",
+      "name": "Fall 2028",
+      "status": "planned",
+      "cr": false
+    },
+    {
+      "id": "t8",
+      "name": "Spring 2029",
+      "status": "planned",
+      "cr": false
+    }
+  ],
+  "courses": [
+    {
+      "id": "core_101_1",
+      "code": "CORE 101",
+      "title": "Rhetoric and Communication",
+      "credits": 4,
+      "term": "t1",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_101_1",
+      "code": "CS 101",
+      "title": "Algorithmic Problem Solving",
+      "credits": 3,
+      "term": "t1",
+      "cat": "math",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_101l_1",
+      "code": "CS 101L",
+      "title": "Algorithmic Problem Solving Lab",
+      "credits": 1,
+      "term": "t1",
+      "cat": "math",
+      "prereqs": [],
+      "coreqs": [
+        "CS 101"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "play_113_1",
+      "code": "PLAY 113",
+      "title": "Design Your Habib Experience",
+      "credits": 1,
+      "term": "t1",
+      "cat": "design",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_101_1",
+      "code": "MATH 101",
+      "title": "Calculus I",
+      "credits": 3,
+      "term": "t1",
+      "cat": "math",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_100_1",
+      "code": "EE 100",
+      "title": "Introduction to Electrical and Computer Engineering",
+      "credits": 2,
+      "term": "t1",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "CS 101"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_112_1",
+      "code": "EE 112",
+      "title": "Electric Circuits I",
+      "credits": 2,
+      "term": "t1",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 100"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_102_2",
+      "code": "CORE 102",
+      "title": "What is Modernity?",
+      "credits": 4,
+      "term": "t2",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "engr_291_2",
+      "code": "ENGR 291",
+      "title": "Engineering Workshop and Design",
+      "credits": 1,
+      "term": "t2",
+      "cat": "design",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_213_2",
+      "code": "EE 213",
+      "title": "Electric Circuits II",
+      "credits": 3,
+      "term": "t2",
+      "cat": "ee",
+      "prereqs": [
+        "EE 112"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_172_2",
+      "code": "EE 172",
+      "title": "Digital Logic and Design",
+      "credits": 3,
+      "term": "t2",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_172l_2",
+      "code": "EE 172L",
+      "title": "Digital Logic and Design Lab",
+      "credits": 1,
+      "term": "t2",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 172"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_102_2",
+      "code": "CS 102",
+      "title": "Data Structures and Algorithms",
+      "credits": 3,
+      "term": "t2",
+      "cat": "math",
+      "prereqs": [
+        "CS 101"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_102l_2",
+      "code": "CS 102L",
+      "title": "Data Structures and Algorithms Lab",
+      "credits": 1,
+      "term": "t2",
+      "cat": "math",
+      "prereqs": [],
+      "coreqs": [
+        "CS 102"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_102_2",
+      "code": "MATH 102",
+      "title": "Calculus II",
+      "credits": 3,
+      "term": "t2",
+      "cat": "math",
+      "prereqs": [
+        "MATH 101"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_2xx_3",
+      "code": "CORE 2XX",
+      "title": "Natural Science Lab",
+      "credits": 3,
+      "term": "t3",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_252_3",
+      "code": "EE 252",
+      "title": "Signals and Systems",
+      "credits": 3,
+      "term": "t3",
+      "cat": "ee",
+      "prereqs": [
+        "MATH 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_252l_3",
+      "code": "EE 252L",
+      "title": "Signals and Systems Lab",
+      "credits": 1,
+      "term": "t3",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 252"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_371_3",
+      "code": "EE 371",
+      "title": "Computer Architecture",
+      "credits": 3,
+      "term": "t3",
+      "cat": "ee",
+      "prereqs": [
+        "EE 172"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_371l_3",
+      "code": "EE 371L",
+      "title": "Computer Architecture Lab",
+      "credits": 1,
+      "term": "t3",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 371"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_202_3",
+      "code": "MATH 202",
+      "title": "Engineering Mathematics",
+      "credits": 3,
+      "term": "t3",
+      "cat": "math",
+      "prereqs": [
+        "MATH 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_224_3",
+      "code": "CS 224",
+      "title": "Object-Oriented Programming and Design Methodologies",
+      "credits": 3,
+      "term": "t3",
+      "cat": "math",
+      "prereqs": [
+        "CS 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "cs_224l_3",
+      "code": "CS 224L",
+      "title": "Object-Oriented Programming Lab",
+      "credits": 1,
+      "term": "t3",
+      "cat": "math",
+      "prereqs": [],
+      "coreqs": [
+        "CS 224"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_213l_3",
+      "code": "EE 213L",
+      "title": "Electric Circuits Lab",
+      "credits": 1,
+      "term": "t3",
+      "cat": "ee",
+      "prereqs": [
+        "EE 100",
+        "EE 213"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_1xx_4",
+      "code": "CORE 1XX",
+      "title": "Economies: Foundations of Economic Systems",
+      "credits": 3,
+      "term": "t4",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_354_4",
+      "code": "EE 354",
+      "title": "Introduction to Probability and Statistics",
+      "credits": 3,
+      "term": "t4",
+      "cat": "math",
+      "prereqs": [
+        "MATH 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_361_4",
+      "code": "EE 361",
+      "title": "Principles of Feedback Control",
+      "credits": 3,
+      "term": "t4",
+      "cat": "ee",
+      "prereqs": [
+        "EE 252"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_361l_4",
+      "code": "EE 361L",
+      "title": "Principles of Feedback Control Lab",
+      "credits": 1,
+      "term": "t4",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 361"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_376_4",
+      "code": "EE 376",
+      "title": "Microcontrollers and Interfacing",
+      "credits": 1,
+      "term": "t4",
+      "cat": "ee",
+      "prereqs": [
+        "EE 172"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_376l_4",
+      "code": "EE 376L",
+      "title": "Microcontrollers and Interfacing Lab",
+      "credits": 1,
+      "term": "t4",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 376"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_211_4",
+      "code": "EE 211",
+      "title": "Basic Electronics",
+      "credits": 3,
+      "term": "t4",
+      "cat": "ee",
+      "prereqs": [
+        "EE 112"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_211l_4",
+      "code": "EE 211L",
+      "title": "Basic Electronics Lab",
+      "credits": 1,
+      "term": "t4",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 211"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "math_205_4",
+      "code": "MATH 205",
+      "title": "Linear Algebra",
+      "credits": 3,
+      "term": "t4",
+      "cat": "math",
+      "prereqs": [
+        "MATH 102"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_201_5",
+      "code": "CORE 201",
+      "title": "PAMSA",
+      "credits": 4,
+      "term": "t5",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_2xx_p_5",
+      "code": "CORE 2XX P",
+      "title": "Polities: Forms of Government",
+      "credits": 3,
+      "term": "t5",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_241_5",
+      "code": "EE 241",
+      "title": "Electromagnetic Theory",
+      "credits": 3,
+      "term": "t5",
+      "cat": "ee",
+      "prereqs": [
+        "MATH 202"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_322_5",
+      "code": "EE 322",
+      "title": "Analog and Digital Communication",
+      "credits": 3,
+      "term": "t5",
+      "cat": "ee",
+      "prereqs": [
+        "EE 252"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_322l_5",
+      "code": "EE 322L",
+      "title": "Analog and Digital Communication Lab",
+      "credits": 1,
+      "term": "t5",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 322"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_391l_5",
+      "code": "EE 391L",
+      "title": "Engineering Design and Innovation Lab",
+      "credits": 2,
+      "term": "t5",
+      "cat": "design",
+      "prereqs": [
+        "CS 101"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "engr_302_5",
+      "code": "ENGR 302",
+      "title": "Systems Engineering and Project Management",
+      "credits": 2,
+      "term": "t5",
+      "cat": "design",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_202_6",
+      "code": "CORE 202",
+      "title": "Hikma",
+      "credits": 4,
+      "term": "t6",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_331_6",
+      "code": "EE 331",
+      "title": "Electrical Machines",
+      "credits": 3,
+      "term": "t6",
+      "cat": "ee",
+      "prereqs": [
+        "EE 213",
+        "EE 213L",
+        "EE 241"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_331l_6",
+      "code": "EE 331L",
+      "title": "Electrical Machines Lab",
+      "credits": 1,
+      "term": "t6",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 331"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_335_6",
+      "code": "EE 335",
+      "title": "Power Generation, Transmission and Distribution",
+      "credits": 3,
+      "term": "t6",
+      "cat": "ee",
+      "prereqs": [
+        "EE 213",
+        "EE 213L",
+        "EE 211"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_335l_6",
+      "code": "EE 335L",
+      "title": "Power Generation Lab",
+      "credits": 1,
+      "term": "t6",
+      "cat": "ee",
+      "prereqs": [],
+      "coreqs": [
+        "EE 335"
+      ],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_elective_1_6",
+      "code": "EE Elective 1",
+      "title": "EE Elective",
+      "credits": 3,
+      "term": "t6",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_490_6",
+      "code": "EE 490",
+      "title": "Project Design",
+      "credits": 2,
+      "term": "t6",
+      "cat": "design",
+      "prereqs": [
+        "ENGR 291",
+        "EE 376",
+        "EE 391L"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_2xx_d_7",
+      "code": "CORE 2XX D",
+      "title": "Design Course",
+      "credits": 3,
+      "term": "t7",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_elective_2_7",
+      "code": "EE Elective 2",
+      "title": "EE Elective",
+      "credits": 3,
+      "term": "t7",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_elective_3_7",
+      "code": "EE Elective 3",
+      "title": "EE Elective",
+      "credits": 3,
+      "term": "t7",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_491_7",
+      "code": "EE 491",
+      "title": "Capstone Project I",
+      "credits": 2,
+      "term": "t7",
+      "cat": "design",
+      "prereqs": [
+        "EE 490"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "core_121_8",
+      "code": "CORE 121",
+      "title": "Jehan-e-Urdu",
+      "credits": 4,
+      "term": "t8",
+      "cat": "core",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_elective_4_8",
+      "code": "EE Elective 4",
+      "title": "EE Elective",
+      "credits": 3,
+      "term": "t8",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "idee_8",
+      "code": "IDEE",
+      "title": "Interdisciplinary Engineering Elective",
+      "credits": 3,
+      "term": "t8",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "ee_492_8",
+      "code": "EE 492",
+      "title": "Capstone Project II",
+      "credits": 2,
+      "term": "t8",
+      "cat": "design",
+      "prereqs": [
+        "EE 491"
+      ],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    },
+    {
+      "id": "free_elective_8",
+      "code": "Free Elective",
+      "title": "Free Elective",
+      "credits": 3,
+      "term": "t8",
+      "cat": "elec",
+      "prereqs": [],
+      "coreqs": [],
+      "grade": null,
+      "assess": [],
+      "notes": "",
+      "instructor": ""
+    }
+  ],
+  "minors": []
+}

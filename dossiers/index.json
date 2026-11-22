@@ -1,0 +1,24 @@
+[
+  {
+    "id": "habib-ee-2029",
+    "school": "Habib University",
+    "unit": "DSSE",
+    "program": "B.S. Electrical Engineering, Class of 2029",
+    "short": "EE · Class of 2029",
+    "credits": 134,
+    "courses": 44,
+    "notes": "Official 4-year grid (44 courses, 134 cr, min CGPA 2.33). Includes Habib Liberal Core, Circuits, Digital Systems, Signals, Power, Design, and Electives.",
+    "file": "habib-ee-2029.json"
+  },
+  {
+    "id": "habib-cs-2029",
+    "school": "Habib University",
+    "unit": "DSSE",
+    "program": "B.S. Computer Science, Class of 2029",
+    "short": "CS · Class of 2029",
+    "credits": 134,
+    "courses": 41,
+    "notes": "Official 4-year grid (41+ courses, 134 cr, min CGPA 2.33). Includes CS Foundation & Kernel (min C+ rule), CS 291 Khidmat (0 cr), Kaavish I/II, and Electives.",
+    "file": "habib-cs-2029.json"
+  }
+]

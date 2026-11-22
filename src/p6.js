@@ -2,7 +2,7 @@
 /* ---------- Canvas sync, PSCS reconciliation & universal bookmarklet ---------- */
 const atlasBaseUrl=()=>{
   if(typeof IS_WEB!=='undefined'&&IS_WEB)return location.origin+(typeof WEB_BASE==='string'?WEB_BASE:'')+'/';
-  return (typeof HC!=='undefined'&&HC&&HC.serverUrl)?HC.serverUrl.replace(/\/+$/,'')+'/':'https://starserver.tailbf777f.ts.net/atlas/';
+  return (typeof HC!=='undefined'&&HC&&HC.serverUrl)?HC.serverUrl.replace(/\/+$/,'')+'/':'';
 };
 const UNIVERSAL_BOOKMARK_FN=async(ATLAS_URL)=>{try{
   const isCanvas=/instructure\.com$/i.test(location.hostname)||!!(window.ENV&&(window.ENV.COURSE_ID||window.ENV.current_user_id));
@@ -26,18 +26,19 @@ const UNIVERSAL_BOOKMARK_FN=async(ATLAS_URL)=>{try{
         const rows=Array.from(tb.rows).slice(0,150).map(r=>Array.from(r.cells).map(c=>t(c.innerText).slice(0,120)));
         if(rows.length)tables.push({id:tb.id||'',rows});
       });
-      if(doc.body&&doc.body.innerText)texts.push(doc.body.innerText.slice(0,20000));
+      if(doc.body&&doc.body.innerText)texts.push(doc.body.innerText.slice(0,30000));
     });
-    const kind=/pscs|peoplesoft/i.test(location.href)?'pscs':'syllabus';
+    const loc=location.hostname+' '+location.href;
+    const kind=/stellic/i.test(loc)?'stellic':/pscs|peoplesoft/i.test(loc)?'pscs':'syllabus';
     payload={v:2,kind,at:Date.now(),url:location.origin+location.pathname,title:document.title,tables,text:texts.join('\n')};
   }
   const j=JSON.stringify(payload);
   const b64=btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  const target=ATLAS_URL+'#import/'+b64;
+  const target=ATLAS_URL?(ATLAS_URL+'#import/'+b64):'';
   try{await navigator.clipboard.writeText(j)}catch(e){}
-  if(b64.length<120000){try{window.open(target,'_blank')}catch(e){}}
+  if(target&&b64.length<120000){try{window.open(target,'_blank')}catch(e){}}
   const d=document.createElement('div');d.style.cssText='position:fixed;z-index:99999;right:18px;top:18px;width:min(420px,90vw);background:#fff;color:#111;padding:16px;border:2px solid #2945B8;border-radius:12px;font:14px system-ui,sans-serif;box-shadow:0 12px 32px rgba(0,0,0,.22)';
-  d.innerHTML='<b>Sent to Atlas</b><p style="margin:6px 0 10px;font-size:13px;color:#444">If Atlas did not open automatically, click below or copy the export text.</p>'+(b64.length<120000?'<p><a href="'+target+'" target="_blank" style="display:inline-block;padding:8px 14px;background:#2945B8;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">Open in Atlas →</a></p>':'')+'<textarea style="width:100%;height:110px;font:12px monospace"></textarea><p style="margin:8px 0 0"><button>Close</button></p>';
+  d.innerHTML='<b>Exported for Atlas ('+payload.kind+')</b><p style="margin:6px 0 10px;font-size:13px;color:#444">'+(target?'If Atlas did not open automatically, click below or copy the export text.':'Copied to clipboard! Paste the export text below into Atlas → Setup Guide or Sync &amp; Import.')+'</p>'+(target&&b64.length<120000?'<p><a href="'+target+'" target="_blank" style="display:inline-block;padding:8px 14px;background:#2945B8;color:#fff;text-decoration:none;border-radius:8px;font-weight:600">Open in Atlas →</a></p>':'')+'<textarea style="width:100%;height:110px;font:12px monospace"></textarea><p style="margin:8px 0 0"><button>Close</button></p>';
   document.body.appendChild(d);const ta=d.querySelector('textarea');ta.value=j;ta.select();d.querySelector('button').onclick=()=>d.remove();
 }catch(e){alert('Atlas export failed: '+e.message)}};
 const bmCode=()=>'javascript:('+UNIVERSAL_BOOKMARK_FN.toString().replace(/\s*\n\s*/g,' ')+')('+JSON.stringify(atlasBaseUrl())+')';
@@ -101,19 +102,50 @@ function cvAutoSync(rawJson){
     if(r.upd+r.add>0)toast(`Canvas synced automatically (${r.upd} updated, ${r.add} added)`);
   }catch(e){}
 }
+function parseTermTok(s){
+  const m=String(s||'').match(/\b(Fall|Spring|Summer)\s+(\d{4})\b/i);
+  return m?(m[1][0].toUpperCase()+m[1].slice(1).toLowerCase()+' '+m[2]):'';
+}
+function termSortKey(name){
+  const m=String(name||'').match(/\b(Spring|Summer|Fall)\s+(\d{4})\b/i);
+  if(!m)return 999999;
+  const ord={spring:1,summer:2,fall:3}[m[1].toLowerCase()]||0;
+  return parseInt(m[2],10)*10+ord;
+}
+function ensureTerm(name,defaultStatus){
+  const nm=String(name||'').trim();if(!nm)return null;
+  let t=S.terms.find(x=>String(x.name||'').toLowerCase()===nm.toLowerCase());
+  if(!t){
+    t={id:'t'+uid(),name:nm,status:defaultStatus||'planned'};
+    S.terms.push(t);
+    S.terms.sort((a,b)=>termSortKey(a.name)-termSortKey(b.name));
+  }
+  return t;
+}
 function parsePscsGrades(obj){
-  const valid=new Set(['CR','NC','W','A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F']);
+  const valid=new Set(['CR','NC','W','IP','A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F']);
   (S.settings.scale||[]).forEach(x=>{if(x.l)valid.add(String(x.l).toUpperCase())});
   const codeRe=/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/i;
   const gradeTok=s=>{const u=String(s||'').trim().toUpperCase();return valid.has(u)?u:''};
   const found={};
-  const consider=(codeStr,gStr,rowText)=>{
+  const consider=(codeStr,gStr,rowText,cells)=>{
     if(!codeStr||!gStr)return;
-    const key=NC(codeStr);
+    const normCode=codeStr.toUpperCase().replace(/\s+/,' ');
+    const key=NC(normCode);
+    const termGuess=parseTermTok(rowText);
     const cands=S.courses.filter(c=>NC(c.code)===key);
-    if(!cands.length)return;
-    const c=cands.find(x=>rowText&&termOf(x.term)&&rowText.toLowerCase().includes((termOf(x.term).name||'').toLowerCase()))||cands.find(x=>status(x)==='done')||cands[0];
-    found[c.id]={id:c.id,code:c.code,title:c.title,term:(termOf(c.term)||{}).name||'Catalog',curGrade:c.grade||'',pscsGrade:gStr,status:!c.grade?'new':(c.grade===gStr?'match':'diff'),apply:!c.grade||c.grade!==gStr};
+    if(cands.length){
+      const c=cands.find(x=>termGuess&&termOf(x.term)&&(termOf(x.term).name||'').toLowerCase()===termGuess.toLowerCase())||cands.find(x=>status(x)==='done')||cands[0];
+      const gradeVal=gStr==='IP'?'':gStr;
+      found[c.id]={id:c.id,code:c.code,title:c.title,term:(termOf(c.term)||{}).name||'Catalog',curGrade:c.grade||'',pscsGrade:gradeVal,status:!c.grade&&gradeVal?'new':(c.grade===gradeVal?'match':'diff'),apply:!!gradeVal&&(!c.grade||c.grade!==gradeVal),create:false};
+      return;
+    }
+    const crMatch=rowText.match(/\b([0-6](?:\.\d+)?)\s*(?:cr|credits?|units?)\b/i)||(cells||[]).map(x=>x.match(/^[0-6](?:\.0+)?$/)).find(Boolean);
+    const cr=crMatch?parseFloat(crMatch[1]||crMatch[0]):3;
+    const title=(cells||[]).filter(c=>c&&!codeRe.test(c)&&!gradeTok(c)&&!/^[0-6](?:\.0+)?$/.test(c)&&!parseTermTok(c)&&!/^(taken|transferred|in progress|enrolled)$/i.test(c)).sort((a,b)=>b.length-a.length)[0]||normCode;
+    const tName=termGuess||'Imported Term';
+    const uidKey='new:'+key+':'+tName.toLowerCase();
+    found[uidKey]={id:uidKey,code:normCode,title:title.slice(0,80),credits:isNaN(cr)?3:cr,term:tName,curGrade:'',pscsGrade:gStr==='IP'?'':gStr,status:'create',apply:true,create:true};
   };
   ((obj&&obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>{
     const cells=r.map(x=>String(x||'').trim());
@@ -122,16 +154,75 @@ function parsePscsGrades(obj){
       if(!code){const m=cell.match(codeRe);if(m)code=m[1]+' '+m[2]}
       const gt=gradeTok(cell);if(gt)g=gt;
     });
-    if(code&&g)consider(code,g,cells.join(' '));
+    if(code&&g)consider(code,g,cells.join(' '),cells);
   }));
   if(!Object.keys(found).length&&obj&&obj.text){
+    let curTerm='';
     String(obj.text).split(/\r?\n/).forEach(line=>{
+      const tm=parseTermTok(line);if(tm&&!codeRe.test(line))curTerm=tm;
       const m=line.match(codeRe);if(!m)return;
       const toks=line.trim().split(/[\s\t,|]+/);
-      for(let i=toks.length-1;i>=0;i--){const gt=gradeTok(toks[i]);if(gt){consider(m[1]+' '+m[2],gt,line);break}}
+      for(let i=toks.length-1;i>=0;i--){const gt=gradeTok(toks[i]);if(gt){consider(m[1]+' '+m[2],gt,line+(curTerm?' '+curTerm:''),line.split(/\t|\s{2,}/).map(x=>x.trim()));break}}
     });
   }
   return Object.values(found);
+}
+function parseStellicAudit(obj){
+  const codeRe=/\b([A-Z]{2,5})\s*[- ]?(\d{3}[A-Z]?)\b/;
+  const validG=new Set(['CR','NC','W','A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F']);
+  const cats=[],courses=[],seenCourse=new Set();
+  let curCat='core',curCatIdx=0;
+  const addCat=(name,req)=>{
+    const clean=String(name||'').replace(/\s+/g,' ').trim().slice(0,60);
+    if(!clean||cats.some(c=>c.n.toLowerCase()===clean.toLowerCase()))return cats.find(c=>c.n.toLowerCase()===clean.toLowerCase()).k;
+    const k='c'+cats.length+'_'+uid().slice(0,4);
+    cats.push({k,n:clean,req:req||0,color:CAT_COLORS[curCatIdx++%CAT_COLORS.length]});
+    return k;
+  };
+  const scanLine=(line,cells)=>{
+    const s=String(line||'').trim();if(!s)return;
+    const reqM=s.match(/^([A-Za-z][A-Za-z0-9 &\/\-–,]{3,55}?)\s*(?:\(|·|-|:)?\s*(\d{1,3})\s*(?:credits?|cr)\b/i);
+    if(reqM&&!codeRe.test(s)){curCat=addCat(reqM[1],parseInt(reqM[2],10));return}
+    const m=s.match(codeRe);if(!m)return;
+    const code=(m[1]+' '+m[2]).toUpperCase();
+    const termName=parseTermTok(s)||'Planned';
+    const key=NC(code)+'|'+termName.toLowerCase();
+    if(seenCourse.has(key))return;seenCourse.add(key);
+    const crM=s.match(/\b([0-6](?:\.\d+)?)\s*(?:cr|credits?|units?)\b/i);
+    const cr=crM?parseFloat(crM[1]):3;
+    const toks=s.split(/[\s\t,|]+/);
+    let grade='';for(let i=toks.length-1;i>=0;i--){const u=toks[i].toUpperCase();if(validG.has(u)){grade=u;break}}
+    const st=/in[\s-]*progress|\bIP\b|enrolled/i.test(s)?'current':(/completed|passed|\bCR\b/i.test(s)||grade)?'done':'planned';
+    let title=(cells&&cells.length>1?cells.find(x=>x&&!codeRe.test(x)&&!/^\d/.test(x)&&!parseTermTok(x)):s.replace(codeRe,'').replace(/\b\d+(?:\.\d+)?\s*(?:cr|credits?|units?)\b/gi,'').replace(/\b(Fall|Spring|Summer)\s+\d{4}\b/gi,'').replace(/^[\s\-–·:]+|[\s\-–·:]+$/g,''))||code;
+    if(!cats.length)curCat=addCat('Degree Requirements',0);
+    courses.push({code,title:String(title).trim().slice(0,80)||code,credits:isNaN(cr)?3:cr,termName,status:st,grade:grade||null,cat:curCat});
+  };
+  ((obj&&obj.tables)||[]).forEach(tb=>(tb.rows||[]).forEach(r=>{const cells=r.map(x=>String(x||'').trim());scanLine(cells.join(' · '),cells)}));
+  if(obj&&obj.text)String(obj.text).split(/\r?\n/).forEach(l=>scanLine(l,null));
+  const totalCr=cats.reduce((a,c)=>a+(c.req||0),0)||courses.reduce((a,c)=>a+(c.credits||0),0)||134;
+  return{title:String((obj&&obj.title)||'Stellic Degree Audit').replace(/\s*[-|].*$/,'').trim(),totalCredits:totalCr,cats,courses};
+}
+function applyStellicImport(prev){
+  if(!prev||!prev.courses||!prev.courses.length)return 0;
+  pushUndo('Stellic degree audit import');
+  if(!S.terms.length){
+    S.settings.program=prev.title||S.settings.program||'Degree Plan';
+    S.settings.school=S.settings.school||'Habib University';
+    S.settings.scale=HABIB_SCALE.map(x=>Object.assign({},x));
+    S.settings.totalCredits=prev.totalCredits||134;
+    if(prev.cats&&prev.cats.length)S.settings.cats=prev.cats;
+  }else if(prev.cats&&prev.cats.length){
+    prev.cats.forEach(c=>{if(!S.settings.cats.some(x=>x.n.toLowerCase()===c.n.toLowerCase()))S.settings.cats.push(c)});
+  }
+  let added=0;
+  prev.courses.forEach(item=>{
+    const t=ensureTerm(item.termName,item.status);
+    const exists=S.courses.some(c=>NC(c.code)===NC(item.code)&&(!t||c.term===t.id));
+    if(exists)return;
+    S.courses.push({id:uid(),code:item.code,title:item.title,credits:item.credits,term:t?t.id:'',cat:item.cat||(S.settings.cats[0]&&S.settings.cats[0].k)||'core',prereqs:[],coreqs:[],grade:item.grade,assess:[],notes:'',instructor:''});
+    added++;
+  });
+  return added;
 }
 function parseSyllabusDeterministic(obj){
   const textLines=[];
@@ -166,15 +257,21 @@ function parseSyllabusDeterministic(obj){
 }
 function routeImportedObj(j,rawStr){
   if(j&&Array.isArray(j.courses)){
-    U.pscsDiff=null;
+    U.pscsDiff=null;U.stellicPrev=null;
     U.cv=j.courses.map(cv=>Object.assign({},cv,{teachers:cv.teachers||[],groups:cv.groups||[],target:cvMatch(cv)}));
     render();return true;
   }
+  if(j&&(j.kind==='stellic'||/stellic/i.test((j.url||'')+(j.title||'')))){
+    U.cv=[];U.pscsDiff=null;
+    const prev=parseStellicAudit(j);
+    if(!prev.courses.length){U.stellicPrev=null;U.cvErr='No courses or requirements found in that Stellic export. Open your Degree Audit / Progress page first.';render();return true}
+    U.stellicPrev=prev;U.cvErr='';location.hash='canvas';render();return true;
+  }
   if(j&&(j.kind==='pscs'||/pscs|peoplesoft/i.test(j.url||''))){
-    U.cv=[];
+    U.cv=[];U.stellicPrev=null;
     const diffs=parsePscsGrades(j);
-    if(!diffs.length){U.pscsDiff=null;U.cvErr='No matching course grades found in that PSCS page. Open Academic Records → Course History or Grades first.';render();return true}
-    U.pscsDiff=diffs;U.cvErr='';render();return true;
+    if(!diffs.length){U.pscsDiff=null;U.cvErr='No course grades found in that PSCS page. Open Academic Records → Course History or Grades first.';render();return true}
+    U.pscsDiff=diffs;U.cvErr='';location.hash='canvas';render();return true;
   }
   if(j&&(j.kind==='syllabus'||/syllabus/i.test((j.url||'')+(j.title||'')))){
     const parsed=parseSyllabusDeterministic(j);
@@ -191,7 +288,7 @@ function routeImportedObj(j,rawStr){
   return false;
 }
 function handleIncomingImport(jsonStr){
-  U.cvText=jsonStr;U.cvErr='';U.pscsDiff=null;
+  U.cvText=jsonStr;U.cvErr='';U.pscsDiff=null;U.stellicPrev=null;
   try{
     const j=JSON.parse(String(jsonStr||'').trim());
     if(routeImportedObj(j,jsonStr))return;
@@ -199,19 +296,21 @@ function handleIncomingImport(jsonStr){
   ACT2.cvread();
 }
 function vCanvas(){
-  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
+  const y=U.cvText||'',list=U.cv||[],pscs=U.pscsDiff||[],st=U.stellicPrev||null,lastAt=S.links&&S.links.canvas&&S.links.canvas.at;
+  const baseHint=atlasBaseUrl().replace(/\/+$/,'')||'http://127.0.0.1:3000';
   const opts=sel=>`<option value="">Skip this one</option>`+S.courses.filter(c=>status(c)!=='done'||c.id===sel).map(c=>`<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('');
-  return head('Sync & Import','Sync scores from Canvas, reconcile PSCS grades, or import a syllabus in one click.',`<button class="btn" data-a="go" data-v="courses">Back to courses</button>`)+
+  return head('Sync & Import','Sync scores from Canvas, import PSCS Course History, build from Stellic, or import a syllabus.',`<a class="btn" href="#setup">Setup Guide</a>`)+
   (DESKTOP_HOST?hostCanvasCard():'')+`<div class="card"><div class="row between" style="margin-bottom:8px"><h2 style="margin:0">One-click “Send to Atlas” bookmark</h2><span class="pill">Last Canvas sync: ${lastAt?esc(new Date(lastAt).toLocaleString()):'Never'}</span></div>
-  <p class="small muted" style="margin:0 0 12px">Drag this button onto your browser Bookmarks bar once. Then whenever you are signed into Canvas, PSCS, or Simple Syllabus, click it once to send the page straight into Atlas without copy/pasting.</p>
-  <div class="row" style="margin-bottom:12px"><a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Canvas, PSCS, or Simple Syllabus!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button class="btn" data-a="copybm">Copy bookmark code</button></div>
+  <p class="small muted" style="margin:0 0 12px">Drag this button onto your browser Bookmarks bar once. Then whenever you are signed into <b>Stellic</b>, <b>PSCS</b>, <b>Canvas</b>, or <b>Simple Syllabus</b>, click it once to export the page straight to Atlas.</p>
+  <div class="row" style="margin-bottom:12px"><a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it on Stellic, Canvas, PSCS, or Simple Syllabus!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a><button class="btn" data-a="copybm">Copy bookmark code</button></div>
   <details><summary>Manual code</summary><textarea id="bm-code" rows="3" readonly class="mono small">${esc(bmCode())}</textarea></details></div>
-  <div class="card" style="margin-top:16px"><h2>Paste export or page report</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Paste Canvas JSON, a PSCS report/table, or a Simple Syllabus report here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  <div class="card" style="margin-top:16px"><h2>Paste export or page report</h2><textarea id="cv-text" rows="4" data-c="cvtext" placeholder="Paste Canvas JSON, Stellic Degree Audit, PSCS Course History/Grades, or a Simple Syllabus report here">${esc(y)}</textarea><div class="row" style="margin-top:10px"><button class="btn primary" data-a="cvread">Read export</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div></div>`+
+  (st?`<div class="card" style="margin-top:16px"><h2>Stellic degree audit preview</h2><p class="small muted" style="margin:-4px 0 12px">Detected <b>${st.courses.length}</b> courses across <b>${st.cats.length}</b> requirement categories (${st.totalCredits} cr).</p><div class="scroll"><table class="t"><thead><tr><th>Course</th><th>Title</th><th>Term</th><th class="r">Cr</th><th>Grade</th></tr></thead><tbody>${st.courses.slice(0,40).map(c=>`<tr><td class="mono small"><b>${esc(c.code)}</b></td><td>${esc(c.title)}</td><td class="small muted">${esc(c.termName)}</td><td class="r mono">${c.credits}</td><td>${lpill(c.grade)}</td></tr>`).join('')}</tbody></table></div>${st.courses.length>40?`<p class="small muted">Showing first 40 of ${st.courses.length} courses.</p>`:''}<div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="stellicapply">Build / Merge into Atlas</button></div></div>`:'')+
   (list.length?`<div class="card" style="margin-top:16px"><h2>Match Canvas courses</h2><div class="scroll"><table class="t"><thead><tr><th>In Canvas</th><th class="r">Items</th><th>Your course</th></tr></thead><tbody>${list.map((cv,i)=>`<tr><td>${esc(cv.name)}</td><td class="r mono">${cv.groups.reduce((a,g)=>a+g.items.length,0)}</td><td><select data-c="cvmap" data-i="${i}">${opts(cv.target)}</select></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button class="btn primary" data-a="cvapply">Import into the matched courses</button></div><p class="small muted">Your course matching is remembered for next time. Items that do not fit a group go into “Unsorted from Canvas” with no weight.</p></div>`:'')+
-  (pscs.length?`<div class="card" style="margin-top:16px"><h2>PSCS grade reconciliation</h2><p class="small muted" style="margin:-4px 0 12px">Found ${pscs.length} matching course${pscs.length===1?'':'s'}. Review differences before applying.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':'New'}</span></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply selected grades</button></div></div>`:'')+
-  `<div class="card" style="margin-top:16px"><h2>Calendar feed &amp; companion extension</h2><p class="small muted" style="margin:-4px 0 12px">Subscribe Apple/Google Calendar to your live Atlas due dates over Tailscale, or load the unpacked companion browser extension for background Canvas auto-sync.</p>
-  <div class="row"><button type="button" class="btn" data-a="calics">Download .ics calendar</button><button type="button" class="btn soft" data-a="copycalurl">Copy calendar subscription URL</button></div>
-  <details style="margin-top:12px"><summary>Browser extension setup (Edge / Chrome)</summary><ol class="small muted" style="margin:6px 0 0;padding-left:20px;line-height:1.6"><li>Open <code>edge://extensions</code> (or <code>chrome://extensions</code>) and enable <b>Developer mode</b>.</li><li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder inside your Atlas repo.</li><li>Open the Atlas Companion icon to set your server URL (<code>https://starserver.tailbf777f.ts.net/atlas</code>) and sync Canvas automatically whenever you browse Canvas.</li></ol></details></div>`;
+  (pscs.length?`<div class="card" style="margin-top:16px"><h2>PSCS grade &amp; history import</h2><p class="small muted" style="margin:-4px 0 12px">Found ${pscs.length} course${pscs.length===1?'':'s'}. Existing courses update grades; new courses auto-create their terms.</p><div class="scroll"><table class="t"><thead><tr><th>Apply</th><th>Course</th><th>Term</th><th>Atlas</th><th>PSCS</th><th>Status</th></tr></thead><tbody>${pscs.map((r,i)=>`<tr><td><input type="checkbox" data-c="pscsrow" data-i="${i}" ${r.apply?'checked':''}></td><td><b>${esc(r.code)}</b> <span class="small muted">${esc(r.title)}</span></td><td class="small muted">${esc(r.term)}</td><td>${lpill(r.curGrade)}</td><td>${lpill(r.pscsGrade)}</td><td><span class="pill ${r.status==='match'?'good':r.status==='diff'?'warn':'acc'}">${r.status==='match'?'Matches':r.status==='diff'?'Differs':r.status==='create'?'Create':'New'}</span></td></tr>`).join('')}</tbody></table></div><div class="row" style="margin-top:14px"><button type="button" class="btn primary" data-a="pscsapply">Apply selected</button></div></div>`:'')+
+  `<div class="card" style="margin-top:16px"><h2>Calendar feed &amp; companion extension</h2><p class="small muted" style="margin:-4px 0 12px">Export an .ics file for Apple/Google Calendar, or load the unpacked companion browser extension for background Canvas auto-sync.</p>
+  <div class="row"><button type="button" class="btn" data-a="calics">Download .ics calendar</button>${typeof IS_WEB!=='undefined'&&IS_WEB?`<button type="button" class="btn soft" data-a="copycalurl">Copy calendar subscription URL</button>`:''}</div>
+  <details style="margin-top:12px"><summary>Browser extension setup (Edge / Chrome)</summary><ol class="small muted" style="margin:6px 0 0;padding-left:20px;line-height:1.6"><li>Open <code>edge://extensions</code> (or <code>chrome://extensions</code>) and enable <b>Developer mode</b>.</li><li>Click <b>Load unpacked</b> and pick the <code>extension</code> folder inside your Atlas repo.</li><li>Open the Atlas Companion icon to set your server URL (<code>${esc(baseHint)}</code>) and sync Canvas automatically whenever you browse Canvas.</li></ol></details></div>`;
 }
 const icsEsc=s=>String(s==null?'':s).replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
 function calendarIcs(){
@@ -229,29 +328,52 @@ function calendarIcs(){
 }
 const ACT2={
   copybm(){const t=$('#bm-code');if(!t)return;t.select();let ok=false;try{ok=navigator.clipboard&&navigator.clipboard.writeText(t.value)}catch(e){}Promise.resolve(ok).then(()=>toast('Code copied'),()=>toast('Press Ctrl+C to copy the selected code'))},
-  cvread(){
-    const t=($('#cv-text')||{}).value||U.cvText||'';U.cvText=t;U.cvErr='';U.pscsDiff=null;
+  cvread(rawOverride){
+    const t=typeof rawOverride==='string'?rawOverride:(($('#cv-text')||{}).value||U.cvText||'');
+    U.cvText=t;U.cvErr='';U.pscsDiff=null;U.stellicPrev=null;
     try{
       const j=JSON.parse(t.trim());
       if(routeImportedObj(j,t))return;
       throw 0;
     }catch(e){
+      if(/stellic|degree audit|core|elective|credits?/i.test(t)&&!/grade\s*points/i.test(t)){
+        const prev=parseStellicAudit({tables:[],text:t});
+        if(prev.courses.length>=2){U.cv=[];U.stellicPrev=prev;location.hash='canvas';render();return}
+      }
       const diffs=parsePscsGrades({tables:[],text:t});
-      if(diffs.length){U.cv=[];U.pscsDiff=diffs;render();return}
-      U.cv=[];U.cvErr='That does not look like a Canvas export, PSCS grade report, or Simple Syllabus export.';
+      if(diffs.length){U.cv=[];U.pscsDiff=diffs;location.hash='canvas';render();return}
+      U.cv=[];U.cvErr='That does not look like a Canvas, Stellic, PSCS, or Simple Syllabus export.';
     }
     render();
   },
   cvapply(){const r=cvApply();U.cv=[];U.cvText='';persist();toast(`Updated ${r.upd} items, added ${r.add}${r.un?`, ${r.un} unsorted`:''}`);render()},
+  stellicapply(){
+    const n=applyStellicImport(U.stellicPrev);
+    if(!n)return toast('No new courses to add');
+    U.stellicPrev=null;U.cvText='';persist();location.hash='overview';toast(`Imported ${n} courses from Stellic`,true);
+  },
   pscsapply(){
     const list=(U.pscsDiff||[]).filter(r=>r.apply);
-    if(!list.length)return toast('No grades selected');
-    pushUndo('PSCS grade import');
-    let n=0;
-    list.forEach(r=>{const c=getC(r.id);if(c){c.grade=r.pscsGrade;n++}});
+    if(!list.length)return toast('No courses selected');
+    pushUndo('PSCS import');
+    let upd=0,crt=0;
+    if(!S.settings.school)S.settings.school='Habib University';
+    if(!S.settings.program)S.settings.program='Degree Plan (from PSCS)';
+    list.forEach(r=>{
+      if(r.create){
+        const t=ensureTerm(r.term,r.pscsGrade?'done':'current');
+        if(!S.courses.some(c=>NC(c.code)===NC(r.code)&&(!t||c.term===t.id))){
+          S.courses.push({id:uid(),code:r.code,title:r.title||r.code,credits:r.credits||3,term:t?t.id:'',cat:(S.settings.cats[0]&&S.settings.cats[0].k)||'core',prereqs:[],coreqs:[],grade:r.pscsGrade||null,assess:[],notes:'',instructor:''});
+          crt++;
+        }
+      }else{
+        const c=getC(r.id);if(c){c.grade=r.pscsGrade;upd++}
+      }
+    });
     S.links=S.links||{canvas:{at:0,map:{}},pscs:{at:0}};
     S.links.pscs=S.links.pscs||{at:0};S.links.pscs.at=Date.now();
-    U.pscsDiff=null;U.cvText='';persist();toast(`Applied ${n} PSCS grade${n===1?'':'s'}`,true);
+    U.pscsDiff=null;U.cvText='';persist();if(crt&&U.route==='overview')render();else{location.hash='overview';render()}
+    toast(`PSCS: ${upd} updated, ${crt} created`,true);
   },
   calics(){saveFile('atlas-calendar.ics',calendarIcs()).then(()=>toast('Calendar saved'),e=>{if(!e||e.code!=='declined')toast('Could not save calendar')})},
   copycalurl(){

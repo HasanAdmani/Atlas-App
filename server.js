@@ -11,7 +11,7 @@ const PORT = parseInt(process.env.PORT, 10) || 3000;
 const MAX_BODY = 20 * 1024 * 1024;
 
 const APP_DIR = path.join(__dirname, 'app');
-const DATA_DIR = path.join(__dirname, 'userData');
+const DATA_DIR = process.env.ATLAS_DATA_DIR ? path.resolve(process.env.ATLAS_DATA_DIR) : path.join(__dirname, 'userData');
 const DATA_FILE = path.join(DATA_DIR, 'atlas-data.json');
 const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
 const SEED_BACKUP = path.join(__dirname, 'course-atlas-backup.json');

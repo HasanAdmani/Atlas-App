@@ -22,7 +22,7 @@ const ICONS={
   portal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
 };
 const ROUTES=[['overview','Overview','#overview'],['courses','Courses','#courses'],['plan','Plan','#grid'],['gpa','GPA lab','#gpa'],['settings','Settings','#settings']];
-const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,settings:vSettings};
+const VIEWS={overview:vOverview,courses:vCourses,plan:vPlan,gpa:vGpa,add:vAdd,canvas:vCanvas,setup:vSetup,settings:vSettings};
 const LSTHEME='course-atlas.theme';
 const LSRAIL='course-atlas.rail';
 function applyTheme(t){U.theme=t||'';if(U.theme)document.documentElement.dataset.theme=U.theme;else delete document.documentElement.dataset.theme}
@@ -45,6 +45,7 @@ function cmdItems(q){
     {id:'r:gpa',lbl:'GPA lab',sub:'Target calculator & what-if',act:()=>location.hash='gpa'},
     {id:'r:add',lbl:'Add course',sub:'From syllabus or manually',act:()=>location.hash='add'},
     mods.canvas!==false?{id:'r:canvas',lbl:'Sync from Canvas',sub:'Import scores & due dates',act:()=>location.hash='canvas'}:null,
+    {id:'r:setup',lbl:'Setup guide & tour',sub:'Dossiers, Stellic/PSCS auto-build & custom degree',act:()=>location.hash='setup'},
     {id:'r:settings',lbl:'Settings',sub:'Degree, portals, appearance & sync',act:()=>location.hash='settings'},
   ].filter(Boolean);
   if(mods.portals!==false)(S.settings.portals||[]).filter(p=>p.on).forEach(p=>all.push({id:'p:'+p.id,lbl:'Open '+p.name,sub:'Portal · '+p.url,act:()=>ACT.openportal(null,{id:p.id})}));
@@ -80,6 +81,7 @@ function moreSheet(){
     <div><div class="lbl" style="margin-bottom:8px">Actions</div><div class="more-grid">
       <a class="more-tile" href="#add" data-a="closemore">${ICONS.plus}<span>Add course</span></a>
       ${mods.canvas!==false?`<a class="more-tile" href="#canvas" data-a="closemore">${ICONS.sync}<span>Sync Canvas</span></a>`:''}
+      <a class="more-tile" href="#setup" data-a="closemore">${ICONS.info}<span>Setup guide</span></a>
       <button type="button" class="more-tile" data-a="opencmd">${ICONS.search}<span>Search (⌘K)</span></button>
       <a class="more-tile" href="#settings" data-a="closemore">${ICONS.settings}<span>Settings</span></a>
       ${UNDO.length?`<button type="button" class="more-tile" data-a="undo">${ICONS.undo}<span>Undo</span></button>`:''}
@@ -106,7 +108,7 @@ function render(){
     <div class="brand"><div class="brand-top"><div class="brand-row"><span class="brand-mark">A</span><span class="brand-name">Atlas</span></div><button type="button" class="rail-btn" data-a="togglerail" title="${U.railCollapsed?'Expand sidebar':'Collapse sidebar'}" aria-label="Toggle sidebar">${U.railCollapsed?ICONS.expand:ICONS.collapse}</button><div class="mob-util"><button type="button" class="btn sm" data-a="opencmd" aria-label="Search">${ICONS.search}</button><a class="btn sm" href="#add">+ Add</a><button type="button" class="btn sm" data-a="cycletheme" aria-label="Cycle theme">${mobTheme}</button><span class="sync-dot ${dotCls}" title="${esc(U.sync||'Ready')}"></span></div></div><small>${esc(S.settings.school||'Degree planner')}</small></div>
     <nav class="nav" aria-label="Sections">${navLinks}</nav>
     ${dockHtml}
-    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}</div>
+    <div class="side-quick"><div class="side-lbl">Quick actions</div><a class="side-btn" href="#add" title="Add course" ${U.route==='add'?'aria-current="page"':''}>${ICONS.plus}<span>Add course</span></a>${mods.canvas!==false?`<a class="side-btn" href="#canvas" title="Sync Canvas" ${U.route==='canvas'?'aria-current="page"':''}>${ICONS.sync}<span>Sync Canvas</span></a>`:''}<a class="side-btn" href="#setup" title="Setup guide" ${U.route==='setup'?'aria-current="page"':''}>${ICONS.info}<span>Setup guide</span></a></div>
     <div class="side-foot">${themeSeg}<div class="sidefoot" title="${esc(U.sync||'Ready')}"><span class="sync-dot ${dotCls}"></span><span>${esc(U.sync||'Ready')}</span></div></div>
   </div></aside>`;
   const conflictHtml=U.conflict?`<div class="banner" style="background:var(--bad-soft);border-color:var(--bad-border)"><div class="row" style="gap:10px"><b>Sync conflict</b><span class="small">Your plan changed on another device${U.conflict.updatedAt?' ('+esc(new Date(U.conflict.updatedAt).toLocaleString())+')':''}.</span></div><div class="row" style="gap:8px"><button type="button" class="btn sm primary" data-a="conflictTheirs">Use theirs</button><button type="button" class="btn sm" data-a="conflictMine">Keep mine</button></div></div>`:'';
@@ -212,10 +214,22 @@ const ACT={
     const n=Math.max(2,Math.min(14,parseInt(val('su-n'))||8)),dn=Math.max(0,Math.min(n,parseInt(val('su-done'))||0));
     const names=termNames(parseInt(val('su-year'))||new Date().getFullYear(),val('su-season')||'Fall',n);
     const base=blank();base.settings.program=val('su-prog');base.settings.school=val('su-school');base.settings.totalCredits=parseInt(val('su-cr'))||130;
+    if(val('su-scale')==='habib')base.settings.scale=HABIB_SCALE.map(x=>Object.assign({},x));
     base.terms=names.map((nm,i)=>({id:'t'+uid(),name:nm,status:i<dn?'done':i===dn?'current':'planned'}));
-    S=base;persist();render();
+    S=base;persist();location.hash='overview';render();toast('Degree plan created');
   },
-  loadsample(){S=seed();persist();render()},
+  loaddossier(e,d){
+    const dn=parseInt(val('su-d-done'),10)||0;
+    pushUndo('Load dossier');
+    S=loadDossier(d&&d.id,dn);
+    persist();location.hash='overview';render();toast('Loaded '+(S.settings.program||'dossier'));
+  },
+  suimport(){
+    const t=val('su-portal-text');
+    if(!t)return toast('Paste an export from Stellic, PSCS, or Canvas first');
+    ACT2.cvread(t);
+  },
+  loadsample(){S=loadDossier('habib-ee-2029',0);persist();location.hash='overview';render()},
   addgroup(e,d){mut(()=>{getC(d.id).assess.push({id:uid(),n:'New group',type:'Assignment',w:0,cnt:1,drop:0,items:[]})})},
   delgroup(e,d){mut(()=>{const c=getC(d.id);c.assess=c.assess.filter(g=>g.id!==d.gid)})},
   additem(e,d){mut(()=>{const g=getC(d.id).assess.find(x=>x.id===d.gid);g.items.push({id:uid(),n:g.n+' '+(g.items.length+1),s:null,m:100,due:'',st:'',late:false})})},
@@ -459,11 +473,8 @@ function migrateMinor(m){
 function upgrade(o){
   const b=blank(),st=Object.assign(b,o,{settings:Object.assign(b.settings,o.settings||{})});
   if(!o.v||o.v<3){
-    /* older saved plans are rebuilt from the current starting plan, keeping any final grades and settings you had entered */
-    const old={};(o.courses||[]).forEach(c=>{const t=(o.terms||[]).find(x=>x.id===c.term);if(c.grade)old[NC(c.code)+'|'+(t?t.name:'')]=c.grade});
-    const ns=seed();ns.courses.forEach(c=>{const t=ns.terms.find(x=>x.id===c.term),g=old[NC(c.code)+'|'+(t?t.name:'')];if(g&&!c.grade)c.grade=g});
-    if(o.settings&&o.settings.targetGpa)ns.settings.targetGpa=o.settings.targetGpa;
-    return ns;
+    st.terms=(o.terms||[]).map(t=>Object.assign({id:uid(),name:'Term',status:'planned'},t));
+    st.courses=(o.courses||[]).map(c=>Object.assign({id:uid(),code:'',title:'',credits:3,term:'',cat:'core',prereqs:[],coreqs:[],grade:null,assess:[],notes:'',instructor:''},c));
   }
   st.courses.forEach(migrateCourse);
   st.minors=(st.minors||[]).map(migrateMinor);
@@ -518,9 +529,8 @@ async function boot(){
       else setSync(okMsg);
     }else setSync(okMsg);
   }else{
-    S=seed();try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
-    if(HOST)HOST.save(JSON.stringify(S)).then(()=>{setSync(okMsg)},()=>setSync(offMsg));
-    else setSync(okMsg);
+    S=blank();
+    setSync(HOST?'Ready to set up':'Saved in this browser');
   }
   routeFromHash();
   render();

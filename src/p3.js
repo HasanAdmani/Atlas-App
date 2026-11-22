@@ -61,16 +61,61 @@ function attention(){
   return out;
 }
 
-function setupPanel(){
-  const y=new Date().getFullYear();
-  return`<div class="card" style="max-width:660px"><h2>Set up your degree</h2><p class="sub" style="margin:0 0 18px">Tell Atlas how long your degree runs and where you are in it. Everything else (courses, grading breakdowns, prerequisites) comes from your syllabi and catalog.</p>
-  <div class="fgrid"><label class="f"><span>Programme</span><input id="su-prog" placeholder="B.S. Electrical Engineering"></label>
-  <label class="f"><span>University</span><input id="su-school" placeholder="Your university"></label>
-  <label class="f"><span>First term</span><div class="row" style="gap:6px;flex-wrap:nowrap"><select id="su-season"><option>Fall</option><option>Spring</option></select><input id="su-year" type="number" value="${y-1}" style="width:86px"></div></label>
-  <label class="f"><span>Terms finished so far</span><input id="su-done" type="number" min="0" max="12" value="2"></label>
-  <label class="f"><span>Terms in the degree</span><input id="su-n" type="number" min="2" max="14" value="8"></label>
-  <label class="f"><span>Credits to graduate</span><input id="su-cr" type="number" value="130"></label></div>
-  <div class="row" style="margin-top:20px"><button class="btn primary" data-a="setup">Create my terms</button><button class="btn" data-a="loadsample">Load the Habib EE grid</button></div></div>`;
+function setupPanel(isGuide){
+  const y=new Date().getFullYear(),ds=getDossiers();
+  const tour=`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:10px"><h2 style="margin:0">Quick Start Tour</h2><span class="pill acc">3 ways to start</span></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px">
+      <div class="stat"><div class="lbl">1 · Curriculum</div><div class="small" style="margin-top:4px">Load a <b>Dossier</b> (EE/CS 2029) or import your <b>Stellic</b> degree audit for any batch.</div></div>
+      <div class="stat"><div class="lbl">2 · Past Grades</div><div class="small" style="margin-top:4px">Paste or send <b>PSCS Course History</b> to auto-create past terms and official grades.</div></div>
+      <div class="stat"><div class="lbl">3 · Current Term</div><div class="small" style="margin-top:4px">Use <b>Sync Canvas</b> to pull live courses, assignment weights, due dates, and scores.</div></div>
+      <div class="stat"><div class="lbl">4 · Plan &amp; Track</div><div class="small" style="margin-top:4px">Explore your <b>4-Year Grid</b>, <b>Prerequisite Roadmap</b>, <b>Minors</b>, and <b>GPA Lab</b>.</div></div>
+    </div>
+  </div>`;
+
+  const pathA=`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path A · Load from a University Dossier</h2><span class="pill">Zero setup</span></div>
+    <p class="sub" style="margin:0 0 12px">Start with an official curriculum grid (no personal data or grades). Pick how many regular semesters you have already finished:</p>
+    <div class="row" style="margin-bottom:14px;gap:10px"><label class="f" style="max-width:220px"><span>Terms finished so far</span><input id="su-d-done" type="number" min="0" max="12" value="0"></label></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
+      ${ds.map(d=>`<div class="card" style="margin:0;padding:14px;background:var(--bg-soft,var(--surface))">
+        <div class="row between" style="margin-bottom:6px"><b>${esc(d.short||d.program)}</b><span class="pill">${esc(d.credits)} cr</span></div>
+        <div class="small muted" style="margin-bottom:10px">${esc(d.school)} · ${esc(d.courses)} courses<br>${esc(d.notes||'')}</div>
+        <button type="button" class="btn primary sm" data-a="loaddossier" data-id="${esc(d.id)}">Load ${esc(d.short||'Dossier')}</button>
+      </div>`).join('')||'<div class="small muted">No bundled dossiers found. Run <code>npm run build:page</code> to bundle <code>dossiers/</code>.</div>'}
+    </div>
+  </div>`;
+
+  const pathB=`<div class="card" style="margin-bottom:16px">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path B · Auto-Build from Portals (Any Batch)</h2><span class="pill acc">Stellic + PSCS + Canvas</span></div>
+    <p class="sub" style="margin:0 0 12px">Works for any graduating batch or major—even if your curriculum changed. Drag the bookmarklet to your Bookmarks bar, open <b>Stellic</b> (Degree Audit), <b>PSCS</b> (Course History), or <b>Canvas</b>, and click it once—or paste the export below.</p>
+    <div class="row" style="margin-bottom:12px;gap:8px;flex-wrap:wrap">
+      <a class="btn primary" href="${esc(bmCode())}" onclick="event.preventDefault();alert('Drag this button onto your Bookmarks bar, then click it while viewing Stellic, PSCS, or Canvas!')">✦ Send to Atlas (Drag to Bookmarks Bar)</a>
+      <a class="btn" href="#canvas">Open Sync &amp; Import →</a>
+    </div>
+    <textarea id="su-portal-text" rows="3" placeholder="Paste a Stellic Degree Audit, PSCS Course History, or Canvas JSON export here…"></textarea>
+    <div class="row" style="margin-top:10px"><button type="button" class="btn primary" data-a="suimport">Import &amp; Build</button><span class="small" style="color:var(--bad)">${esc(U.cvErr||'')}</span></div>
+  </div>`;
+
+  const pathC=`<div class="card">
+    <div class="row between" style="margin-bottom:8px"><h2 style="margin:0">Path C · Build Custom Degree (Any University)</h2><span class="pill">Blank slate</span></div>
+    <p class="sub" style="margin:0 0 16px">Tell Atlas how your degree runs, pick a grading scale, and add courses manually or from syllabi.</p>
+    <div class="fgrid">
+      <label class="f"><span>Programme</span><input id="su-prog" placeholder="B.S. Electrical Engineering"></label>
+      <label class="f"><span>University</span><input id="su-school" placeholder="Your university"></label>
+      <label class="f"><span>Grading scale</span><select id="su-scale"><option value="habib">Habib University (A+ 95, A 90, …)</option><option value="us">Standard US 4.0 (A 93, A- 90, …)</option></select></label>
+      <label class="f"><span>First term</span><div class="row" style="gap:6px;flex-wrap:nowrap"><select id="su-season"><option>Fall</option><option>Spring</option></select><input id="su-year" type="number" value="${y-1}" style="width:86px"></div></label>
+      <label class="f"><span>Terms finished so far</span><input id="su-done" type="number" min="0" max="12" value="0"></label>
+      <label class="f"><span>Terms in the degree</span><input id="su-n" type="number" min="2" max="14" value="8"></label>
+      <label class="f"><span>Credits to graduate</span><input id="su-cr" type="number" value="134"></label>
+    </div>
+    <div class="row" style="margin-top:18px"><button type="button" class="btn primary" data-a="setup">Create my terms</button>${isGuide&&S.terms.length?`<a class="btn" href="#overview">Back to Overview</a>`:''}</div>
+  </div>`;
+
+  return tour+pathA+pathB+pathC;
+}
+function vSetup(){
+  return head('Setup Guide','Start from a university dossier, auto-build from Stellic/PSCS/Canvas, or configure a custom degree.')+setupPanel(true);
 }
 
 /* ---------- views & customizable widgets ---------- */
