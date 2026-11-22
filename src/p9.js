@@ -1,6 +1,6 @@
 
 /* ---------- desktop & web server host bridge ---------- */
-const DESKTOP_HOST=window.atlasHost||null;
+const DESKTOP_HOST=window.atlasHost?Object.assign({},window.atlasHost):null;
 const IS_WEB=!DESKTOP_HOST&&typeof location!=='undefined'&&/^https?:$/i.test(location.protocol);
 const WEB_BASE=(()=>{
   if(!IS_WEB)return'';
